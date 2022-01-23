@@ -260,3 +260,13 @@ example {a : ℕ}
 -- Let `n` and `m` be natural numbers. We say that `n` is
 -- _greater than or equal to_ `m`, and write `n ≥ m` or `m ≤ n`, iff we have
 -- `n ≃ m + a` for some natural number `a`.
+example : ℕ → ℕ → Prop := @GE.ge ℕ Natural.OrderBase.leOp
+example {n m : ℕ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := by
+  apply Iff.intro
+  · intro (_ : m ≤ n)
+    show ∃ a, n ≃ m + a
+    have ⟨a, (_ : m + a ≃ n)⟩ := Natural.OrderBase.le_defn.mp ‹m ≤ n›
+    exact ⟨a, Eqv.symm ‹m + a ≃ n›⟩
+  · intro ⟨a, (_ : n ≃ m + a)⟩
+    show m ≤ n
+    exact Natural.OrderBase.le_defn.mpr ⟨a, Eqv.symm ‹n ≃ m + a›⟩
