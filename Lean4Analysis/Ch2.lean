@@ -270,3 +270,31 @@ example {n m : ℕ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := by
   · intro ⟨a, (_ : n ≃ m + a)⟩
     show m ≤ n
     exact Natural.OrderBase.le_defn.mpr ⟨a, Eqv.symm ‹n ≃ m + a›⟩
+
+-- We say that `n` is _strictly greater than_ `m`, and write `n > m` or
+-- `m < n`, iff `n ≥ m` and `n ≄ m`.
+example : ℕ → ℕ → Prop := @GT.gt ℕ Natural.OrderBase.ltOp
+example {n m : ℕ} : n > m ↔ n ≥ m ∧ n ≄ m := by
+  apply Iff.intro
+  · intro (_ : n > m)
+    show n ≥ m ∧ n ≄ m
+    have ⟨(_ : m ≤ n), (_ : m ≄ n)⟩ := Natural.OrderBase.lt_defn.mp ‹m < n›
+    exact ⟨‹n ≥ m›, Eqv.symm ‹m ≄ n›⟩
+  · intro ⟨(_ : n ≥ m), (_ : n ≄ m)⟩
+    show n > m
+    have : m < n := Natural.OrderBase.lt_defn.mpr ⟨‹m ≤ n›, Eqv.symm ‹n ≄ m›⟩
+    exact ‹n > m›
+
+-- Thus for instance `8 > 5`, because `8 ≃ 5 + 3` and `8 ≄ 5`.
+example : 8 > (5 : Nat) := by
+  show 5 < (8 : Nat)
+  apply Natural.OrderBase.lt_defn.mpr
+  apply And.intro
+  · show 5 ≤ (8 : Nat)
+    apply Natural.OrderBase.le_defn.mpr
+    exists (3 : Nat)
+    apply of_decide_eq_true (s := 5 + (3 : Nat) ≃? 8)
+    rfl
+  · show 5 ≄ (8 : Nat)
+    apply of_decide_eq_false (s := 5 ≃? (8 : Nat))
+    rfl
