@@ -7,15 +7,12 @@ open Natural
   (Addition AdditionBase AdditionProperties Axioms Equality Positive step)
 open Operators (TildeDash)
 
-variable {ℕ : Type}
-variable [Natural.Decl ℕ]
-
 /-= Chapter 2: Starting at the beginning: the natural numbers =-/
 
 /- 2.1 The Peano axioms -/
 
 -- We call `ℕ` the _set of natural numbers_.
-example : Type := ℕ
+abbrev ℕ : Type := Nat
 
 -- Axiom 2.1.
 -- `0` is a natural number.
@@ -31,23 +28,22 @@ example : ℕ := step (step 0)
 
 -- Definition 2.1.3.
 -- We define `1` to be the number `step 0`,
--- TODO: Can the `OfNat Nat` instance from the standard library be hidden?
-example : 1 ≃ step (0 : ℕ) := Eqv.refl
+example : 1 ≃ step 0 := Eqv.refl
 
 -- `2` to be the number `step (step 0)`,
-example : 2 ≃ step (step (0 : ℕ)) := Eqv.refl
+example : 2 ≃ step (step 0) := Eqv.refl
 
 -- `3` to be the number `step (step (step 0))`,
-example : 3 ≃ step (step (step (0 : ℕ))) := Eqv.refl
+example : 3 ≃ step (step (step 0)) := Eqv.refl
 
 -- etc.
 -- [We can convert any natural number literal (`Nat`) into `ℕ`]
 example (n : Nat) : ℕ := OfNat.ofNat n (self := Natural.instOfNat)
 
 -- (In other words, `1 := step 0`, `2 := step 1`, `3 := step 2`, etc.)
-example : 1 ≃ step (0 : ℕ) := Eqv.refl
-example : 2 ≃ step (1 : ℕ) := Eqv.refl
-example : 3 ≃ step (2 : ℕ) := Eqv.refl
+example : 1 ≃ step 0 := Eqv.refl
+example : 2 ≃ step 1 := Eqv.refl
+example : 3 ≃ step 2 := Eqv.refl
 
 -- Proposition 2.1.4.
 -- `3` is a natural number.
@@ -61,7 +57,7 @@ example {n : ℕ} : step n ≄ 0 := Axioms.step_neq_zero
 
 -- Proposition 2.1.6.
 -- `4` is not equal to `0`.
-example : 4 ≄ (0 : ℕ) := Axioms.step_neq_zero
+example : 4 ≄ 0 := Axioms.step_neq_zero (ℕ := ℕ)
 
 -- Axiom 2.4.
 -- Different natural numbers must have different successors; i.e., if `n`, `m`
@@ -71,10 +67,10 @@ example {n m : ℕ} : step n ≃ step m → n ≃ m := Axioms.step_injective
 
 -- Proposition 2.1.8.
 -- `6` is not equal to `2`.
-example : 6 ≄ (2 : ℕ) := by
-  intro (_ : 6 ≃ (2 : ℕ))
+example : 6 ≄ 2 := by
+  intro (_ : 6 ≃ 2)
   show False
-  have : step 5 ≃ step 1 := ‹6 ≃ (2 : ℕ)›
+  have : step 5 ≃ step 1 := ‹6 ≃ 2›
   have : 5 ≃ 1           := Axioms.step_injective this
   have : step 4 ≃ step 0 := this
   have : 4 ≃ 0           := Axioms.step_injective this
@@ -119,7 +115,7 @@ example {m : ℕ} : 0 + m ≃ m := AdditionBase.zero_add
 theorem one_plus_m {m : ℕ} : 1 + m ≃ step m := by
   calc
     _ ≃ 1 + m        := Eqv.refl
-    _ ≃ step 0 + m   := Eqv.refl
+    _ ≃ step 0 + m   := AA.substL Eqv.refl
     _ ≃ step (0 + m) := AdditionBase.step_add
     _ ≃ step m       := AA.subst AdditionBase.zero_add
 
@@ -127,60 +123,49 @@ theorem one_plus_m {m : ℕ} : 1 + m ≃ step m := by
 example {m : ℕ} : 2 + m ≃ step (step m) := by
   calc
     _ ≃ 2 + m         := Eqv.refl
-    _ ≃ step 1 + m    := Eqv.refl
+    _ ≃ step 1 + m    := AA.substL Eqv.refl
     _ ≃ step (1 + m)  := AdditionBase.step_add
     _ ≃ step (step m) := AA.subst one_plus_m
 
 -- and so forth; for instance we have `2 + 3 ≃ step (step 3) ≃ step 4 ≃ 5`.
-example : 2 + 3 ≃ (5 : ℕ) := by
+example : 2 + 3 ≃ 5 := by
   calc
-    _ ≃ 2 + (3 : ℕ)         := Eqv.refl
-    _ ≃ step 1 + 3          := Eqv.refl
+    _ ≃ 2 + 3               := Eqv.refl
+    _ ≃ step 1 + 3          := AA.substL (α := ℕ) Eqv.refl
     _ ≃ step (1 + 3)        := AdditionBase.step_add
-    _ ≃ step (step 0 + 3)   := Eqv.refl
+    _ ≃ step (step 0 + 3)   := AA.subst (AA.substL Eqv.refl)
     _ ≃ step (step (0 + 3)) := AA.subst AdditionBase.step_add
-    -- TODO: Fix this `rβ` parameter
-    _ ≃ step (step 3)       := AA.subst (AA.subst (rβ := (· ≃ ·)) AdditionBase.zero_add)
+    _ ≃ step (step 3)       := AA.subst (AA.subst AdditionBase.zero_add)
     _ ≃ step 4              := Eqv.refl
     _ ≃ 5                   := Eqv.refl
 
 -- Note that this definition is asymmetric: `3 + 5` is incrementing `5` three
 -- times, while `5 + 3` is incrementing `3` five times. Of course, they both
 -- yield the same value of `8`.
-example : 3 + (5 : ℕ) ≃ 8 := by
+example : 3 + 5 ≃ 8 := by
+  let zero_add : {m : ℕ} → 0 + m ≃ m := AdditionBase.zero_add
+  let step_add : {n m : ℕ} → step n + m ≃ step (n + m) := AdditionBase.step_add
   calc
-    _ ≃ 3 + (5 : ℕ)
-      := Eqv.refl
-    _ ≃ step (2 + 5)
-      := AdditionBase.step_add
-    _ ≃ step (step (1 + 5))
-      := AA.subst AdditionBase.step_add
-    _ ≃ step (step (step (0 + 5)))
-      := AA.subst (AA.subst (rβ := (· ≃ ·)) AdditionBase.step_add)
-    _ ≃ step (step (step 5))
-      := AA.subst (AA.subst (rβ := (· ≃ ·)) (AA.subst (rβ := (· ≃ ·)) AdditionBase.zero_add))
-    _ ≃ 8
-      := Eqv.refl
+    _ ≃ 3 + 5                      := Eqv.refl
+    _ ≃ step (2 + 5)               := step_add
+    _ ≃ step (step (1 + 5))        := AA.subst step_add
+    _ ≃ step (step (step (0 + 5))) := AA.subst (AA.subst step_add)
+    _ ≃ step (step (step 5))       := AA.subst (AA.subst (AA.subst zero_add))
+    _ ≃ 8                          := Eqv.refl
 
-example : 5 + (3 : ℕ) ≃ 8 := by
+example : 5 + 3 ≃ 8 := by
+  let ss {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ := AA.subst
+  let za : {m : ℕ} → 0 + m ≃ m := AdditionBase.zero_add
+  let sa : {n m : ℕ} → step n + m ≃ step (n + m) := AdditionBase.step_add
   calc
-    _ ≃ 5 + (3 : ℕ)
-      := Eqv.refl
-    _ ≃ step (4 + 3)
-      := AdditionBase.step_add
-    _ ≃ step (step (3 + 3))
-      := AA.subst (AdditionBase.step_add)
-    _ ≃ step (step (step (2 + 3)))
-      := AA.subst (AA.subst (rβ := (· ≃ ·)) AdditionBase.step_add)
-    _ ≃ step (step (step (step (1 + 3))))
-      := AA.subst (AA.subst (rβ := (· ≃ ·)) (AA.subst (rβ := (· ≃ ·)) AdditionBase.step_add))
-    _ ≃ step (step (step (step (step (0 + 3)))))
-      := AA.subst (AA.subst (rβ := (· ≃ ·)) (AA.subst (rβ := (· ≃ ·)) (AA.subst (rβ := (· ≃ ·)) (AdditionBase.step_add))))
-    _ ≃ step (step (step (step (step 3))))
-      := AA.subst 
-          (AA.subst (rβ := (· ≃ ·)) (AA.subst (rβ := (· ≃ ·)) (AA.subst (rβ := (· ≃ ·)) (AA.subst (rβ := (· ≃ ·)) AdditionBase.zero_add))))
-    _ ≃ 8
-      := Eqv.refl
+    _ ≃ 5 + 3                                    := Eqv.refl
+    _ ≃ step (4 + 3)                             := sa
+    _ ≃ step (step (3 + 3))                      := ss sa
+    _ ≃ step (step (step (2 + 3)))               := ss (ss sa)
+    _ ≃ step (step (step (step (1 + 3))))        := ss (ss (ss sa))
+    _ ≃ step (step (step (step (step (0 + 3))))) := ss (ss (ss (ss sa)))
+    _ ≃ step (step (step (step (step 3))))       := ss (ss (ss (ss (ss za))))
+    _ ≃ 8                                        := Eqv.refl
 
 -- Lemma 2.2.2.
 -- For any natural number `n`, `n + 0 ≃ n`.
@@ -238,10 +223,10 @@ example {a : ℕ}
       Positive a → ∃ b : ℕ, step b ≃ a ∧ ∀ b' : ℕ, step b' ≃ a → b ≃ b')
     a
   case zero =>
-    intro (_ : Positive (0 : ℕ))
+    intro (_ : Positive 0)
     apply False.elim
     show False
-    have : 0 ≄ 0 := Natural.SignBase.positive_defn.mp ‹Positive (0 : ℕ)›
+    have : 0 ≄ 0 := Natural.SignBase.positive_defn.mp ‹Positive 0›
     exact this Eqv.refl
   case step =>
     intro a (_ : Positive (step a))
@@ -286,15 +271,15 @@ example {n m : ℕ} : n > m ↔ n ≥ m ∧ n ≄ m := by
     exact ‹n > m›
 
 -- Thus for instance `8 > 5`, because `8 ≃ 5 + 3` and `8 ≄ 5`.
-example : 8 > (5 : Nat) := by
-  show 5 < (8 : Nat)
+example : 8 > 5 := by
+  show 5 < 8
   apply Natural.OrderBase.lt_defn.mpr
   apply And.intro
-  · show 5 ≤ (8 : Nat)
+  · show 5 ≤ 8
     apply Natural.OrderBase.le_defn.mpr
-    exists (3 : Nat)
-    apply of_decide_eq_true (s := 5 + (3 : Nat) ≃? 8)
+    exists (3 : ℕ)
+    apply of_decide_eq_true (s := 5 + 3 ≃? 8)
     rfl
-  · show 5 ≄ (8 : Nat)
-    apply of_decide_eq_false (s := 5 ≃? (8 : Nat))
+  · show 5 ≄ 8
+    apply of_decide_eq_false (s := 5 ≃? 8)
     rfl
