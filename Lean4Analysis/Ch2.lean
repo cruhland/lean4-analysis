@@ -184,6 +184,7 @@ example {n : ℕ} : step n ≃ n + 1 :=
 -- For any natural numbers `n` and `m`, `n + m ≃ m + n`.
 example {n m : ℕ} : n + m ≃ m + n := Natural.Derived.add_comm
 
+-- Exercise 2.2.1.
 -- Proposition 2.2.5 (Addition is associative).
 -- For any natural numbers `a`, `b`, `c`, we have `(a + b) + c ≃ a + (b + c)`.
 example {a b c : ℕ} : (a + b) + c ≃ a + (b + c) := Natural.Derived.add_assoc
@@ -282,3 +283,12 @@ example : 8 > 5 := by
 
 -- Also note that `step n > n` for any `n`
 example {n : ℕ} : step n > n := Natural.Derived.lt_step
+
+-- Exercise 2.2.3.
+-- Proposition 2.2.12 (Basic properties of order for natural numbers).
+-- Let `a`, `b`, `c` be natural numbers. Then
+-- (a) (Order is reflexive) `a ≥ a`.
+example {a : ℕ} : a ≥ a := Natural.Derived.le_refl
+
+-- (b) (Order is transitive) If `a ≥ b` and `b ≥ c`, then `a ≥ c`.
+example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c := flip Natural.Derived.le_trans
