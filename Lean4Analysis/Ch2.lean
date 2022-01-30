@@ -177,12 +177,8 @@ example {n m : ℕ} : n + step m ≃ step (n + m) := Natural.Derived.add_step
 
 -- As a particular corollary of Lemma 2.2.2 and Lemma 2.2.3 we see that
 -- `step n ≃ n + 1`.
-example {n : ℕ} : step n ≃ n + 1 := by
-  calc
-    _ ≃ step n       := Eqv.refl
-    _ ≃ step (n + 0) := AA.subst (Eqv.symm AdditionProperties.add_zero)
-    _ ≃ n + step 0   := Eqv.symm AdditionProperties.add_step
-    _ ≃ n + 1        := Eqv.refl
+example {n : ℕ} : step n ≃ n + 1 :=
+  Eqv.symm (Natural.Derived.add_one_step (ℕ := ℕ))
 
 -- Proposition 2.2.4 (Addition is commutative).
 -- For any natural numbers `n` and `m`, `n + m ≃ m + n`.
@@ -283,3 +279,6 @@ example : 8 > 5 := by
   · show 5 ≄ 8
     apply of_decide_eq_false (s := 5 ≃? 8)
     rfl
+
+-- Also note that `step n > n` for any `n`
+example {n : ℕ} : step n > n := Natural.Derived.lt_step
