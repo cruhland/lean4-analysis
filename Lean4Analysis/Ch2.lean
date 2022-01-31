@@ -292,3 +292,6 @@ example {a : ℕ} : a ≥ a := Natural.Derived.le_refl
 
 -- (b) (Order is transitive) If `a ≥ b` and `b ≥ c`, then `a ≥ c`.
 example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c := flip Natural.Derived.le_trans
+
+-- (c) (Order is anti-symmetric) If `a ≥ b` and `b ≥ a`, then `a ≃ b`.
+example {a b : ℕ} : a ≥ b → b ≥ a → a ≃ b := flip Natural.Derived.le_antisymm

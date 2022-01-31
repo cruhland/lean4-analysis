@@ -12,7 +12,7 @@ package «lean4-analysis» {
       -- src := Source.path (FilePath.mk ".." / "lean4-axiomatic")
       src := Source.git
         "https://github.com/cruhland/lean4-axiomatic.git"
-        "4201fd951eda66ef66e65c4027bfaac9d7a46022"
+        "b18f7fa933ea6a52c10fcb0f75f2c95a749b7b0a"
     }
   ]
 }
