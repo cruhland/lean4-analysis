@@ -215,28 +215,19 @@ example {a b : ℕ} : a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0 := Natural.Derived.zer
 -- `b` such that `step b ≃ a`.
 example {a : ℕ}
     : Positive a → ∃ b : ℕ, step b ≃ a ∧ ∀ b' : ℕ, step b' ≃ a → b ≃ b' := by
-  apply Natural.Derived.casesOn
-    (motive := λ a =>
-      Positive a → ∃ b : ℕ, step b ≃ a ∧ ∀ b' : ℕ, step b' ≃ a → b ≃ b')
-    a
-  case zero =>
-    intro (_ : Positive 0)
-    apply False.elim
-    show False
-    have : 0 ≄ 0 := Natural.SignBase.positive_defn.mp ‹Positive 0›
-    exact this Eqv.refl
-  case step =>
-    intro a (_ : Positive (step a))
-    show ∃ b : ℕ, step b ≃ step a ∧ ∀ b' : ℕ, step b' ≃ step a → b ≃ b'
-    exists a
-    apply And.intro
-    · show step a ≃ step a
-      exact Eqv.refl
-    · intro b' (_ : step b' ≃ step a)
-      show a ≃ b'
-      apply Axioms.step_injective
-      show step a ≃ step b'
-      exact Eqv.symm ‹step b' ≃ step a›
+  intro (_ : Positive a)
+  show ∃ b, step b ≃ a ∧ ∀ b', step b' ≃ a → b ≃ b'
+  have ⟨b, (_ : step b ≃ a)⟩ := Natural.Derived.positive_step ‹Positive a›
+  exists b
+  apply And.intro ‹step b ≃ a›
+  intro b' (_ : step b' ≃ a)
+  show b ≃ b'
+  apply Axioms.step_injective
+  show step b ≃ step b'
+  calc
+    _ ≃ step b  := Eqv.refl
+    _ ≃ a       := ‹step b ≃ a›
+    _ ≃ step b' := Eqv.symm ‹step b' ≃ a›
 
 -- Definition 2.2.11 (Ordering of the natural numbers).
 -- Let `n` and `m` be natural numbers. We say that `n` is
@@ -305,3 +296,6 @@ example {a b c : ℕ} : a ≥ b ↔ a + c ≥ b + c := by
   · intro (_ : b + c ≤ a + c)
     show b ≤ a
     exact AA.cancelR ‹b + c ≤ a + c›
+
+-- (e) `a < b` if and only if `step a ≤ b`.
+example {a b : ℕ} : a < b ↔ step a ≤ b := Natural.Derived.lt_step_le
