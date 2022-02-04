@@ -295,3 +295,13 @@ example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c := flip Natural.Derived.
 
 -- (c) (Order is anti-symmetric) If `a ≥ b` and `b ≥ a`, then `a ≃ b`.
 example {a b : ℕ} : a ≥ b → b ≥ a → a ≃ b := flip Natural.Derived.le_antisymm
+
+-- (d) (Addition preserves order) `a ≥ b` if and only if `a + c ≥ b + c`.
+example {a b c : ℕ} : a ≥ b ↔ a + c ≥ b + c := by
+  apply Iff.intro
+  · intro (_ : b ≤ a)
+    show b + c ≤ a + c
+    exact AA.substL ‹b ≤ a›
+  · intro (_ : b + c ≤ a + c)
+    show b ≤ a
+    exact AA.cancelR ‹b + c ≤ a + c›
