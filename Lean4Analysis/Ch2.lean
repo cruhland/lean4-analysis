@@ -299,3 +299,38 @@ example {a b c : ℕ} : a ≥ b ↔ a + c ≥ b + c := by
 
 -- (e) `a < b` if and only if `step a ≤ b`.
 example {a b : ℕ} : a < b ↔ step a ≤ b := Natural.Derived.lt_step_le
+
+-- (f) `a < b` if and only if `b ≃ a + d` for some _positive_ number `d`.
+example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
+  apply Iff.intro
+  · intro (_ : a < b)
+    show ∃ d, Positive d ∧ b ≃ a + d
+    have : step a ≤ b := Natural.Derived.lt_step_le.mp ‹a < b›
+    have ⟨d, (_ : step a + d ≃ b)⟩ := Natural.OrderBase.le_defn.mp ‹step a ≤ b›
+    exists step d
+    apply And.intro
+    · show Positive (step d)
+      apply Natural.SignBase.positive_defn.mpr
+      show step d ≄ 0
+      exact Axioms.step_neq_zero
+    · show b ≃ a + step d
+      calc
+        _ ≃ b            := Eqv.refl
+        _ ≃ step a + d   := Eqv.symm ‹step a + d ≃ b›
+        _ ≃ step (a + d) := Natural.AdditionBase.step_add
+        _ ≃ a + step d   := Eqv.symm Natural.Derived.add_step
+  · intro ⟨d, (_ : Positive d), (_ : b ≃ a + d)⟩
+    show a < b
+    apply Natural.Derived.lt_step_le.mpr
+    show step a ≤ b
+    apply Natural.OrderBase.le_defn.mpr
+    show ∃ k, step a + k ≃ b
+    have ⟨d', (_ : step d' ≃ d)⟩ := Natural.Derived.positive_step ‹Positive d›
+    exists d'
+    show step a + d' ≃ b
+    calc
+      _ ≃ step a + d'   := Eqv.refl
+      _ ≃ step (a + d') := Natural.AdditionBase.step_add
+      _ ≃ a + step d'   := Eqv.symm Natural.Derived.add_step
+      _ ≃ a + d         := AA.substR ‹step d' ≃ d›
+      _ ≃ b             := Eqv.symm ‹b ≃ a + d›
