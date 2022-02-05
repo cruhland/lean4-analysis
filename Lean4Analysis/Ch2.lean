@@ -334,3 +334,10 @@ example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
       _ ≃ a + step d'   := Eqv.symm Natural.Derived.add_step
       _ ≃ a + d         := AA.substR ‹step d' ≃ d›
       _ ≃ b             := Eqv.symm ‹b ≃ a + d›
+
+-- Exercise 2.2.4.
+-- Proposition 2.2.13 (Trichotomy of order for natural numbers).
+-- Let `a` and `b` be natural numbers. Then exactly one of the following
+-- statements is true: `a < b`, `a ≃ b`, or `a > b`.
+example {a b : ℕ} : AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b) :=
+  Natural.Derived.trichotomy
