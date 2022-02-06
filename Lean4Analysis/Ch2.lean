@@ -379,3 +379,32 @@ example
       show P k
       have : k < m := AA.substR (rβ := (· → ·)) ‹m' ≃ m› ‹k < m'›
       exact ih k ‹m₀ ≤ k› ‹k < m›
+
+-- Exercise 2.2.6.
+-- Let `n` be a natural number, and let `P m` be a property pertaining to the
+-- natural numbers such that whenever `P (step m)` is true, then `P m` is true.
+-- Suppose that `P n` is also true. Prove that `P m` is true for all natural
+-- numbers `m ≤ n`; this is known as the _principle of backwards induction_.
+example {P : ℕ → Prop} [AA.Substitutive P (· ≃ ·) (· → ·)] {n : ℕ}
+    : (∀ m, P (step m) → P m) → P n → ∀ m, m ≤ n → P m := by
+  intro (_ : ∀ m, P (step m) → P m)
+  apply Natural.Derived.recOn (motive := λ n => P n → ∀ m, m ≤ n → P m) n
+  case zero =>
+    intro (_ : P 0) m (_ : m ≤ 0)
+    show P m
+    match Natural.Derived.le_split ‹m ≤ 0› with
+    | Or.inl (_ : m < 0) =>
+      exact absurd ‹m < 0› Natural.Derived.lt_zero
+    | Or.inr (_ : m ≃ 0) =>
+      exact AA.subst (rβ := (· → ·)) (Eqv.symm ‹m ≃ 0›) ‹P 0›
+  case step =>
+    intro n (ih : P n → ∀ m, m ≤ n → P m) (_ : P (step n)) m (_ : m ≤ step n)
+    show P m
+    match Natural.Derived.le_split ‹m ≤ step n› with
+    | Or.inl (_ : m < step n) =>
+      have : step m ≤ step n := Natural.Derived.lt_step_le.mp ‹m < step n›
+      have : m ≤ n := AA.inject ‹step m ≤ step n›
+      have : P n := ‹∀ m, P (step m) → P m› n ‹P (step n)›
+      exact ih ‹P n› m ‹m ≤ n›
+    | Or.inr (_ : m ≃ step n) =>
+      exact AA.subst (rβ := (· → ·)) (Eqv.symm ‹m ≃ step n›) ‹P (step n)›
