@@ -63,7 +63,8 @@ example : 4 ≄ 0 := Axioms.step_neq_zero (ℕ := ℕ)
 -- Different natural numbers must have different successors; i.e., if `n`, `m`
 -- are natural numbers and `n ≄ m`, then `step n ≄ step m`. Equivalently, if
 -- `step n ≃ step m`, then we must have `n ≃ m`.
-example {n m : ℕ} : step n ≃ step m → n ≃ m := Axioms.step_injective
+example {n m : ℕ} : step n ≃ step m → n ≃ m :=
+  AA.inject (self := Axioms.step_injective)
 
 -- Proposition 2.1.8.
 -- `6` is not equal to `2`.
@@ -71,9 +72,9 @@ example : 6 ≄ 2 := by
   intro (_ : 6 ≃ 2)
   show False
   have : step 5 ≃ step 1 := ‹6 ≃ 2›
-  have : 5 ≃ 1           := Axioms.step_injective this
+  have : 5 ≃ 1           := AA.inject this
   have : step 4 ≃ step 0 := this
-  have : 4 ≃ 0           := Axioms.step_injective this
+  have : 4 ≃ 0           := AA.inject this
   have : step 3 ≃ 0      := this
   have : False           := Axioms.step_neq_zero this
   exact this
@@ -222,7 +223,7 @@ example {a : ℕ}
   apply And.intro ‹step b ≃ a›
   intro b' (_ : step b' ≃ a)
   show b ≃ b'
-  apply Axioms.step_injective
+  apply AA.inject (β := ℕ) (f := step) (rβ := (· ≃ ·))
   show step b ≃ step b'
   calc
     _ ≃ step b  := Eqv.refl
@@ -341,3 +342,40 @@ example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
 -- statements is true: `a < b`, `a ≃ b`, or `a > b`.
 example {a b : ℕ} : AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b) :=
   Natural.Derived.trichotomy
+
+-- Exercise 2.2.5.
+-- Proposition 2.2.14 (Strong principle of induction).
+-- Let `m₀` be a natural number, and let `P m` be a property pertaining to an
+-- arbitrary natural number `m`. Suppose that for each `m ≥ m₀`, we have the
+-- following implication: if `P m'` is true for all natural numbers
+-- `m₀ ≤ m' < m`, then `P m` is also true. (In particular, this means that
+-- `P m₀` is true, since in this case the hypothesis is vacuous.) Then we can
+-- conclude that `P m` is true for all natural numbers `m ≥ m₀`.
+example
+    {P : ℕ → Prop} {m₀ : ℕ}
+    : (∀ m, m ≥ m₀ → (∀ m', m₀ ≤ m' → m' < m → P m') → P m) →
+    ∀ m, m ≥ m₀ → P m := by
+  intro (h : ∀ m, m₀ ≤ m → (∀ m', m₀ ≤ m' → m' < m → P m') → P m)
+  intro m (_ : m₀ ≤ m)
+  show P m
+  apply h m ‹m₀ ≤ m›
+  show ∀ m', m₀ ≤ m' → m' < m → P m'
+  let motive := λ m => ∀ m', m₀ ≤ m' → m' < m → P m'
+  apply Natural.Derived.recOn (motive := motive) m
+  case zero =>
+    intro m' (_ : m₀ ≤ m') (_ : m' < 0)
+    show P m'
+    exact absurd ‹m' < 0› Natural.Derived.lt_zero
+  case step =>
+    intro m (ih : ∀ m', m₀ ≤ m' → m' < m → P m')
+    intro m' (_ : m₀ ≤ m') (_ : m' < step m)
+    show P m'
+    match Natural.Derived.lt_split ‹m' < step m› with
+    | Or.inl (_ : m' < m) =>
+      exact ih m' ‹m₀ ≤ m'› ‹m' < m›
+    | Or.inr (_ : m' ≃ m) =>
+      apply h m' ‹m₀ ≤ m'›
+      intro k (_ : m₀ ≤ k) (_ : k < m')
+      show P k
+      have : k < m := AA.substR (rβ := (· → ·)) ‹m' ≃ m› ‹k < m'›
+      exact ih k ‹m₀ ≤ k› ‹k < m›
