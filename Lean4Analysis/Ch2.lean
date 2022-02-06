@@ -1,6 +1,7 @@
 import Lean4Axiomatic.AbstractAlgebra
 import Lean4Axiomatic.Eqv
 import Lean4Axiomatic.Natural
+import Lean4Axiomatic.Natural.Impl.Nat
 import Lean4Axiomatic.Operators
 
 open Natural
