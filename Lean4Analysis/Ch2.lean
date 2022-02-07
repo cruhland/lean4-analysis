@@ -362,7 +362,7 @@ example
   apply h m ‹m₀ ≤ m›
   show ∀ m', m₀ ≤ m' → m' < m → P m'
   let motive := λ m => ∀ m', m₀ ≤ m' → m' < m → P m'
-  apply ℕ.Derived.recOn (motive := motive) m
+  apply ℕ.ind_on (motive := motive) m
   case zero =>
     intro m' (_ : m₀ ≤ m') (_ : m' < 0)
     show P m'
@@ -389,7 +389,7 @@ example
 example {P : ℕ → Prop} [AA.Substitutive P (· ≃ ·) (· → ·)] {n : ℕ}
     : (∀ m, P (step m) → P m) → P n → ∀ m, m ≤ n → P m := by
   intro (_ : ∀ m, P (step m) → P m)
-  apply ℕ.Derived.recOn (motive := λ n => P n → ∀ m, m ≤ n → P m) n
+  apply ℕ.ind_on (motive := λ n => P n → ∀ m, m ≤ n → P m) n
   case zero =>
     intro (_ : P 0) m (_ : m ≤ 0)
     show P m
