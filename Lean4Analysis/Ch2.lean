@@ -203,7 +203,7 @@ example {n : ℕ} : Positive n ↔ n ≄ 0 := ℕ.Sign.Base.positive_defn
 -- Proposition 2.2.8.
 -- If `a` is positive and `b` is a natural number, then `a + b` is positive.
 example {a b : ℕ} : Positive a → Positive (a + b) :=
-  ℕ.Derived.positive_add
+  ℕ.positive_add
 
 -- Corollary 2.2.9.
 -- If `a` and `b` are natural numbers such that `a + b ≃ 0`,
@@ -218,7 +218,7 @@ example {a : ℕ}
     : Positive a → ∃ b : ℕ, step b ≃ a ∧ ∀ b' : ℕ, step b' ≃ a → b ≃ b' := by
   intro (_ : Positive a)
   show ∃ b, step b ≃ a ∧ ∀ b', step b' ≃ a → b ≃ b'
-  have ⟨b, (_ : step b ≃ a)⟩ := ℕ.Derived.positive_step ‹Positive a›
+  have ⟨b, (_ : step b ≃ a)⟩ := ℕ.positive_step ‹Positive a›
   exists b
   apply And.intro ‹step b ≃ a›
   intro b' (_ : step b' ≃ a)
@@ -326,7 +326,7 @@ example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
     show step a ≤ b
     apply ℕ.Order.Base.le_defn.mpr
     show ∃ k, step a + k ≃ b
-    have ⟨d', (_ : step d' ≃ d)⟩ := ℕ.Derived.positive_step ‹Positive d›
+    have ⟨d', (_ : step d' ≃ d)⟩ := ℕ.positive_step ‹Positive d›
     exists d'
     show step a + d' ≃ b
     calc
