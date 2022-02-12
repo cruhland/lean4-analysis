@@ -4,8 +4,7 @@ import Lean4Axiomatic.Natural
 import Lean4Axiomatic.Natural.Impl.Nat
 import Lean4Axiomatic.Operators
 
-open ℕ
-  (Addition AdditionBase AdditionProperties Axioms Equality Positive step)
+open ℕ (Positive step)
 open Operators (TildeDash)
 
 /-= Chapter 2: Starting at the beginning: the natural numbers =-/
@@ -54,18 +53,18 @@ example : ℕ := 3
 -- Axiom 2.3.
 -- `0` is not the successor of any natural number; i.e., we have `step n ≄ 0`
 -- for every natural number `n`.
-example {n : ℕ} : step n ≄ 0 := Axioms.step_neq_zero
+example {n : ℕ} : step n ≄ 0 := ℕ.step_neq_zero
 
 -- Proposition 2.1.6.
 -- `4` is not equal to `0`.
-example : 4 ≄ 0 := Axioms.step_neq_zero (ℕ := ℕ)
+example : 4 ≄ 0 := ℕ.step_neq_zero (ℕ := ℕ)
 
 -- Axiom 2.4.
 -- Different natural numbers must have different successors; i.e., if `n`, `m`
 -- are natural numbers and `n ≄ m`, then `step n ≄ step m`. Equivalently, if
 -- `step n ≃ step m`, then we must have `n ≃ m`.
 example {n m : ℕ} : step n ≃ step m → n ≃ m :=
-  AA.inject (self := Axioms.step_injective)
+  AA.inject (self := ℕ.step_injective)
 
 -- Proposition 2.1.8.
 -- `6` is not equal to `2`.
@@ -77,14 +76,14 @@ example : 6 ≄ 2 := by
   have : step 4 ≃ step 0 := this
   have : 4 ≃ 0           := AA.inject this
   have : step 3 ≃ 0      := this
-  have : False           := Axioms.step_neq_zero this
+  have : False           := ℕ.step_neq_zero this
   exact this
 
 -- Axiom 2.5 (Principle of mathematical induction).
 -- Let `P n` be any property pertaining to a natural number `n`. Suppose that
 -- `P 0` is true, and suppose that whenever `P n` is true, `P (step n)` is also
 -- true. Then `P n` is true for every natural number `n`.
-example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n := Axioms.ind
+example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n := ℕ.ind
 
 -- Proposition 2.1.16 (Recursive definitions).
 -- Suppose for each natural number `n`, we have some function `f n : ℕ → ℕ`
@@ -106,27 +105,27 @@ example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n 
 -- Let `m` be a natural number. To add zero to `m`, we define `0 + m := m`. Now
 -- suppose inductively that we have defined how to add `n` to `m`. Then we can
 -- add `step n` to `m` by defining `step n + m := step (n + m)`.
-example : ℕ → ℕ → ℕ := Add.add (self := AdditionBase.addOp)
-example {m : ℕ} : 0 + m ≃ m := AdditionBase.zero_add
-example {n m : ℕ} : step n + m ≃ step (n + m) := AdditionBase.step_add
+example : ℕ → ℕ → ℕ := Add.add (self := ℕ.addOp)
+example {m : ℕ} : 0 + m ≃ m := ℕ.zero_add
+example {n m : ℕ} : step n + m ≃ step (n + m) := ℕ.step_add
 
 -- Thus `0 + m` is `m`,
-example {m : ℕ} : 0 + m ≃ m := AdditionBase.zero_add
+example {m : ℕ} : 0 + m ≃ m := ℕ.zero_add
 
 -- `1 + m ≃ step 0 + m` is `step m`;
 theorem one_plus_m {m : ℕ} : 1 + m ≃ step m := by
   calc
     _ ≃ 1 + m        := Eqv.refl
     _ ≃ step 0 + m   := AA.substL Eqv.refl
-    _ ≃ step (0 + m) := AdditionBase.step_add
-    _ ≃ step m       := AA.subst AdditionBase.zero_add
+    _ ≃ step (0 + m) := ℕ.step_add
+    _ ≃ step m       := AA.subst ℕ.zero_add
 
 -- `2 + m ≃ step 1 + m ≃ step (step m)`;
 example {m : ℕ} : 2 + m ≃ step (step m) := by
   calc
     _ ≃ 2 + m         := Eqv.refl
     _ ≃ step 1 + m    := AA.substL Eqv.refl
-    _ ≃ step (1 + m)  := AdditionBase.step_add
+    _ ≃ step (1 + m)  := ℕ.step_add
     _ ≃ step (step m) := AA.subst one_plus_m
 
 -- and so forth; for instance we have `2 + 3 ≃ step (step 3) ≃ step 4 ≃ 5`.
@@ -134,10 +133,10 @@ example : 2 + 3 ≃ 5 := by
   calc
     _ ≃ 2 + 3               := Eqv.refl
     _ ≃ step 1 + 3          := AA.substL (α := ℕ) Eqv.refl
-    _ ≃ step (1 + 3)        := AdditionBase.step_add
+    _ ≃ step (1 + 3)        := ℕ.step_add
     _ ≃ step (step 0 + 3)   := AA.subst (AA.substL Eqv.refl)
-    _ ≃ step (step (0 + 3)) := AA.subst AdditionBase.step_add
-    _ ≃ step (step 3)       := AA.subst (AA.subst AdditionBase.zero_add)
+    _ ≃ step (step (0 + 3)) := AA.subst ℕ.step_add
+    _ ≃ step (step 3)       := AA.subst (AA.subst ℕ.zero_add)
     _ ≃ step 4              := Eqv.refl
     _ ≃ 5                   := Eqv.refl
 
@@ -145,8 +144,8 @@ example : 2 + 3 ≃ 5 := by
 -- times, while `5 + 3` is incrementing `3` five times. Of course, they both
 -- yield the same value of `8`.
 example : 3 + 5 ≃ 8 := by
-  let zero_add : {m : ℕ} → 0 + m ≃ m := AdditionBase.zero_add
-  let step_add : {n m : ℕ} → step n + m ≃ step (n + m) := AdditionBase.step_add
+  let zero_add : {m : ℕ} → 0 + m ≃ m := ℕ.zero_add
+  let step_add : {n m : ℕ} → step n + m ≃ step (n + m) := ℕ.step_add
   calc
     _ ≃ 3 + 5                      := Eqv.refl
     _ ≃ step (2 + 5)               := step_add
@@ -157,8 +156,8 @@ example : 3 + 5 ≃ 8 := by
 
 example : 5 + 3 ≃ 8 := by
   let ss {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ := AA.subst
-  let za : {m : ℕ} → 0 + m ≃ m := AdditionBase.zero_add
-  let sa : {n m : ℕ} → step n + m ≃ step (n + m) := AdditionBase.step_add
+  let za : {m : ℕ} → 0 + m ≃ m := ℕ.zero_add
+  let sa : {n m : ℕ} → step n + m ≃ step (n + m) := ℕ.step_add
   calc
     _ ≃ 5 + 3                                    := Eqv.refl
     _ ≃ step (4 + 3)                             := sa
@@ -171,35 +170,35 @@ example : 5 + 3 ≃ 8 := by
 
 -- Lemma 2.2.2.
 -- For any natural number `n`, `n + 0 ≃ n`.
-example {n : ℕ} : n + 0 ≃ n := ℕ.Derived.add_zero
+example {n : ℕ} : n + 0 ≃ n := ℕ.add_zero
 
 -- Lemma 2.2.3.
 -- For any natural numbers `n` and `m`, `n + step m ≃ step (n + m)`.
-example {n m : ℕ} : n + step m ≃ step (n + m) := ℕ.Derived.add_step
+example {n m : ℕ} : n + step m ≃ step (n + m) := ℕ.add_step
 
 -- As a particular corollary of Lemma 2.2.2 and Lemma 2.2.3 we see that
 -- `step n ≃ n + 1`.
 example {n : ℕ} : step n ≃ n + 1 :=
-  Eqv.symm (ℕ.Derived.add_one_step (ℕ := ℕ))
+  Eqv.symm (ℕ.add_one_step (ℕ := ℕ))
 
 -- Proposition 2.2.4 (Addition is commutative).
 -- For any natural numbers `n` and `m`, `n + m ≃ m + n`.
-example {n m : ℕ} : n + m ≃ m + n := ℕ.Derived.add_comm
+example {n m : ℕ} : n + m ≃ m + n := ℕ.add_comm
 
 -- Exercise 2.2.1.
 -- Proposition 2.2.5 (Addition is associative).
 -- For any natural numbers `a`, `b`, `c`, we have `(a + b) + c ≃ a + (b + c)`.
-example {a b c : ℕ} : (a + b) + c ≃ a + (b + c) := ℕ.Derived.add_assoc
+example {a b c : ℕ} : (a + b) + c ≃ a + (b + c) := ℕ.add_assoc
 
 -- Proposition 2.2.6 (Cancellation law).
 -- Let `a`, `b`, `c` be natural numbers such that `a + b ≃ a + c`. Then we have
 -- `b ≃ c`.
-example {a b c : ℕ} : a + b ≃ a + c → b ≃ c := ℕ.Derived.cancel_add
+example {a b c : ℕ} : a + b ≃ a + c → b ≃ c := ℕ.cancel_add
 
 -- Definition 2.2.7 (Positive natural numbers).
 -- A natural number `n` is said to be _positive_ iff it is not equal to `0`.
 example : ℕ → Prop := Positive
-example {n : ℕ} : Positive n ↔ n ≄ 0 := ℕ.SignBase.positive_defn
+example {n : ℕ} : Positive n ↔ n ≄ 0 := ℕ.Sign.Base.positive_defn
 
 -- Proposition 2.2.8.
 -- If `a` is positive and `b` is a natural number, then `a + b` is positive.
@@ -209,7 +208,7 @@ example {a b : ℕ} : Positive a → Positive (a + b) :=
 -- Corollary 2.2.9.
 -- If `a` and `b` are natural numbers such that `a + b ≃ 0`,
 -- then `a ≃ 0` and `b ≃ 0`.
-example {a b : ℕ} : a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0 := ℕ.Derived.zero_sum_split
+example {a b : ℕ} : a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0 := ℕ.zero_sum_split
 
 -- Exercise 2.2.2.
 -- Lemma 2.2.10.
@@ -235,38 +234,38 @@ example {a : ℕ}
 -- Let `n` and `m` be natural numbers. We say that `n` is
 -- _greater than or equal to_ `m`, and write `n ≥ m` or `m ≤ n`, iff we have
 -- `n ≃ m + a` for some natural number `a`.
-example : ℕ → ℕ → Prop := @GE.ge ℕ ℕ.OrderBase.leOp
+example : ℕ → ℕ → Prop := @GE.ge ℕ ℕ.Order.Base.leOp
 example {n m : ℕ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := by
   apply Iff.intro
   · intro (_ : m ≤ n)
     show ∃ a, n ≃ m + a
-    have ⟨a, (_ : m + a ≃ n)⟩ := ℕ.OrderBase.le_defn.mp ‹m ≤ n›
+    have ⟨a, (_ : m + a ≃ n)⟩ := ℕ.Order.Base.le_defn.mp ‹m ≤ n›
     exact ⟨a, Eqv.symm ‹m + a ≃ n›⟩
   · intro ⟨a, (_ : n ≃ m + a)⟩
     show m ≤ n
-    exact ℕ.OrderBase.le_defn.mpr ⟨a, Eqv.symm ‹n ≃ m + a›⟩
+    exact ℕ.Order.Base.le_defn.mpr ⟨a, Eqv.symm ‹n ≃ m + a›⟩
 
 -- We say that `n` is _strictly greater than_ `m`, and write `n > m` or
 -- `m < n`, iff `n ≥ m` and `n ≄ m`.
-example : ℕ → ℕ → Prop := @GT.gt ℕ ℕ.OrderBase.ltOp
+example : ℕ → ℕ → Prop := @GT.gt ℕ ℕ.Order.Base.ltOp
 example {n m : ℕ} : n > m ↔ n ≥ m ∧ n ≄ m := by
   apply Iff.intro
   · intro (_ : n > m)
     show n ≥ m ∧ n ≄ m
-    have ⟨(_ : m ≤ n), (_ : m ≄ n)⟩ := ℕ.OrderBase.lt_defn.mp ‹m < n›
+    have ⟨(_ : m ≤ n), (_ : m ≄ n)⟩ := ℕ.Order.Base.lt_defn.mp ‹m < n›
     exact ⟨‹n ≥ m›, Eqv.symm ‹m ≄ n›⟩
   · intro ⟨(_ : n ≥ m), (_ : n ≄ m)⟩
     show n > m
-    have : m < n := ℕ.OrderBase.lt_defn.mpr ⟨‹m ≤ n›, Eqv.symm ‹n ≄ m›⟩
+    have : m < n := ℕ.Order.Base.lt_defn.mpr ⟨‹m ≤ n›, Eqv.symm ‹n ≄ m›⟩
     exact ‹n > m›
 
 -- Thus for instance `8 > 5`, because `8 ≃ 5 + 3` and `8 ≄ 5`.
 example : 8 > 5 := by
   show 5 < 8
-  apply ℕ.OrderBase.lt_defn.mpr
+  apply ℕ.Order.Base.lt_defn.mpr
   apply And.intro
   · show 5 ≤ 8
-    apply ℕ.OrderBase.le_defn.mpr
+    apply ℕ.Order.Base.le_defn.mpr
     exists (3 : ℕ)
     apply of_decide_eq_true (s := 5 + 3 ≃? 8)
     rfl
@@ -308,32 +307,32 @@ example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
   · intro (_ : a < b)
     show ∃ d, Positive d ∧ b ≃ a + d
     have : step a ≤ b := ℕ.Derived.lt_step_le.mp ‹a < b›
-    have ⟨d, (_ : step a + d ≃ b)⟩ := ℕ.OrderBase.le_defn.mp ‹step a ≤ b›
+    have ⟨d, (_ : step a + d ≃ b)⟩ := ℕ.Order.Base.le_defn.mp ‹step a ≤ b›
     exists step d
     apply And.intro
     · show Positive (step d)
-      apply ℕ.SignBase.positive_defn.mpr
+      apply ℕ.Sign.Base.positive_defn.mpr
       show step d ≄ 0
-      exact Axioms.step_neq_zero
+      exact ℕ.step_neq_zero
     · show b ≃ a + step d
       calc
         _ ≃ b            := Eqv.refl
         _ ≃ step a + d   := Eqv.symm ‹step a + d ≃ b›
-        _ ≃ step (a + d) := ℕ.AdditionBase.step_add
-        _ ≃ a + step d   := Eqv.symm ℕ.Derived.add_step
+        _ ≃ step (a + d) := ℕ.step_add
+        _ ≃ a + step d   := Eqv.symm ℕ.add_step
   · intro ⟨d, (_ : Positive d), (_ : b ≃ a + d)⟩
     show a < b
     apply ℕ.Derived.lt_step_le.mpr
     show step a ≤ b
-    apply ℕ.OrderBase.le_defn.mpr
+    apply ℕ.Order.Base.le_defn.mpr
     show ∃ k, step a + k ≃ b
     have ⟨d', (_ : step d' ≃ d)⟩ := ℕ.Derived.positive_step ‹Positive d›
     exists d'
     show step a + d' ≃ b
     calc
       _ ≃ step a + d'   := Eqv.refl
-      _ ≃ step (a + d') := ℕ.AdditionBase.step_add
-      _ ≃ a + step d'   := Eqv.symm ℕ.Derived.add_step
+      _ ≃ step (a + d') := ℕ.step_add
+      _ ≃ a + step d'   := Eqv.symm ℕ.add_step
       _ ≃ a + d         := AA.substR ‹step d' ≃ d›
       _ ≃ b             := Eqv.symm ‹b ≃ a + d›
 
