@@ -274,19 +274,19 @@ example : 8 > 5 := by
     rfl
 
 -- Also note that `step n > n` for any `n`
-example {n : ℕ} : step n > n := ℕ.Derived.lt_step
+example {n : ℕ} : step n > n := ℕ.lt_step
 
 -- Exercise 2.2.3.
 -- Proposition 2.2.12 (Basic properties of order for natural numbers).
 -- Let `a`, `b`, `c` be natural numbers. Then
 -- (a) (Order is reflexive) `a ≥ a`.
-example {a : ℕ} : a ≥ a := ℕ.Derived.le_refl
+example {a : ℕ} : a ≥ a := ℕ.le_refl
 
 -- (b) (Order is transitive) If `a ≥ b` and `b ≥ c`, then `a ≥ c`.
-example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c := flip ℕ.Derived.le_trans
+example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c := flip ℕ.le_trans
 
 -- (c) (Order is anti-symmetric) If `a ≥ b` and `b ≥ a`, then `a ≃ b`.
-example {a b : ℕ} : a ≥ b → b ≥ a → a ≃ b := flip ℕ.Derived.le_antisymm
+example {a b : ℕ} : a ≥ b → b ≥ a → a ≃ b := flip ℕ.le_antisymm
 
 -- (d) (Addition preserves order) `a ≥ b` if and only if `a + c ≥ b + c`.
 example {a b c : ℕ} : a ≥ b ↔ a + c ≥ b + c := by
@@ -299,14 +299,14 @@ example {a b c : ℕ} : a ≥ b ↔ a + c ≥ b + c := by
     exact AA.cancelR ‹b + c ≤ a + c›
 
 -- (e) `a < b` if and only if `step a ≤ b`.
-example {a b : ℕ} : a < b ↔ step a ≤ b := ℕ.Derived.lt_step_le
+example {a b : ℕ} : a < b ↔ step a ≤ b := ℕ.lt_step_le
 
 -- (f) `a < b` if and only if `b ≃ a + d` for some _positive_ number `d`.
 example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
   apply Iff.intro
   · intro (_ : a < b)
     show ∃ d, Positive d ∧ b ≃ a + d
-    have : step a ≤ b := ℕ.Derived.lt_step_le.mp ‹a < b›
+    have : step a ≤ b := ℕ.lt_step_le.mp ‹a < b›
     have ⟨d, (_ : step a + d ≃ b)⟩ := ℕ.Order.Base.le_defn.mp ‹step a ≤ b›
     exists step d
     apply And.intro
@@ -322,7 +322,7 @@ example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
         _ ≃ a + step d   := Eqv.symm ℕ.add_step
   · intro ⟨d, (_ : Positive d), (_ : b ≃ a + d)⟩
     show a < b
-    apply ℕ.Derived.lt_step_le.mpr
+    apply ℕ.lt_step_le.mpr
     show step a ≤ b
     apply ℕ.Order.Base.le_defn.mpr
     show ∃ k, step a + k ≃ b
@@ -341,7 +341,7 @@ example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
 -- Let `a` and `b` be natural numbers. Then exactly one of the following
 -- statements is true: `a < b`, `a ≃ b`, or `a > b`.
 example {a b : ℕ} : AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b) :=
-  ℕ.Derived.trichotomy
+  ℕ.trichotomy
 
 -- Exercise 2.2.5.
 -- Proposition 2.2.14 (Strong principle of induction).
@@ -365,12 +365,12 @@ example
   case zero =>
     intro m' (_ : m₀ ≤ m') (_ : m' < 0)
     show P m'
-    exact absurd ‹m' < 0› ℕ.Derived.lt_zero
+    exact absurd ‹m' < 0› ℕ.lt_zero
   case step =>
     intro m (ih : ∀ m', m₀ ≤ m' → m' < m → P m')
     intro m' (_ : m₀ ≤ m') (_ : m' < step m)
     show P m'
-    match ℕ.Derived.lt_split ‹m' < step m› with
+    match ℕ.lt_split ‹m' < step m› with
     | Or.inl (_ : m' < m) =>
       exact ih m' ‹m₀ ≤ m'› ‹m' < m›
     | Or.inr (_ : m' ≃ m) =>
@@ -392,17 +392,17 @@ example {P : ℕ → Prop} [AA.Substitutive P (· ≃ ·) (· → ·)] {n : ℕ}
   case zero =>
     intro (_ : P 0) m (_ : m ≤ 0)
     show P m
-    match ℕ.Derived.le_split ‹m ≤ 0› with
+    match ℕ.le_split ‹m ≤ 0› with
     | Or.inl (_ : m < 0) =>
-      exact absurd ‹m < 0› ℕ.Derived.lt_zero
+      exact absurd ‹m < 0› ℕ.lt_zero
     | Or.inr (_ : m ≃ 0) =>
       exact AA.subst (rβ := (· → ·)) (Eqv.symm ‹m ≃ 0›) ‹P 0›
   case step =>
     intro n (ih : P n → ∀ m, m ≤ n → P m) (_ : P (step n)) m (_ : m ≤ step n)
     show P m
-    match ℕ.Derived.le_split ‹m ≤ step n› with
+    match ℕ.le_split ‹m ≤ step n› with
     | Or.inl (_ : m < step n) =>
-      have : step m ≤ step n := ℕ.Derived.lt_step_le.mp ‹m < step n›
+      have : step m ≤ step n := ℕ.lt_step_le.mp ‹m < step n›
       have : m ≤ n := AA.inject ‹step m ≤ step n›
       have : P n := ‹∀ m, P (step m) → P m› n ‹P (step n)›
       exact ih ‹P n› m ‹m ≤ n›
