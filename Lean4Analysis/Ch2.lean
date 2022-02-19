@@ -8,6 +8,16 @@ open Lean4Axiomatic
 open Natural (Positive step)
 open Operators (TildeDash)
 
+namespace Impl
+
+export Natural.Default (order_base sign_base)
+export Natural.Derived (
+  addition_derived axioms_derived order_derived sign_derived
+)
+export Natural.Impl.Nat (addition_base axioms_base constructors equality)
+
+end Impl
+
 /-= Chapter 2: Starting at the beginning: the natural numbers =-/
 
 /- 2.1 The Peano axioms -/
@@ -21,11 +31,20 @@ example : ℕ := 0
 
 -- Axiom 2.2.
 -- If `n` is a natural number, then `step n` is also a natural number.
-example {n : ℕ} : ℕ := step n
+example {n : ℕ} : ℕ := step n (self := Impl.constructors)
 
 -- Thus for instance, from Axiom 2.1 and two applications of Axiom 2.2, we see
 -- that `step (step 0)` is a natural number.
 example : ℕ := step (step 0)
+
+-- [values of `ℕ` obey the axioms of equality]
+example : Relation.EqvOp? ℕ :=
+  Natural.eqvOp? (self := Impl.equality)
+
+-- [`step` obeys substitution]
+example {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ :=
+  AA.subst
+    (self := Natural.step_substitutive (self := Impl.axioms_base))
 
 -- Definition 2.1.3.
 -- We define `1` to be the number `step 0`,
@@ -39,7 +58,7 @@ example : 3 ≃ step (step (step 0)) := Eqv.refl
 
 -- etc.
 -- [We can convert any natural number literal (`Nat`) into `ℕ`]
-example (n : Nat) : ℕ := OfNat.ofNat n (self := Natural.instOfNat)
+example (n : Nat) : ℕ := OfNat.ofNat n (self := Natural.ofNat)
 
 -- (In other words, `1 := step 0`, `2 := step 1`, `3 := step 2`, etc.)
 example : 1 ≃ step 0 := Eqv.refl
@@ -54,7 +73,8 @@ example : ℕ := 3
 -- Axiom 2.3.
 -- `0` is not the successor of any natural number; i.e., we have `step n ≄ 0`
 -- for every natural number `n`.
-example {n : ℕ} : step n ≄ 0 := Natural.step_neq_zero
+example {n : ℕ} : step n ≄ 0 :=
+  Natural.step_neq_zero (self := Impl.axioms_base)
 
 -- Proposition 2.1.6.
 -- `4` is not equal to `0`.
@@ -65,7 +85,7 @@ example : 4 ≄ 0 := Natural.step_neq_zero (ℕ := ℕ)
 -- are natural numbers and `n ≄ m`, then `step n ≄ step m`. Equivalently, if
 -- `step n ≃ step m`, then we must have `n ≃ m`.
 example {n m : ℕ} : step n ≃ step m → n ≃ m :=
-  AA.inject (self := Natural.step_injective)
+  AA.inject (self := Natural.step_injective (self := Impl.axioms_base))
 
 -- Proposition 2.1.8.
 -- `6` is not equal to `2`.
@@ -85,7 +105,7 @@ example : 6 ≄ 2 := by
 -- `P 0` is true, and suppose that whenever `P n` is true, `P (step n)` is also
 -- true. Then `P n` is true for every natural number `n`.
 example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n :=
-  Natural.ind
+  Natural.ind (self := Impl.axioms_base)
 
 -- Proposition 2.1.16 (Recursive definitions).
 -- Suppose for each natural number `n`, we have some function `f n : ℕ → ℕ`
@@ -107,9 +127,18 @@ example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n 
 -- Let `m` be a natural number. To add zero to `m`, we define `0 + m := m`. Now
 -- suppose inductively that we have defined how to add `n` to `m`. Then we can
 -- add `step n` to `m` by defining `step n + m := step (n + m)`.
-example : ℕ → ℕ → ℕ := Add.add (self := Natural.addOp)
-example {m : ℕ} : 0 + m ≃ m := Natural.zero_add
-example {n m : ℕ} : step n + m ≃ step (n + m) := Natural.step_add
+example : ℕ → ℕ → ℕ :=
+  Add.add (self := Natural.addOp (self := Impl.addition_base))
+
+example {m : ℕ} : 0 + m ≃ m :=
+  Natural.zero_add (self := Impl.addition_base)
+
+example {n m : ℕ} : step n + m ≃ step (n + m) :=
+  Natural.step_add (self := Impl.addition_base)
+
+-- [Addition obeys left and right substitution]
+example : AA.Substitutive₂ (α := ℕ) (· + ·) (· ≃ ·) (· ≃ ·) :=
+  Natural.add_substitutive (self := Impl.addition_derived)
 
 -- Thus `0 + m` is `m`,
 example {m : ℕ} : 0 + m ≃ m := Natural.zero_add
@@ -172,45 +201,53 @@ example : 5 + 3 ≃ 8 := by
 
 -- Lemma 2.2.2.
 -- For any natural number `n`, `n + 0 ≃ n`.
-example {n : ℕ} : n + 0 ≃ n := Natural.add_zero
+example {n : ℕ} : n + 0 ≃ n :=
+  Natural.add_zero (self := Impl.addition_derived)
 
 -- Lemma 2.2.3.
 -- For any natural numbers `n` and `m`, `n + step m ≃ step (n + m)`.
-example {n m : ℕ} : n + step m ≃ step (n + m) := Natural.add_step
+example {n m : ℕ} : n + step m ≃ step (n + m) :=
+  Natural.add_step (self := Impl.addition_derived)
 
 -- As a particular corollary of Lemma 2.2.2 and Lemma 2.2.3 we see that
 -- `step n ≃ n + 1`.
 example {n : ℕ} : step n ≃ n + 1 :=
-  Eqv.symm (Natural.add_one_step (ℕ := ℕ))
+  Eqv.symm
+    (Natural.add_one_step (ℕ := ℕ) (self := Impl.addition_derived))
 
 -- Proposition 2.2.4 (Addition is commutative).
 -- For any natural numbers `n` and `m`, `n + m ≃ m + n`.
-example {n m : ℕ} : n + m ≃ m + n := Natural.add_comm
+example {n m : ℕ} : n + m ≃ m + n :=
+  AA.comm (self := Natural.add_commutative (self := Impl.addition_derived))
 
 -- Exercise 2.2.1.
 -- Proposition 2.2.5 (Addition is associative).
 -- For any natural numbers `a`, `b`, `c`, we have `(a + b) + c ≃ a + (b + c)`.
-example {a b c : ℕ} : (a + b) + c ≃ a + (b + c) := Natural.add_assoc
+example {a b c : ℕ} : (a + b) + c ≃ a + (b + c) :=
+  Natural.add_assoc (self := Impl.addition_derived)
 
 -- Proposition 2.2.6 (Cancellation law).
 -- Let `a`, `b`, `c` be natural numbers such that `a + b ≃ a + c`. Then we have
 -- `b ≃ c`.
-example {a b c : ℕ} : a + b ≃ a + c → b ≃ c := Natural.cancel_add
+example {a b c : ℕ} : a + b ≃ a + c → b ≃ c :=
+  Natural.cancel_add (self := Impl.addition_derived)
 
 -- Definition 2.2.7 (Positive natural numbers).
 -- A natural number `n` is said to be _positive_ iff it is not equal to `0`.
-example : ℕ → Prop := Positive
-example {n : ℕ} : Positive n ↔ n ≄ 0 := Natural.Sign.Base.positive_defn
+example : ℕ → Prop := Positive (self := Impl.sign_base)
+example {n : ℕ} : Positive n ↔ n ≄ 0 :=
+  Natural.positive_defn (self := Impl.sign_base)
 
 -- Proposition 2.2.8.
 -- If `a` is positive and `b` is a natural number, then `a + b` is positive.
 example {a b : ℕ} : Positive a → Positive (a + b) :=
-  Natural.positive_add
+  Natural.positive_add (self := Impl.sign_derived)
 
 -- Corollary 2.2.9.
 -- If `a` and `b` are natural numbers such that `a + b ≃ 0`,
 -- then `a ≃ 0` and `b ≃ 0`.
-example {a b : ℕ} : a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0 := Natural.zero_sum_split
+example {a b : ℕ} : a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0 :=
+  Natural.zero_sum_split (self := Impl.addition_derived)
 
 -- Exercise 2.2.2.
 -- Lemma 2.2.10.
@@ -220,7 +257,8 @@ example {a : ℕ}
     : Positive a → ∃ b : ℕ, step b ≃ a ∧ ∀ b' : ℕ, step b' ≃ a → b ≃ b' := by
   intro (_ : Positive a)
   show ∃ b, step b ≃ a ∧ ∀ b', step b' ≃ a → b ≃ b'
-  have ⟨b, (_ : step b ≃ a)⟩ := Natural.positive_step ‹Positive a›
+  have ⟨b, (_ : step b ≃ a)⟩ :=
+    Natural.positive_step (self := Impl.sign_derived) ‹Positive a›
   exists b
   apply And.intro ‹step b ≃ a›
   intro b' (_ : step b' ≃ a)
@@ -236,38 +274,42 @@ example {a : ℕ}
 -- Let `n` and `m` be natural numbers. We say that `n` is
 -- _greater than or equal to_ `m`, and write `n ≥ m` or `m ≤ n`, iff we have
 -- `n ≃ m + a` for some natural number `a`.
-example : ℕ → ℕ → Prop := @GE.ge ℕ Natural.Order.Base.leOp
+example : ℕ → ℕ → Prop :=
+  @GE.ge ℕ (Natural.leOp (self := Impl.order_base))
 example {n m : ℕ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := by
+  let le_defn := @Natural.le_defn (ℕ := ℕ) (self := Impl.order_base)
   apply Iff.intro
   · intro (_ : m ≤ n)
     show ∃ a, n ≃ m + a
-    have ⟨a, (_ : m + a ≃ n)⟩ := Natural.Order.Base.le_defn.mp ‹m ≤ n›
+    have ⟨a, (_ : m + a ≃ n)⟩ := le_defn.mp ‹m ≤ n›
     exact ⟨a, Eqv.symm ‹m + a ≃ n›⟩
   · intro ⟨a, (_ : n ≃ m + a)⟩
     show m ≤ n
-    exact Natural.Order.Base.le_defn.mpr ⟨a, Eqv.symm ‹n ≃ m + a›⟩
+    exact le_defn.mpr ⟨a, Eqv.symm ‹n ≃ m + a›⟩
 
 -- We say that `n` is _strictly greater than_ `m`, and write `n > m` or
 -- `m < n`, iff `n ≥ m` and `n ≄ m`.
-example : ℕ → ℕ → Prop := @GT.gt ℕ Natural.Order.Base.ltOp
+example : ℕ → ℕ → Prop :=
+  @GT.gt ℕ (Natural.ltOp (self := Impl.order_base))
 example {n m : ℕ} : n > m ↔ n ≥ m ∧ n ≄ m := by
+  let lt_defn := @Natural.lt_defn (ℕ := ℕ) (self := Impl.order_base)
   apply Iff.intro
   · intro (_ : n > m)
     show n ≥ m ∧ n ≄ m
-    have ⟨(_ : m ≤ n), (_ : m ≄ n)⟩ := Natural.Order.Base.lt_defn.mp ‹m < n›
+    have ⟨(_ : m ≤ n), (_ : m ≄ n)⟩ := lt_defn.mp ‹m < n›
     exact ⟨‹n ≥ m›, Eqv.symm ‹m ≄ n›⟩
   · intro ⟨(_ : n ≥ m), (_ : n ≄ m)⟩
     show n > m
-    have : m < n := Natural.Order.Base.lt_defn.mpr ⟨‹m ≤ n›, Eqv.symm ‹n ≄ m›⟩
+    have : m < n := lt_defn.mpr ⟨‹m ≤ n›, Eqv.symm ‹n ≄ m›⟩
     exact ‹n > m›
 
 -- Thus for instance `8 > 5`, because `8 ≃ 5 + 3` and `8 ≄ 5`.
 example : 8 > 5 := by
   show 5 < 8
-  apply Natural.Order.Base.lt_defn.mpr
+  apply Natural.lt_defn.mpr
   apply And.intro
   · show 5 ≤ 8
-    apply Natural.Order.Base.le_defn.mpr
+    apply Natural.le_defn.mpr
     exists (3 : ℕ)
     apply of_decide_eq_true (s := 5 + 3 ≃? 8)
     rfl
@@ -276,16 +318,19 @@ example : 8 > 5 := by
     rfl
 
 -- Also note that `step n > n` for any `n`
-example {n : ℕ} : step n > n := Natural.lt_step
+example {n : ℕ} : step n > n :=
+  Natural.lt_step (self := Impl.order_derived)
 
 -- Exercise 2.2.3.
 -- Proposition 2.2.12 (Basic properties of order for natural numbers).
 -- Let `a`, `b`, `c` be natural numbers. Then
 -- (a) (Order is reflexive) `a ≥ a`.
-example {a : ℕ} : a ≥ a := Natural.le_refl
+example {a : ℕ} : a ≥ a :=
+  Eqv.refl (self := Natural.le_reflexive (self := Impl.order_derived))
 
 -- (b) (Order is transitive) If `a ≥ b` and `b ≥ c`, then `a ≥ c`.
-example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c := flip Natural.le_trans
+example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c :=
+  flip (Eqv.trans (self := Natural.le_transitive (self := Impl.order_derived)))
 
 -- (c) (Order is anti-symmetric) If `a ≥ b` and `b ≥ a`, then `a ≃ b`.
 example {a b : ℕ} : a ≥ b → b ≥ a → a ≃ b := flip Natural.le_antisymm
@@ -301,7 +346,8 @@ example {a b c : ℕ} : a ≥ b ↔ a + c ≥ b + c := by
     exact AA.cancelR ‹b + c ≤ a + c›
 
 -- (e) `a < b` if and only if `step a ≤ b`.
-example {a b : ℕ} : a < b ↔ step a ≤ b := Natural.lt_step_le
+example {a b : ℕ} : a < b ↔ step a ≤ b :=
+  Natural.lt_step_le (self := Impl.order_derived)
 
 -- (f) `a < b` if and only if `b ≃ a + d` for some _positive_ number `d`.
 example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
@@ -344,7 +390,7 @@ example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
 -- Let `a` and `b` be natural numbers. Then exactly one of the following
 -- statements is true: `a < b`, `a ≃ b`, or `a > b`.
 example {a b : ℕ} : AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b) :=
-  Natural.trichotomy
+  Natural.trichotomy (self := Impl.order_derived)
 
 -- Exercise 2.2.5.
 -- Proposition 2.2.14 (Strong principle of induction).
@@ -364,16 +410,16 @@ example
   apply h m ‹m₀ ≤ m›
   show ∀ m', m₀ ≤ m' → m' < m → P m'
   let motive := λ m => ∀ m', m₀ ≤ m' → m' < m → P m'
-  apply Natural.ind_on (motive := motive) m
+  apply Natural.ind_on (self := Impl.axioms_derived) (motive := motive) m
   case zero =>
     intro m' (_ : m₀ ≤ m') (_ : m' < 0)
     show P m'
-    exact absurd ‹m' < 0› Natural.lt_zero
+    exact absurd ‹m' < 0› (Natural.lt_zero (self := Impl.order_derived))
   case step =>
     intro m (ih : ∀ m', m₀ ≤ m' → m' < m → P m')
     intro m' (_ : m₀ ≤ m') (_ : m' < step m)
     show P m'
-    match Natural.lt_split ‹m' < step m› with
+    match Natural.lt_split (self := Impl.order_derived) ‹m' < step m› with
     | Or.inl (_ : m' < m) =>
       exact ih m' ‹m₀ ≤ m'› ‹m' < m›
     | Or.inr (_ : m' ≃ m) =>
@@ -395,7 +441,7 @@ example {P : ℕ → Prop} [AA.Substitutive P (· ≃ ·) (· → ·)] {n : ℕ}
   case zero =>
     intro (_ : P 0) m (_ : m ≤ 0)
     show P m
-    match Natural.le_split ‹m ≤ 0› with
+    match Natural.le_split (self := Impl.order_derived) ‹m ≤ 0› with
     | Or.inl (_ : m < 0) =>
       exact absurd ‹m < 0› Natural.lt_zero
     | Or.inr (_ : m ≃ 0) =>
