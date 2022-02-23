@@ -14,7 +14,9 @@ export Natural.Default (order_base sign_base)
 export Natural.Derived (
   addition_derived axioms_derived order_derived sign_derived
 )
-export Natural.Impl.Nat (addition_base axioms_base constructors equality)
+export Natural.Impl.Nat (
+  addition_base axioms_base constructors core equality literals
+)
 
 end Impl
 
@@ -44,7 +46,7 @@ example : Relation.EqvOp? ℕ :=
 -- [`step` obeys substitution]
 example {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ :=
   AA.subst
-    (self := Natural.step_substitutive (self := Impl.axioms_base))
+    (self := Natural.step_substitutive (self := Impl.core))
 
 -- Definition 2.1.3.
 -- We define `1` to be the number `step 0`,
@@ -58,7 +60,8 @@ example : 3 ≃ step (step (step 0)) := Eqv.refl
 
 -- etc.
 -- [We can convert any natural number literal (`Nat`) into `ℕ`]
-example (n : Nat) : ℕ := OfNat.ofNat n (self := Natural.ofNat)
+example (n : Nat) : ℕ :=
+  OfNat.ofNat n (self := Natural.literal (self := Impl.literals))
 
 -- (In other words, `1 := step 0`, `2 := step 1`, `3 := step 2`, etc.)
 example : 1 ≃ step 0 := Eqv.refl
