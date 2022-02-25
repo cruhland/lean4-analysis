@@ -16,6 +16,7 @@ export Natural.Derived (
 )
 export Natural.Impl.Nat (
   addition_base axioms_base constructors core equality literals
+  multiplication_base
 )
 
 end Impl
@@ -460,3 +461,19 @@ example {P : ℕ → Prop} [AA.Substitutive P (· ≃ ·) (· → ·)] {n : ℕ}
       exact ih ‹P n› m ‹m ≤ n›
     | Or.inr (_ : m ≃ step n) =>
       exact AA.subst (rβ := (· → ·)) (Eqv.symm ‹m ≃ step n›) ‹P (step n)›
+
+/- 2.3 Multiplication -/
+
+-- Definition 2.3.1 (Multiplication of natural numbers).
+-- Let `m` be a natural number. To multiply zero to `m`, we define
+-- `0 * m := 0`. Now suppose inductively that we have defined how to multiply
+-- `n` to `m`. Then we can multiply `step n` to `m` by defining
+-- `step n * m := (n * m) + m`.
+example : ℕ → ℕ → ℕ :=
+  Mul.mul (self := Natural.mulOp (self := Impl.multiplication_base))
+
+example {m : ℕ} : 0 * m ≃ 0 :=
+  Natural.zero_mul (self := Impl.multiplication_base)
+
+example {n m : ℕ} : step n * m ≃ (n * m) + m :=
+  Natural.step_mul (self := Impl.multiplication_base)
