@@ -506,3 +506,15 @@ def ex_two_mul {m : ℕ} : 2 * m ≃ 0 + m + m := calc
 example {n m : ℕ} : n * m ≃ m * n := by
   let mul_derived := Impl.multiplication_derived (ℕ := ℕ)
   exact AA.comm (self := Natural.mul_commutative (self := mul_derived))
+
+-- Exercise 2.3.2.
+-- Lemma 2.3.3 (Positive natural numbers have no zero divisors).
+-- Let `n`, `m` be natural numbers. Then `n * m ≃ 0` if and only if at least
+-- one of `n`, `m` is equal to zero.
+example {n m : ℕ} : n * m ≃ 0 ↔ n ≃ 0 ∨ m ≃ 0 :=
+  Natural.zero_product_split (self := Impl.multiplication_derived)
+
+-- In particular, if `n` and `m` are both positive, then `n * m` is also
+-- positive.
+example {n m : ℕ} : Positive n → Positive m → Positive (n * m) :=
+  Natural.mul_positive (self := Impl.multiplication_derived)
