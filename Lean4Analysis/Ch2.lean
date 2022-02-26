@@ -12,7 +12,8 @@ namespace Impl
 
 export Natural.Default (order_base sign_base)
 export Natural.Derived (
-  addition_derived axioms_derived order_derived sign_derived
+  addition_derived axioms_derived multiplication_derived order_derived
+  sign_derived
 )
 export Natural.Impl.Nat (
   addition_base axioms_base constructors core equality literals
@@ -477,3 +478,31 @@ example {m : ℕ} : 0 * m ≃ 0 :=
 
 example {n m : ℕ} : step n * m ≃ (n * m) + m :=
   Natural.step_mul (self := Impl.multiplication_base)
+
+-- [Multiplication obeys left and right substitution]
+example : AA.Substitutive₂ (α := ℕ) (· * ·) (· ≃ ·) (· ≃ ·) :=
+  Natural.mul_substitutive (self := Impl.multiplication_derived)
+
+-- Thus for instance `0 * m ≃ 0`,
+def ex_zero_mul {m : ℕ} : 0 * m ≃ 0 := Natural.zero_mul
+
+-- `1 * m ≃ 0 + m`,
+def ex_one_mul {m : ℕ} : 1 * m ≃ 0 + m := calc
+  1 * m      ≃ _ := AA.substL (Natural.literal_step (self := Impl.literals))
+  step 0 * m ≃ _ := Natural.step_mul
+  0 * m + m  ≃ _ := AA.substL ex_zero_mul
+  0 + m      ≃ _ := Eqv.refl
+
+-- `2 * m ≃ 0 + m + m`, etc.
+def ex_two_mul {m : ℕ} : 2 * m ≃ 0 + m + m := calc
+  2 * m      ≃ _ := AA.substL Natural.literal_step
+  step 1 * m ≃ _ := Natural.step_mul
+  1 * m + m  ≃ _ := AA.substL ex_one_mul
+  0 + m + m  ≃ _ := Eqv.refl
+
+-- Exercise 2.3.1.
+-- Lemma 2.3.2 (Multiplication is commutative).
+-- Let `n`, `m` be natural numbers. Then `n * m ≃ m * n`.
+example {n m : ℕ} : n * m ≃ m * n := by
+  let mul_derived := Impl.multiplication_derived (ℕ := ℕ)
+  exact AA.comm (self := Natural.mul_commutative (self := mul_derived))
