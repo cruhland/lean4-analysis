@@ -518,3 +518,13 @@ example {n m : ℕ} : n * m ≃ 0 ↔ n ≃ 0 ∨ m ≃ 0 :=
 -- positive.
 example {n m : ℕ} : Positive n → Positive m → Positive (n * m) :=
   Natural.mul_positive (self := Impl.multiplication_derived)
+
+-- Proposition 2.3.4 (Distributive law).
+-- For any natural numbers `a`, `b`, `c`, we have `a * (b + c) ≃ a * b + a * c`
+-- and `(b + c) * a ≃ b * a + c * a`.
+example {a b c : ℕ} : a * (b + c) ≃ a * b + a * c :=
+  let mul_distributive :=
+    Natural.mul_distributive (self := Impl.multiplication_derived)
+  AA.distrib (self := mul_distributive.distributiveL)
+
+example {a b c : ℕ} : (b + c) * a ≃ b * a + c * a := AA.distribR
