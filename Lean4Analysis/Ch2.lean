@@ -229,7 +229,7 @@ example {n m : ℕ} : n + m ≃ m + n :=
 -- Proposition 2.2.5 (Addition is associative).
 -- For any natural numbers `a`, `b`, `c`, we have `(a + b) + c ≃ a + (b + c)`.
 example {a b c : ℕ} : (a + b) + c ≃ a + (b + c) :=
-  Natural.add_assoc (self := Impl.addition_derived)
+  AA.assoc (self := Natural.add_associative (self := Impl.addition_derived))
 
 -- Proposition 2.2.6 (Cancellation law).
 -- Let `a`, `b`, `c` be natural numbers such that `a + b ≃ a + c`. Then we have
@@ -528,3 +528,10 @@ example {a b c : ℕ} : a * (b + c) ≃ a * b + a * c :=
   AA.distrib (self := mul_distributive.distributiveL)
 
 example {a b c : ℕ} : (b + c) * a ≃ b * a + c * a := AA.distribR
+
+-- Exercise 2.3.3.
+-- Proposition 2.3.5 (Multiplication is associative).
+-- For any natural numbers `a`, `b`, `c`, we have `(a * b) * c ≃ a * (b * c)`.
+example {a b c : ℕ} : (a * b) * c ≃ a * (b * c) :=
+  AA.assoc
+    (self := Natural.mul_associative (self := Impl.multiplication_derived))
