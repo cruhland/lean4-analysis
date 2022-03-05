@@ -355,40 +355,7 @@ example {a b : ℕ} : a < b ↔ step a ≤ b :=
   Natural.lt_step_le (self := Impl.order_derived)
 
 -- (f) `a < b` if and only if `b ≃ a + d` for some _positive_ number `d`.
-example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := by
-  apply Iff.intro
-  · intro (_ : a < b)
-    show ∃ d, Positive d ∧ b ≃ a + d
-    have : step a ≤ b := Natural.lt_step_le.mp ‹a < b›
-    have ⟨d, (_ : step a + d ≃ b)⟩ :=
-      Natural.Order.Base.le_defn.mp ‹step a ≤ b›
-    exists step d
-    apply And.intro
-    · show Positive (step d)
-      apply Natural.Sign.Base.positive_defn.mpr
-      show step d ≄ 0
-      exact Natural.step_neq_zero
-    · show b ≃ a + step d
-      calc
-        _ ≃ b            := Eqv.refl
-        _ ≃ step a + d   := Eqv.symm ‹step a + d ≃ b›
-        _ ≃ step (a + d) := Natural.step_add
-        _ ≃ a + step d   := Eqv.symm Natural.add_step
-  · intro ⟨d, (_ : Positive d), (_ : b ≃ a + d)⟩
-    show a < b
-    apply Natural.lt_step_le.mpr
-    show step a ≤ b
-    apply Natural.Order.Base.le_defn.mpr
-    show ∃ k, step a + k ≃ b
-    have ⟨d', (_ : step d' ≃ d)⟩ := Natural.positive_step ‹Positive d›
-    exists d'
-    show step a + d' ≃ b
-    calc
-      _ ≃ step a + d'   := Eqv.refl
-      _ ≃ step (a + d') := Natural.step_add
-      _ ≃ a + step d'   := Eqv.symm Natural.add_step
-      _ ≃ a + d         := AA.substR ‹step d' ≃ d›
-      _ ≃ b             := Eqv.symm ‹b ≃ a + d›
+example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := Natural.lt_defn_add
 
 -- Exercise 2.2.4.
 -- Proposition 2.2.13 (Trichotomy of order for natural numbers).
