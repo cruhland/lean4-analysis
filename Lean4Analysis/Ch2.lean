@@ -47,7 +47,7 @@ example : Relation.EqvOp? ℕ :=
 
 -- [`step` obeys substitution]
 example {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ :=
-  AA.subst
+  AA.subst₁
     (self := Natural.step_substitutive (self := Impl.core))
 
 -- Definition 2.1.3.
@@ -154,7 +154,7 @@ theorem one_plus_m {m : ℕ} : 1 + m ≃ step m := by
     _ ≃ 1 + m        := Eqv.refl
     _ ≃ step 0 + m   := AA.substL Eqv.refl
     _ ≃ step (0 + m) := Natural.step_add
-    _ ≃ step m       := AA.subst Natural.zero_add
+    _ ≃ step m       := AA.subst₁ Natural.zero_add
 
 -- `2 + m ≃ step 1 + m ≃ step (step m)`;
 example {m : ℕ} : 2 + m ≃ step (step m) := by
@@ -162,7 +162,7 @@ example {m : ℕ} : 2 + m ≃ step (step m) := by
     _ ≃ 2 + m         := Eqv.refl
     _ ≃ step 1 + m    := AA.substL Eqv.refl
     _ ≃ step (1 + m)  := Natural.step_add
-    _ ≃ step (step m) := AA.subst one_plus_m
+    _ ≃ step (step m) := AA.subst₁ one_plus_m
 
 -- and so forth; for instance we have `2 + 3 ≃ step (step 3) ≃ step 4 ≃ 5`.
 example : 2 + 3 ≃ 5 := by
@@ -170,9 +170,9 @@ example : 2 + 3 ≃ 5 := by
     _ ≃ 2 + 3               := Eqv.refl
     _ ≃ step 1 + 3          := AA.substL (α := ℕ) Eqv.refl
     _ ≃ step (1 + 3)        := Natural.step_add
-    _ ≃ step (step 0 + 3)   := AA.subst (AA.substL Eqv.refl)
-    _ ≃ step (step (0 + 3)) := AA.subst Natural.step_add
-    _ ≃ step (step 3)       := AA.subst (AA.subst Natural.zero_add)
+    _ ≃ step (step 0 + 3)   := AA.subst₁ (AA.substL Eqv.refl)
+    _ ≃ step (step (0 + 3)) := AA.subst₁ Natural.step_add
+    _ ≃ step (step 3)       := AA.subst₁ (AA.subst₁ Natural.zero_add)
     _ ≃ step 4              := Eqv.refl
     _ ≃ 5                   := Eqv.refl
 
@@ -185,13 +185,13 @@ example : 3 + 5 ≃ 8 := by
   calc
     _ ≃ 3 + 5                      := Eqv.refl
     _ ≃ step (2 + 5)               := step_add
-    _ ≃ step (step (1 + 5))        := AA.subst step_add
-    _ ≃ step (step (step (0 + 5))) := AA.subst (AA.subst step_add)
-    _ ≃ step (step (step 5))       := AA.subst (AA.subst (AA.subst zero_add))
+    _ ≃ step (step (1 + 5))        := AA.subst₁ step_add
+    _ ≃ step (step (step (0 + 5))) := AA.subst₁ (AA.subst₁ step_add)
+    _ ≃ step (step (step 5))       := AA.subst₁ (AA.subst₁ (AA.subst₁ zero_add))
     _ ≃ 8                          := Eqv.refl
 
 example : 5 + 3 ≃ 8 := by
-  let ss {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ := AA.subst
+  let ss {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ := AA.subst₁
   let za : {m : ℕ} → 0 + m ≃ m := Natural.zero_add
   let sa : {n m : ℕ} → step n + m ≃ step (n + m) := Natural.step_add
   calc
@@ -406,7 +406,7 @@ example
 -- natural numbers such that whenever `P (step m)` is true, then `P m` is true.
 -- Suppose that `P n` is also true. Prove that `P m` is true for all natural
 -- numbers `m ≤ n`; this is known as the _principle of backwards induction_.
-example {P : ℕ → Prop} [AA.Substitutive P (· ≃ ·) (· → ·)] {n : ℕ}
+example {P : ℕ → Prop} [AA.Substitutive₁ P (· ≃ ·) (· → ·)] {n : ℕ}
     : (∀ m, P (step m) → P m) → P n → ∀ m, m ≤ n → P m := by
   intro (_ : ∀ m, P (step m) → P m)
   apply Natural.ind_on (motive := λ n => P n → ∀ m, m ≤ n → P m) n
@@ -417,7 +417,7 @@ example {P : ℕ → Prop} [AA.Substitutive P (· ≃ ·) (· → ·)] {n : ℕ}
     | Or.inl (_ : m < 0) =>
       exact absurd ‹m < 0› Natural.lt_zero
     | Or.inr (_ : m ≃ 0) =>
-      exact AA.subst (rβ := (· → ·)) (Eqv.symm ‹m ≃ 0›) ‹P 0›
+      exact AA.subst₁ (rβ := (· → ·)) (Eqv.symm ‹m ≃ 0›) ‹P 0›
   case step =>
     intro n (ih : P n → ∀ m, m ≤ n → P m) (_ : P (step n)) m (_ : m ≤ step n)
     show P m
@@ -428,7 +428,7 @@ example {P : ℕ → Prop} [AA.Substitutive P (· ≃ ·) (· → ·)] {n : ℕ}
       have : P n := ‹∀ m, P (step m) → P m› n ‹P (step n)›
       exact ih ‹P n› m ‹m ≤ n›
     | Or.inr (_ : m ≃ step n) =>
-      exact AA.subst (rβ := (· → ·)) (Eqv.symm ‹m ≃ step n›) ‹P (step n)›
+      exact AA.subst₁ (rβ := (· → ·)) (Eqv.symm ‹m ≃ step n›) ‹P (step n)›
 
 /- 2.3 Multiplication -/
 
