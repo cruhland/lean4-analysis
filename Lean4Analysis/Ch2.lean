@@ -142,7 +142,7 @@ example {n m : ℕ} : step n + m ≃ step (n + m) :=
   Natural.step_add (self := Impl.addition_base)
 
 -- [Addition obeys left and right substitution]
-example : AA.Substitutive₂ (α := ℕ) (· + ·) (· ≃ ·) (· ≃ ·) :=
+example : AA.Substitutive₂ (α := ℕ) (· + ·) AA.tc (· ≃ ·) (· ≃ ·) :=
   Natural.add_substitutive (self := Impl.addition_derived)
 
 -- Thus `0 + m` is `m`,
@@ -446,9 +446,12 @@ example {m : ℕ} : 0 * m ≃ 0 :=
 example {n m : ℕ} : step n * m ≃ (n * m) + m :=
   Natural.step_mul (self := Impl.multiplication_base)
 
+-- [Shorter name for convenient reference below]
+abbrev mul_derived := Impl.multiplication_derived (ℕ := ℕ)
+
 -- [Multiplication obeys left and right substitution]
-example : AA.Substitutive₂ (α := ℕ) (· * ·) (· ≃ ·) (· ≃ ·) :=
-  Natural.mul_substitutive (self := Impl.multiplication_derived)
+example : AA.Substitutive₂ (α := ℕ) (· * ·) AA.tc (· ≃ ·) (· ≃ ·) :=
+  Natural.mul_substitutive_eq (self := mul_derived)
 
 -- Thus for instance `0 * m ≃ 0`,
 def ex_zero_mul {m : ℕ} : 0 * m ≃ 0 := Natural.zero_mul
@@ -471,7 +474,6 @@ def ex_two_mul {m : ℕ} : 2 * m ≃ 0 + m + m := calc
 -- Lemma 2.3.2 (Multiplication is commutative).
 -- Let `n`, `m` be natural numbers. Then `n * m ≃ m * n`.
 example {n m : ℕ} : n * m ≃ m * n := by
-  let mul_derived := Impl.multiplication_derived (ℕ := ℕ)
   exact AA.comm (self := Natural.mul_commutative (self := mul_derived))
 
 -- Exercise 2.3.2.
@@ -479,19 +481,18 @@ example {n m : ℕ} : n * m ≃ m * n := by
 -- Let `n`, `m` be natural numbers. Then `n * m ≃ 0` if and only if at least
 -- one of `n`, `m` is equal to zero.
 example {n m : ℕ} : n * m ≃ 0 ↔ n ≃ 0 ∨ m ≃ 0 :=
-  Natural.zero_product_split (self := Impl.multiplication_derived)
+  Natural.zero_product_split (self := mul_derived)
 
 -- In particular, if `n` and `m` are both positive, then `n * m` is also
 -- positive.
 example {n m : ℕ} : Positive n → Positive m → Positive (n * m) :=
-  Natural.mul_positive (self := Impl.multiplication_derived)
+  Natural.mul_positive (self := mul_derived)
 
 -- Proposition 2.3.4 (Distributive law).
 -- For any natural numbers `a`, `b`, `c`, we have `a * (b + c) ≃ a * b + a * c`
 -- and `(b + c) * a ≃ b * a + c * a`.
 example {a b c : ℕ} : a * (b + c) ≃ a * b + a * c :=
-  let mul_distributive :=
-    Natural.mul_distributive (self := Impl.multiplication_derived)
+  let mul_distributive := Natural.mul_distributive (self := mul_derived)
   AA.distrib (self := mul_distributive.distributiveL)
 
 example {a b c : ℕ} : (b + c) * a ≃ b * a + c * a := AA.distribR
@@ -500,5 +501,14 @@ example {a b c : ℕ} : (b + c) * a ≃ b * a + c * a := AA.distribR
 -- Proposition 2.3.5 (Multiplication is associative).
 -- For any natural numbers `a`, `b`, `c`, we have `(a * b) * c ≃ a * (b * c)`.
 example {a b c : ℕ} : (a * b) * c ≃ a * (b * c) :=
-  AA.assoc
-    (self := Natural.mul_associative (self := Impl.multiplication_derived))
+  AA.assoc (self := Natural.mul_associative (self := mul_derived))
+
+-- Proposition 2.3.6 (Multiplication preserves order).
+-- If `a`, `b` are natural numbers such that `a < b`, and `c` is positive, then
+-- `a * c < b * c`.
+example {a b c : ℕ} : a < b → Positive c → a * c < b * c := by
+  intro (_ : a < b) (_ : Positive c)
+  show a * c < b * c
+  let mul_substitutive_lt := Natural.mul_substitutive_lt (self := mul_derived)
+  let mul_substL_lt := mul_substitutive_lt.substitutiveL
+  exact AA.substLC (self := mul_substL_lt) ‹Positive c› ‹a < b›
