@@ -362,7 +362,7 @@ example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := Natural.lt_
 -- Let `a` and `b` be natural numbers. Then exactly one of the following
 -- statements is true: `a < b`, `a ≃ b`, or `a > b`.
 example {a b : ℕ} : AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b) :=
-  Natural.trichotomy (self := Impl.order_derived)
+  Natural.trichotomy (self := Impl.order_derived) a b
 
 -- Exercise 2.2.5.
 -- Proposition 2.2.14 (Strong principle of induction).
@@ -512,3 +512,13 @@ example {a b c : ℕ} : a < b → Positive c → a * c < b * c := by
   let mul_substitutive_lt := Natural.mul_substitutive_lt (self := mul_derived)
   let mul_substL_lt := mul_substitutive_lt.substitutiveL
   exact AA.substLC (self := mul_substL_lt) ‹Positive c› ‹a < b›
+
+-- Corollary 2.3.7 (Cancellation law).
+-- Let `a`, `b`, `c` be natural numbers such that `a * c ≃ b * c` and `c` is
+-- non-zero. Then `a ≃ b`.
+example {a b c : ℕ} : a * c ≃ b * c → c ≄ 0 → a ≃ b := by
+  intro (_ : a * c ≃ b * c) (_ : c ≄ 0)
+  show a ≃ b
+  let mul_cancellative := Natural.mul_cancellative (self := mul_derived)
+  let mul_cancelR := mul_cancellative.cancellativeR
+  exact AA.cancelRC (self := mul_cancelR) ‹c ≄ 0› ‹a * c ≃ b * c›
