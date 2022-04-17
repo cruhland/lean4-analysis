@@ -522,3 +522,59 @@ example {a b c : ℕ} : a * c ≃ b * c → c ≄ 0 → a ≃ b := by
   let mul_cancellative := Natural.mul_cancellative (self := mul_derived)
   let mul_cancelR := mul_cancellative.cancellativeR
   exact AA.cancelRC (self := mul_cancelR) ‹c ≄ 0› ‹a * c ≃ b * c›
+
+-- Exercise 2.3.5
+-- Proposition 2.3.9 (Euclidean algorithm).
+-- Let `n` be a natural number, and let `q` be a positive number. Then there
+-- exist natural numbers `m`, `r` such that `0 ≤ r < q` and `n ≃ m * q + r`.
+inductive Euclid (n q : ℕ) : Prop where
+| intro (m r : ℕ) (r_bounded : r < q) (n_divided : n ≃ m * q + r) : Euclid n q
+
+theorem euclidean_algorithm {n q : ℕ} : Positive q → Euclid n q := by
+  intro (_ : Positive q)
+  show Euclid n q
+  have : 0 < q := Natural.lt_zero_pos.mp ‹Positive q›
+  apply Natural.ind_on (motive := λ n => Euclid n q) n
+  case zero =>
+    show Euclid 0 q
+    let m := 0
+    let r := 0
+    have r_bounded : r < q := ‹0 < q›
+    have n_divided : 0 ≃ m * q + r := calc
+      0         ≃ _ := Eqv.symm Natural.zero_mul
+      0 * q     ≃ _ := Eqv.symm Natural.add_zero
+      0 * q + 0 ≃ _ := Eqv.refl
+      m * q + r ≃ _ := Eqv.refl
+    exact Euclid.intro m r r_bounded n_divided
+  case step =>
+    intro n (ih : Euclid n q)
+    show Euclid (step n) q
+    have ⟨m', r', (_ : r' < q), (_ : n ≃ m' * q + r')⟩ := ih
+    have : step r' ≤ q := Natural.lt_step_le.mp ‹r' < q›
+    have : step r' < q ∨ step r' ≃ q := Natural.le_split ‹step r' ≤ q›
+    apply Or.elim ‹step r' < q ∨ step r' ≃ q›
+    · intro (_ : step r' < q)
+      show Euclid (step n) q
+      let m := m'
+      let r := step r'
+      have : r < q := ‹step r' < q›
+      have : step n ≃ m * q + r := calc
+        step n             ≃ _ := AA.subst₁ ‹n ≃ m' * q + r'›
+        step (m' * q + r') ≃ _ := Eqv.symm Natural.add_step
+        m' * q + step r'   ≃ _ := Eqv.refl
+        m * q + r          ≃ _ := Eqv.refl
+      exact ⟨m, r, ‹r < q›, ‹step n ≃ m * q + r›⟩
+    · intro (_ : step r' ≃ q)
+      show Euclid (step n) q
+      let m := step m'
+      let r := 0
+      have : r < q := ‹0 < q›
+      have : step n ≃ m * q + r := calc
+        step n             ≃ _ := AA.subst₁ ‹n ≃ m' * q + r'›
+        step (m' * q + r') ≃ _ := Eqv.symm Natural.add_step
+        m' * q + step r'   ≃ _ := AA.substR ‹step r' ≃ q›
+        m' * q + q         ≃ _ := Eqv.symm Natural.step_mul
+        step m' * q        ≃ _ := Eqv.symm Natural.add_zero
+        step m' * q + 0    ≃ _ := Eqv.refl
+        m * q + r          ≃ _ := Eqv.refl
+      exact ⟨m, r, ‹r < q›, ‹step n ≃ m * q + r›⟩
