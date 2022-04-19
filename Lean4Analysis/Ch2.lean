@@ -470,6 +470,11 @@ def ex_two_mul {m : ℕ} : 2 * m ≃ 0 + m + m := calc
   1 * m + m  ≃ _ := AA.substL ex_one_mul
   0 + m + m  ≃ _ := Eqv.refl
 
+def two_mul_sum {m : ℕ} : 2 * m ≃ m + m := calc
+  2 * m     ≃ _ := ex_two_mul
+  0 + m + m ≃ _ := AA.substL Natural.zero_add
+  m + m     ≃ _ := Eqv.refl
+
 -- Exercise 2.3.1.
 -- Lemma 2.3.2 (Multiplication is commutative).
 -- Let `n`, `m` be natural numbers. Then `n * m ≃ m * n`.
@@ -595,3 +600,53 @@ example : 0 ^ (0 : ℕ) ≃ 1 := Natural.pow_zero
 -- number `n`, then we define `m ^ step n := m ^ n * m`.
 example {m n : ℕ} : m ^ step n ≃ m ^ n * m :=
   Natural.pow_step (self := Impl.exponentiation_base)
+
+-- Examples 2.3.12.
+-- Thus for instance `x ^ 1 ≃ x ^ 0 * x ≃ 1 * x ≃ x`;
+def pow_one {x : ℕ} : x ^ 1 ≃ x := calc
+  x ^ 1           ≃ _ := Natural.pow_step
+  x ^ (0 : ℕ) * x ≃ _ := AA.substL Natural.pow_zero
+  1 * x           ≃ _ := ex_one_mul
+  0 + x           ≃ _ := Natural.zero_add
+  x               ≃ _ := Eqv.refl
+
+-- `x ^ 2 ≃ x ^ 1 * x ≃ x * x`;
+def pow_two {x : ℕ} : x ^ 2 ≃ x * x := calc
+  x ^ 2     ≃ _ := Natural.pow_step
+  x ^ 1 * x ≃ _ := AA.substL pow_one
+  x * x     ≃ _ := Eqv.refl
+
+-- `x ^ 3 ≃ x ^ 2 * x ≃ x * x * x`; and so forth.
+example {x : ℕ} : x ^ 3 ≃ x * x * x := calc
+  x ^ 3 ≃ _ := Natural.pow_step
+  x ^ 2 * x ≃ _ := AA.substL pow_two
+  x * x * x ≃ _ := Eqv.refl
+
+-- Exercise 2.3.4.
+-- Prove the identity `(a + b) ^ 2 ≃ a ^ 2 + 2 * a * b + b ^ 2` for all natural
+-- numbers `a, b`.
+example {a b : ℕ} : (a + b) ^ 2 ≃ a ^ 2 + 2 * a * b + b ^ 2 := calc
+  (a + b) ^ 2
+    ≃ _ := pow_two
+  (a + b) * (a + b)
+    ≃ _ := AA.distribR
+  a * (a + b) + b * (a + b)
+    ≃ _ := AA.substL AA.distribL
+  (a * a + a * b) + b * (a + b)
+    ≃ _ := AA.substR AA.distribL
+  (a * a + a * b) + (b * a + b * b)
+    ≃ _ := AA.substR (AA.substL AA.comm)
+  (a * a + a * b) + (a * b + b * b)
+    ≃ _ := Eqv.symm AA.assoc
+  ((a * a + a * b) + a * b) + b * b
+    ≃ _ := AA.substL AA.assoc
+  a * a + (a * b + a * b) + b * b
+    ≃ _ := Eqv.symm (AA.substL (AA.substR two_mul_sum))
+  a * a + 2 * (a * b) + b * b
+    ≃ _ := Eqv.symm (AA.substL (AA.substR AA.assoc))
+  a * a + 2 * a * b + b * b
+    ≃ _ := Eqv.symm (AA.substL (AA.substL pow_two))
+  a ^ 2 + 2 * a * b + b * b
+    ≃ _ := Eqv.symm (AA.substR pow_two)
+  a ^ 2 + 2 * a * b + b ^ 2
+    ≃ _ := Eqv.refl
