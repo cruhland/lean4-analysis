@@ -8,6 +8,8 @@ open Lean4Axiomatic
 open Natural (Positive step)
 open Operators (TildeDash)
 
+namespace AnalysisI.Ch2
+
 namespace Impl
 
 export Natural.Default (order_base sign_base)
@@ -650,3 +652,5 @@ example {a b : ℕ} : (a + b) ^ 2 ≃ a ^ 2 + 2 * a * b + b ^ 2 := calc
     ≃ _ := Eqv.symm (AA.substR pow_two)
   a ^ 2 + 2 * a * b + b ^ 2
     ≃ _ := Eqv.refl
+
+end AnalysisI.Ch2
