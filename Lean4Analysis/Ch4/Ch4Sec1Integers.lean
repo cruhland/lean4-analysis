@@ -41,11 +41,7 @@ example : (⟨3, 5⟩ : ℤ) ≃ ⟨2, 4⟩ := by
 -- On the other hand, `⟨3, 5⟩` is not equal to `⟨2, 3⟩` because
 -- `3 + 3 ≄ 2 + 5`.
 example : (⟨3, 5⟩ : ℤ) ≄ ⟨2, 3⟩ := by
-  intro (h : (⟨3, 5⟩ : ℤ) ≃ ⟨2, 3⟩)
-  show False
-  have : 3 + 3 ≃ 2 + 5 := h
-  have decFalse : decide (3 + 3 ≃ 2 + 5) = false := rfl
-  have : 3 + 3 ≄ 2 + 5 := of_decide_eq_false decFalse
-  exact absurd ‹3 + 3 ≃ 2 + 5› ‹3 + 3 ≄ 2 + 5›
+  show 3 + 3 ≄ 2 + 5
+  exact of_decide_eq_false (rfl : decide (3 + 3 ≃ 2 + 5) = false)
 
 end AnalysisI.Ch4.Sec1
