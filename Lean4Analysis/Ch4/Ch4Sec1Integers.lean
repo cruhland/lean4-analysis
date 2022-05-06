@@ -26,8 +26,7 @@ example {a b : ℕ} : ℤ := ⟨a, b⟩
 
 -- [definition of the equality relation on ℤ]
 example : ℤ → ℤ → Prop :=
-  let inst := Integer.Equality.tildeDash (self := Impl.equality)
-  Operators.tildeDash (self := inst)
+  (Integer.Equality.eqvOp (self := Impl.equality)).tildeDash
 
 example {a b c d : ℕ} : (⟨a, b⟩ : ℤ) ≃ ⟨c, d⟩ ↔ a + d ≃ c + b :=
   Iff.intro id id
@@ -43,5 +42,23 @@ example : (⟨3, 5⟩ : ℤ) ≃ ⟨2, 4⟩ := by
 example : (⟨3, 5⟩ : ℤ) ≄ ⟨2, 3⟩ := by
   show 3 + 3 ≄ 2 + 5
   exact of_decide_eq_false (rfl : decide (3 + 3 ≃ 2 + 5) = false)
+
+-- Exercise 4.1.1.
+-- We have to check that this is a legitimate notion of equality. We need to
+-- verify the reflexivity, symmetry, transitivity, and substitution axioms.
+example {a : ℤ} : a ≃ a :=
+  (Integer.Equality.eqvOp (self := Impl.equality)).refl
+
+example {a b : ℤ} : a ≃ b → b ≃ a :=
+  (Integer.Equality.eqvOp (self := Impl.equality)).symm
+
+example {a b c : ℤ} : a ≃ b → b ≃ c → a ≃ c :=
+  (Integer.Equality.eqvOp (self := Impl.equality)).trans
+
+-- As for the substitution axiom, we cannot verify it at this stage because we
+-- have not yet defined any operations on the integers. However, when we do
+-- define our basic operations on the integers, such as addition,
+-- multiplication, and order, we will have to verify the substitution axiom at
+-- that time in order to ensure that the definition is valid.
 
 end AnalysisI.Ch4.Sec1

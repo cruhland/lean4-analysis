@@ -237,7 +237,9 @@ example {a b c : ℕ} : (a + b) + c ≃ a + (b + c) :=
 -- Let `a`, `b`, `c` be natural numbers such that `a + b ≃ a + c`. Then we have
 -- `b ≃ c`.
 example {a b c : ℕ} : a + b ≃ a + c → b ≃ c :=
-  Natural.cancel_add (self := Impl.addition_derived)
+  let addition_derived := Impl.addition_derived
+  let add_cancellative := Natural.add_cancellative (self := addition_derived)
+  AA.cancelL (self := add_cancellative.cancellativeL)
 
 -- Definition 2.2.7 (Positive natural numbers).
 -- A natural number `n` is said to be _positive_ iff it is not equal to `0`.
