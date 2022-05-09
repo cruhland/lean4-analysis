@@ -10,7 +10,7 @@ abbrev ℕ : Type := Nat
 
 namespace Impl
 
-export Integer.Impl.Difference (equality)
+export Integer.Impl.Difference (addition equality multiplication)
 
 end Impl
 
@@ -25,8 +25,7 @@ abbrev ℤ : Type := Integer.Impl.Difference ℕ
 example {a b : ℕ} : ℤ := a——b
 
 -- [definition of the equality relation on ℤ]
-example : ℤ → ℤ → Prop :=
-  (Integer.Equality.eqvOp (self := Impl.equality)).tildeDash
+example : ℤ → ℤ → Prop := Impl.equality.eqvOp.tildeDash
 
 example {a b c d : ℕ} : a——b ≃ c——d ↔ a + d ≃ c + b := Iff.intro id id
 
@@ -44,19 +43,29 @@ example : 3——5 ≄ 2——3 := by
 -- Exercise 4.1.1.
 -- We have to check that this is a legitimate notion of equality. We need to
 -- verify the reflexivity, symmetry, transitivity, and substitution axioms.
-example {a : ℤ} : a ≃ a :=
-  (Integer.Equality.eqvOp (self := Impl.equality)).refl
+example {a : ℤ} : a ≃ a := Impl.equality.eqvOp.refl
 
-example {a b : ℤ} : a ≃ b → b ≃ a :=
-  (Integer.Equality.eqvOp (self := Impl.equality)).symm
+example {a b : ℤ} : a ≃ b → b ≃ a := Impl.equality.eqvOp.symm
 
-example {a b c : ℤ} : a ≃ b → b ≃ c → a ≃ c :=
-  (Integer.Equality.eqvOp (self := Impl.equality)).trans
+example {a b c : ℤ} : a ≃ b → b ≃ c → a ≃ c := Impl.equality.eqvOp.trans
 
 -- As for the substitution axiom, we cannot verify it at this stage because we
 -- have not yet defined any operations on the integers. However, when we do
 -- define our basic operations on the integers, such as addition,
 -- multiplication, and order, we will have to verify the substitution axiom at
 -- that time in order to ensure that the definition is valid.
+
+-- Definition 4.1.2.
+-- The sum of two integers, `(a——b) + (c——d)`, is defined by the formula
+example {a b c d : ℕ} : a——b + c——d ≃ (a + c)——(b + d) := rfl
+
+-- [definition of integer addition]
+example : ℤ → ℤ → ℤ := Impl.addition.addOp.add
+
+-- The product of two integers, `(a——b) * (c——d)`, is defined by
+example {a b c d : ℕ} : a——b * c——d ≃ (a * c + b * d)——(a * d + b * c) := rfl
+
+-- [definition of integer multiplication]
+example : ℤ → ℤ → ℤ := Impl.multiplication.mulOp.mul
 
 end AnalysisI.Ch4.Sec1
