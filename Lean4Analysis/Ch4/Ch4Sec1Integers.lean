@@ -33,7 +33,7 @@ example {a b c d : ℕ} : a——b ≃ c——d ↔ a + d ≃ c + b := Iff.intro
 -- `3 + 4 ≃ 2 + 5`.
 example : 3——5 ≃ 2——4 := by
   show 3 + 4 ≃ 2 + 5
-  exact Eqv.refl
+  exact Rel.refl
 
 -- On the other hand, `3——5` is not equal to `2——3` because `3 + 3 ≄ 2 + 5`.
 example : 3——5 ≄ 2——3 := by
@@ -67,5 +67,52 @@ example {a b c d : ℕ} : a——b * c——d ≃ (a * c + b * d)——(a * d + 
 
 -- [definition of integer multiplication]
 example : ℤ → ℤ → ℤ := Impl.multiplication.mulOp.mul
+
+-- Thus for instance, `(3——5) + (1——4)` is equal to `(4——9)`.
+example : (3——5) + (1——4) ≃ (4——9) := rfl
+
+-- There is however one thing we have to check before we can accept these
+-- definitions - we have to check that if we replace one of the integers by an
+-- equal integer, that the sum or product does not change. For instance,
+-- `(3——5)` is equal to `(2——4)`, so `(3——5) + (1——4)` ought to have the same
+-- value as `(2——4) + (1——4)`, otherwise this would not give a consistent
+-- definition of addition.
+example : (3——5) ≃ (2——4) := rfl
+
+example : (3——5) + (1——4) ≃ (2——4) + (1——4) := rfl
+
+-- Lemma 4.1.3 (Addition and multiplication are well-defined).
+-- Let `a`, `b`, `a'`, `b'`, `c`, `d` be natural numbers. If
+-- `(a——b) ≃ (a'——b')`, then `(a——b) + (c——d) ≃ (a'——b') + (c——d)` and
+-- `(a——b) * (c——d) ≃ (a'——b') * (c——d)`, and also
+-- `(c——d) + (a——b) ≃ (c——d) + (a'——b')` and
+-- `(c——d) * (a——b) ≃ (c——d) * (a'——b')`. Thus addition and multiplication are
+-- well-defined operations (equal inputs give equal outputs).
+section lemma_4_1_3
+
+variable {a b a' b' c d : ℕ}
+variable (_ : (a——b) ≃ (a'——b'))
+
+example : (a——b) + (c——d) ≃ (a'——b') + (c——d) :=
+  AA.substL
+    (self := Impl.addition.add_substitutive.substitutiveL)
+    ‹(a——b) ≃ (a'——b')›
+
+example : (a——b) * (c——d) ≃ (a'——b') * (c——d) :=
+  AA.substL
+    (self := Impl.multiplication.mul_substitutive.substitutiveL)
+    ‹(a——b) ≃ (a'——b')›
+
+example : (c——d) + (a——b) ≃ (c——d) + (a'——b') :=
+  AA.substR
+    (self := Impl.addition.add_substitutive.substitutiveR)
+    ‹(a——b) ≃ (a'——b')›
+
+example : (c——d) * (a——b) ≃ (c——d) * (a'——b') :=
+  AA.substR
+    (self := Impl.multiplication.mul_substitutive.substitutiveR)
+    ‹(a——b) ≃ (a'——b')›
+
+end lemma_4_1_3
 
 end AnalysisI.Ch4.Sec1

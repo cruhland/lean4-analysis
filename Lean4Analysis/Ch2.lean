@@ -1,8 +1,8 @@
 import Lean4Axiomatic.AbstractAlgebra
-import Lean4Axiomatic.Eqv
 import Lean4Axiomatic.Natural
 import Lean4Axiomatic.Natural.Impl.Nat
 import Lean4Axiomatic.Operators
+import Lean4Axiomatic.Relation.Equivalence
 
 open Lean4Axiomatic
 open Natural (Positive step)
@@ -44,7 +44,7 @@ example {n : ℕ} : ℕ := step n (self := Impl.constructors)
 example : ℕ := step (step 0)
 
 -- [values of `ℕ` obey the axioms of equality]
-example : Relation.EqvOp? ℕ :=
+example : Relation.Equivalence.EqvOp? ℕ :=
   Natural.eqvOp? (self := Impl.equality)
 
 -- [`step` obeys substitution]
@@ -54,13 +54,13 @@ example {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ :=
 
 -- Definition 2.1.3.
 -- We define `1` to be the number `step 0`,
-example : 1 ≃ step 0 := Eqv.refl
+example : 1 ≃ step 0 := Rel.refl
 
 -- `2` to be the number `step (step 0)`,
-example : 2 ≃ step (step 0) := Eqv.refl
+example : 2 ≃ step (step 0) := Rel.refl
 
 -- `3` to be the number `step (step (step 0))`,
-example : 3 ≃ step (step (step 0)) := Eqv.refl
+example : 3 ≃ step (step (step 0)) := Rel.refl
 
 -- etc.
 -- [We can convert any natural number literal (`Nat`) into `ℕ`]
@@ -68,9 +68,9 @@ example (n : Nat) : ℕ :=
   OfNat.ofNat n (self := Natural.literal (self := Impl.literals))
 
 -- (In other words, `1 := step 0`, `2 := step 1`, `3 := step 2`, etc.)
-example : 1 ≃ step 0 := Eqv.refl
-example : 2 ≃ step 1 := Eqv.refl
-example : 3 ≃ step 2 := Eqv.refl
+example : 1 ≃ step 0 := Rel.refl
+example : 2 ≃ step 1 := Rel.refl
+example : 3 ≃ step 2 := Rel.refl
 
 -- Proposition 2.1.4.
 -- `3` is a natural number.
@@ -153,30 +153,30 @@ example {m : ℕ} : 0 + m ≃ m := Natural.zero_add
 -- `1 + m ≃ step 0 + m` is `step m`;
 theorem one_plus_m {m : ℕ} : 1 + m ≃ step m := by
   calc
-    _ ≃ 1 + m        := Eqv.refl
-    _ ≃ step 0 + m   := AA.substL Eqv.refl
+    _ ≃ 1 + m        := Rel.refl
+    _ ≃ step 0 + m   := AA.substL Rel.refl
     _ ≃ step (0 + m) := Natural.step_add
     _ ≃ step m       := AA.subst₁ Natural.zero_add
 
 -- `2 + m ≃ step 1 + m ≃ step (step m)`;
 example {m : ℕ} : 2 + m ≃ step (step m) := by
   calc
-    _ ≃ 2 + m         := Eqv.refl
-    _ ≃ step 1 + m    := AA.substL Eqv.refl
+    _ ≃ 2 + m         := Rel.refl
+    _ ≃ step 1 + m    := AA.substL Rel.refl
     _ ≃ step (1 + m)  := Natural.step_add
     _ ≃ step (step m) := AA.subst₁ one_plus_m
 
 -- and so forth; for instance we have `2 + 3 ≃ step (step 3) ≃ step 4 ≃ 5`.
 example : 2 + 3 ≃ 5 := by
   calc
-    _ ≃ 2 + 3               := Eqv.refl
-    _ ≃ step 1 + 3          := AA.substL (α := ℕ) Eqv.refl
+    _ ≃ 2 + 3               := Rel.refl
+    _ ≃ step 1 + 3          := AA.substL (α := ℕ) Rel.refl
     _ ≃ step (1 + 3)        := Natural.step_add
-    _ ≃ step (step 0 + 3)   := AA.subst₁ (AA.substL Eqv.refl)
+    _ ≃ step (step 0 + 3)   := AA.subst₁ (AA.substL Rel.refl)
     _ ≃ step (step (0 + 3)) := AA.subst₁ Natural.step_add
     _ ≃ step (step 3)       := AA.subst₁ (AA.subst₁ Natural.zero_add)
-    _ ≃ step 4              := Eqv.refl
-    _ ≃ 5                   := Eqv.refl
+    _ ≃ step 4              := Rel.refl
+    _ ≃ 5                   := Rel.refl
 
 -- Note that this definition is asymmetric: `3 + 5` is incrementing `5` three
 -- times, while `5 + 3` is incrementing `3` five times. Of course, they both
@@ -185,26 +185,26 @@ example : 3 + 5 ≃ 8 := by
   let zero_add : {m : ℕ} → 0 + m ≃ m := Natural.zero_add
   let step_add : {n m : ℕ} → step n + m ≃ step (n + m) := Natural.step_add
   calc
-    _ ≃ 3 + 5                      := Eqv.refl
+    _ ≃ 3 + 5                      := Rel.refl
     _ ≃ step (2 + 5)               := step_add
     _ ≃ step (step (1 + 5))        := AA.subst₁ step_add
     _ ≃ step (step (step (0 + 5))) := AA.subst₁ (AA.subst₁ step_add)
     _ ≃ step (step (step 5))       := AA.subst₁ (AA.subst₁ (AA.subst₁ zero_add))
-    _ ≃ 8                          := Eqv.refl
+    _ ≃ 8                          := Rel.refl
 
 example : 5 + 3 ≃ 8 := by
   let ss {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ := AA.subst₁
   let za : {m : ℕ} → 0 + m ≃ m := Natural.zero_add
   let sa : {n m : ℕ} → step n + m ≃ step (n + m) := Natural.step_add
   calc
-    _ ≃ 5 + 3                                    := Eqv.refl
+    _ ≃ 5 + 3                                    := Rel.refl
     _ ≃ step (4 + 3)                             := sa
     _ ≃ step (step (3 + 3))                      := ss sa
     _ ≃ step (step (step (2 + 3)))               := ss (ss sa)
     _ ≃ step (step (step (step (1 + 3))))        := ss (ss (ss sa))
     _ ≃ step (step (step (step (step (0 + 3))))) := ss (ss (ss (ss sa)))
     _ ≃ step (step (step (step (step 3))))       := ss (ss (ss (ss (ss za))))
-    _ ≃ 8                                        := Eqv.refl
+    _ ≃ 8                                        := Rel.refl
 
 -- Lemma 2.2.2.
 -- For any natural number `n`, `n + 0 ≃ n`.
@@ -219,7 +219,7 @@ example {n m : ℕ} : n + step m ≃ step (n + m) :=
 -- As a particular corollary of Lemma 2.2.2 and Lemma 2.2.3 we see that
 -- `step n ≃ n + 1`.
 example {n : ℕ} : step n ≃ n + 1 :=
-  Eqv.symm
+  Rel.symm
     (Natural.add_one_step (ℕ := ℕ) (self := Impl.addition_derived))
 
 -- Proposition 2.2.4 (Addition is commutative).
@@ -275,9 +275,9 @@ example {a : ℕ}
   apply AA.inject (β := ℕ) (f := step) (rβ := (· ≃ ·))
   show step b ≃ step b'
   calc
-    _ ≃ step b  := Eqv.refl
+    _ ≃ step b  := Rel.refl
     _ ≃ a       := ‹step b ≃ a›
-    _ ≃ step b' := Eqv.symm ‹step b' ≃ a›
+    _ ≃ step b' := Rel.symm ‹step b' ≃ a›
 
 -- Definition 2.2.11 (Ordering of the natural numbers).
 -- Let `n` and `m` be natural numbers. We say that `n` is
@@ -291,10 +291,10 @@ example {n m : ℕ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := by
   · intro (_ : m ≤ n)
     show ∃ a, n ≃ m + a
     have ⟨a, (_ : m + a ≃ n)⟩ := le_defn.mp ‹m ≤ n›
-    exact ⟨a, Eqv.symm ‹m + a ≃ n›⟩
+    exact ⟨a, Rel.symm ‹m + a ≃ n›⟩
   · intro ⟨a, (_ : n ≃ m + a)⟩
     show m ≤ n
-    exact le_defn.mpr ⟨a, Eqv.symm ‹n ≃ m + a›⟩
+    exact le_defn.mpr ⟨a, Rel.symm ‹n ≃ m + a›⟩
 
 -- We say that `n` is _strictly greater than_ `m`, and write `n > m` or
 -- `m < n`, iff `n ≥ m` and `n ≄ m`.
@@ -306,10 +306,10 @@ example {n m : ℕ} : n > m ↔ n ≥ m ∧ n ≄ m := by
   · intro (_ : n > m)
     show n ≥ m ∧ n ≄ m
     have ⟨(_ : m ≤ n), (_ : m ≄ n)⟩ := lt_defn.mp ‹m < n›
-    exact ⟨‹n ≥ m›, Eqv.symm ‹m ≄ n›⟩
+    exact ⟨‹n ≥ m›, Rel.symm ‹m ≄ n›⟩
   · intro ⟨(_ : n ≥ m), (_ : n ≄ m)⟩
     show n > m
-    have : m < n := lt_defn.mpr ⟨‹m ≤ n›, Eqv.symm ‹n ≄ m›⟩
+    have : m < n := lt_defn.mpr ⟨‹m ≤ n›, Rel.symm ‹n ≄ m›⟩
     exact ‹n > m›
 
 -- Thus for instance `8 > 5`, because `8 ≃ 5 + 3` and `8 ≄ 5`.
@@ -335,11 +335,11 @@ example {n : ℕ} : step n > n :=
 -- Let `a`, `b`, `c` be natural numbers. Then
 -- (a) (Order is reflexive) `a ≥ a`.
 example {a : ℕ} : a ≥ a :=
-  Eqv.refl (self := Natural.le_reflexive (self := Impl.order_derived))
+  Rel.refl (self := Natural.le_reflexive (self := Impl.order_derived))
 
 -- (b) (Order is transitive) If `a ≥ b` and `b ≥ c`, then `a ≥ c`.
 example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c :=
-  flip (Eqv.trans (self := Natural.le_transitive (self := Impl.order_derived)))
+  flip (Rel.trans (self := Natural.le_transitive (self := Impl.order_derived)))
 
 -- (c) (Order is anti-symmetric) If `a ≥ b` and `b ≥ a`, then `a ≃ b`.
 example {a b : ℕ} : a ≥ b → b ≥ a → a ≃ b := flip Natural.le_antisymm
@@ -421,7 +421,7 @@ example {P : ℕ → Prop} [AA.Substitutive₁ P (· ≃ ·) (· → ·)] {n : �
     | Or.inl (_ : m < 0) =>
       exact absurd ‹m < 0› Natural.lt_zero
     | Or.inr (_ : m ≃ 0) =>
-      exact AA.subst₁ (rβ := (· → ·)) (Eqv.symm ‹m ≃ 0›) ‹P 0›
+      exact AA.subst₁ (rβ := (· → ·)) (Rel.symm ‹m ≃ 0›) ‹P 0›
   case step =>
     intro n (ih : P n → ∀ m, m ≤ n → P m) (_ : P (step n)) m (_ : m ≤ step n)
     show P m
@@ -432,7 +432,7 @@ example {P : ℕ → Prop} [AA.Substitutive₁ P (· ≃ ·) (· → ·)] {n : �
       have : P n := ‹∀ m, P (step m) → P m› n ‹P (step n)›
       exact ih ‹P n› m ‹m ≤ n›
     | Or.inr (_ : m ≃ step n) =>
-      exact AA.subst₁ (rβ := (· → ·)) (Eqv.symm ‹m ≃ step n›) ‹P (step n)›
+      exact AA.subst₁ (rβ := (· → ·)) (Rel.symm ‹m ≃ step n›) ‹P (step n)›
 
 /- 2.3 Multiplication -/
 
@@ -465,19 +465,19 @@ def ex_one_mul {m : ℕ} : 1 * m ≃ 0 + m := calc
   1 * m      ≃ _ := AA.substL (Natural.literal_step (self := Impl.literals))
   step 0 * m ≃ _ := Natural.step_mul
   0 * m + m  ≃ _ := AA.substL ex_zero_mul
-  0 + m      ≃ _ := Eqv.refl
+  0 + m      ≃ _ := Rel.refl
 
 -- `2 * m ≃ 0 + m + m`, etc.
 def ex_two_mul {m : ℕ} : 2 * m ≃ 0 + m + m := calc
   2 * m      ≃ _ := AA.substL Natural.literal_step
   step 1 * m ≃ _ := Natural.step_mul
   1 * m + m  ≃ _ := AA.substL ex_one_mul
-  0 + m + m  ≃ _ := Eqv.refl
+  0 + m + m  ≃ _ := Rel.refl
 
 def two_mul_sum {m : ℕ} : 2 * m ≃ m + m := calc
   2 * m     ≃ _ := ex_two_mul
   0 + m + m ≃ _ := AA.substL Natural.zero_add
-  m + m     ≃ _ := Eqv.refl
+  m + m     ≃ _ := Rel.refl
 
 -- Exercise 2.3.1.
 -- Lemma 2.3.2 (Multiplication is commutative).
@@ -550,10 +550,10 @@ theorem euclidean_algorithm {n q : ℕ} : Positive q → Euclid n q := by
     let r := 0
     have r_bounded : r < q := ‹0 < q›
     have n_divided : 0 ≃ m * q + r := calc
-      0         ≃ _ := Eqv.symm Natural.zero_mul
-      0 * q     ≃ _ := Eqv.symm Natural.add_zero
-      0 * q + 0 ≃ _ := Eqv.refl
-      m * q + r ≃ _ := Eqv.refl
+      0         ≃ _ := Rel.symm Natural.zero_mul
+      0 * q     ≃ _ := Rel.symm Natural.add_zero
+      0 * q + 0 ≃ _ := Rel.refl
+      m * q + r ≃ _ := Rel.refl
     exact Euclid.intro m r r_bounded n_divided
   case step =>
     intro n (ih : Euclid n q)
@@ -569,9 +569,9 @@ theorem euclidean_algorithm {n q : ℕ} : Positive q → Euclid n q := by
       have : r < q := ‹step r' < q›
       have : step n ≃ m * q + r := calc
         step n             ≃ _ := AA.subst₁ ‹n ≃ m' * q + r'›
-        step (m' * q + r') ≃ _ := Eqv.symm Natural.add_step
-        m' * q + step r'   ≃ _ := Eqv.refl
-        m * q + r          ≃ _ := Eqv.refl
+        step (m' * q + r') ≃ _ := Rel.symm Natural.add_step
+        m' * q + step r'   ≃ _ := Rel.refl
+        m * q + r          ≃ _ := Rel.refl
       exact ⟨m, r, ‹r < q›, ‹step n ≃ m * q + r›⟩
     · intro (_ : step r' ≃ q)
       show Euclid (step n) q
@@ -580,12 +580,12 @@ theorem euclidean_algorithm {n q : ℕ} : Positive q → Euclid n q := by
       have : r < q := ‹0 < q›
       have : step n ≃ m * q + r := calc
         step n             ≃ _ := AA.subst₁ ‹n ≃ m' * q + r'›
-        step (m' * q + r') ≃ _ := Eqv.symm Natural.add_step
+        step (m' * q + r') ≃ _ := Rel.symm Natural.add_step
         m' * q + step r'   ≃ _ := AA.substR ‹step r' ≃ q›
-        m' * q + q         ≃ _ := Eqv.symm Natural.step_mul
-        step m' * q        ≃ _ := Eqv.symm Natural.add_zero
-        step m' * q + 0    ≃ _ := Eqv.refl
-        m * q + r          ≃ _ := Eqv.refl
+        m' * q + q         ≃ _ := Rel.symm Natural.step_mul
+        step m' * q        ≃ _ := Rel.symm Natural.add_zero
+        step m' * q + 0    ≃ _ := Rel.refl
+        m * q + r          ≃ _ := Rel.refl
       exact ⟨m, r, ‹r < q›, ‹step n ≃ m * q + r›⟩
 
 -- Definition 2.3.11 (Exponentiation for natural numbers).
@@ -612,19 +612,19 @@ def pow_one {x : ℕ} : x ^ 1 ≃ x := calc
   x ^ (0 : ℕ) * x ≃ _ := AA.substL Natural.pow_zero
   1 * x           ≃ _ := ex_one_mul
   0 + x           ≃ _ := Natural.zero_add
-  x               ≃ _ := Eqv.refl
+  x               ≃ _ := Rel.refl
 
 -- `x ^ 2 ≃ x ^ 1 * x ≃ x * x`;
 def pow_two {x : ℕ} : x ^ 2 ≃ x * x := calc
   x ^ 2     ≃ _ := Natural.pow_step
   x ^ 1 * x ≃ _ := AA.substL pow_one
-  x * x     ≃ _ := Eqv.refl
+  x * x     ≃ _ := Rel.refl
 
 -- `x ^ 3 ≃ x ^ 2 * x ≃ x * x * x`; and so forth.
 example {x : ℕ} : x ^ 3 ≃ x * x * x := calc
   x ^ 3 ≃ _ := Natural.pow_step
   x ^ 2 * x ≃ _ := AA.substL pow_two
-  x * x * x ≃ _ := Eqv.refl
+  x * x * x ≃ _ := Rel.refl
 
 -- Exercise 2.3.4.
 -- Prove the identity `(a + b) ^ 2 ≃ a ^ 2 + 2 * a * b + b ^ 2` for all natural
@@ -641,18 +641,18 @@ example {a b : ℕ} : (a + b) ^ 2 ≃ a ^ 2 + 2 * a * b + b ^ 2 := calc
   (a * a + a * b) + (b * a + b * b)
     ≃ _ := AA.substR (AA.substL AA.comm)
   (a * a + a * b) + (a * b + b * b)
-    ≃ _ := Eqv.symm AA.assoc
+    ≃ _ := Rel.symm AA.assoc
   ((a * a + a * b) + a * b) + b * b
     ≃ _ := AA.substL AA.assoc
   a * a + (a * b + a * b) + b * b
-    ≃ _ := Eqv.symm (AA.substL (AA.substR two_mul_sum))
+    ≃ _ := Rel.symm (AA.substL (AA.substR two_mul_sum))
   a * a + 2 * (a * b) + b * b
-    ≃ _ := Eqv.symm (AA.substL (AA.substR AA.assoc))
+    ≃ _ := Rel.symm (AA.substL (AA.substR AA.assoc))
   a * a + 2 * a * b + b * b
-    ≃ _ := Eqv.symm (AA.substL (AA.substL pow_two))
+    ≃ _ := Rel.symm (AA.substL (AA.substL pow_two))
   a ^ 2 + 2 * a * b + b * b
-    ≃ _ := Eqv.symm (AA.substR pow_two)
+    ≃ _ := Rel.symm (AA.substR pow_two)
   a ^ 2 + 2 * a * b + b ^ 2
-    ≃ _ := Eqv.refl
+    ≃ _ := Rel.refl
 
 end AnalysisI.Ch2
