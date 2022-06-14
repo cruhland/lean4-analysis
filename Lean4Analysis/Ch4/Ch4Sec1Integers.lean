@@ -10,7 +10,9 @@ abbrev ℕ : Type := Nat
 
 namespace Impl
 
-export Integer.Impl.Difference (addition equality multiplication)
+export Integer.Impl.Difference (
+  addition equality from_prod from_prod_substitutive multiplication
+)
 
 end Impl
 
@@ -114,5 +116,23 @@ example : (c——d) * (a——b) ≃ (c——d) * (a'——b') :=
     ‹(a——b) ≃ (a'——b')›
 
 end lemma_4_1_3
+
+-- The integers `n——0` behave in the same way as the natural numbers `n`;
+-- indeed one can check that `(n——0) + (m——0) ≃ (n + m)——0` and
+-- `(n——0) * (m——0) ≃ (n * m)——0`.
+example {n m : ℕ} : (n——0) + (m——0) ≃ (n + m)——0 := rfl
+
+example {n m : ℕ} : (n——0) * (m——0) ≃ (n * m)——0 := by
+  show (n * m + 0 * 0)——(n * 0 + 0 * m) ≃ (n * m)——0
+  show Impl.from_prod (n * m + 0 * 0, n * 0 + 0 * m) ≃ Impl.from_prod (n * m, 0)
+  apply AA.subst₁ (self := Impl.from_prod_substitutive)
+  show (n * m + 0 * 0, n * 0 + 0 * m) ≃ (n * m, 0)
+  calc
+    (n * m + 0 * 0, n * 0 + 0 * m) ≃ _ := AA.substL (AA.substR Natural.zero_mul)
+    (n * m + 0, n * 0 + 0 * m)     ≃ _ := AA.substL Natural.add_zero
+    (n * m, n * 0 + 0 * m)         ≃ _ := AA.substR (AA.substL Natural.mul_zero)
+    (n * m, 0 + 0 * m)             ≃ _ := AA.substR Natural.zero_add
+    (n * m, 0 * m)                 ≃ _ := AA.substR Natural.zero_mul
+    (n * m, 0)                     ≃ _ := Rel.refl
 
 end AnalysisI.Ch4.Sec1
