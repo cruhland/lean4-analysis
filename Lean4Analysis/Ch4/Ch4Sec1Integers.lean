@@ -135,4 +135,18 @@ example {n m : ℕ} : (n——0) * (m——0) ≃ (n * m)——0 := by
     (n * m, 0 * m)                 ≃ _ := AA.substR Natural.zero_mul
     (n * m, 0)                     ≃ _ := Rel.refl
 
+-- Furthermore, `(n——0)` is equal to `(m——0)` if and only if `n ≃ m`.
+example {n m : ℕ} : (n——0) ≃ (m——0) ↔ n ≃ m := by
+  apply Iff.intro
+  case mp =>
+    intro (_ : n——0 ≃ m——0)
+    show n ≃ m
+    have : n + 0 ≃ m + 0 := ‹n——0 ≃ m——0›
+    exact AA.cancelR ‹n + 0 ≃ m + 0›
+  case mpr =>
+    intro (_ : n ≃ m)
+    show n——0 ≃ m——0
+    show n + 0 ≃ m + 0
+    exact AA.substL ‹n ≃ m›
+
 end AnalysisI.Ch4.Sec1
