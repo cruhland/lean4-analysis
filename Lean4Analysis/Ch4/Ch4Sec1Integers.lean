@@ -149,4 +149,35 @@ example {n m : ℕ} : (n——0) ≃ (m——0) ↔ n ≃ m := by
     show n + 0 ≃ m + 0
     exact AA.substL ‹n ≃ m›
 
+-- Thus we may _identify_ the natural numbers with integers by setting
+-- `n ≡ n——0`; this does not affect our definitions of addition or
+-- multiplication or equality since they are consistent with each other.
+-- [Note: In Lean, the left- and right-hand sides of an equivalence must be the
+-- same type, so we can't follow the book exactly here. However, we can define
+-- a _coercion_ that converts natural numbers to integers, and use that to
+-- demonstrate equivalence.]
+example {n : ℕ} : ↑n ≃ n——0 := rfl
+
+-- For instance the natural number `3` is now considered to be the same as the
+-- integer `3——0`, thus `3 ≃ 3——0`.
+example : 3 ≃ 3——0 := rfl
+
+-- In particular `0` is equal to `0——0` and `1` is equal to `1——0`.
+example : 0 ≃ 0——0 := rfl
+example : 1 ≃ 1——0 := rfl
+
+-- Of course, if we set `n` equal to `n——0`, then it will also be equal to any
+-- other integer which is equal to `n——0`, for instance `3` is equal not only
+-- to `3——0`, but also to `4——1`, `5——2`, etc.
+example : 3 ≃ 4——1 := rfl
+example : 3 ≃ 5——2 := rfl
+
+-- We can now define incrementation on the integers by defining
+-- `step x := x + 1` for any integer `x`; this is of course consistent with our
+-- definition of the increment operation for natural numbers. However, this is
+-- no longer an important operation for us, as it has now been superceded by
+-- the more general notion of addition.
+def step (x : ℤ) := x + 1
+example {n : ℕ} : step ↑n ≃ ↑(Natural.step n) := rfl
+
 end AnalysisI.Ch4.Sec1
