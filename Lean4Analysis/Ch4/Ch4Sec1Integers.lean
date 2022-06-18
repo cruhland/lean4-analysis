@@ -11,7 +11,7 @@ abbrev ℕ : Type := Nat
 namespace Impl
 
 export Integer.Impl.Difference (
-  addition equality from_prod from_prod_substitutive multiplication
+  addition equality from_prod from_prod_substitutive multiplication negation
 )
 
 end Impl
@@ -179,5 +179,25 @@ example : 3 ≃ 5——2 := rfl
 -- the more general notion of addition.
 def step (x : ℤ) := x + 1
 example {n : ℕ} : step ↑n ≃ ↑(Natural.step n) := rfl
+
+-- Definition 4.1.4 (Negation of integers).
+-- If `(a——b)` is an integer, we define the negation `-(a——b)` to be the
+-- integer `(b——a)`.
+example {a b : ℕ} : -(a——b) ≃ (b——a) := rfl
+
+-- [definition of integer negation]
+example : ℤ → ℤ := Impl.negation.negOp.neg
+
+-- In particular if `n ≃ n——0` is a positive natural number, we can define its
+-- negation `-n ≃ 0——n`.
+example {n : ℕ} : -↑n ≃ 0——n := rfl
+
+-- For instance `-(3——5) ≃ (5——3)`.
+example : -(3——5) ≃ 5——3 := rfl
+
+-- Exercise 4.1.2.
+-- One can check this definition is well-defined.
+example {a b a' b' : ℕ} : a——b ≃ a'——b' → -(a——b) ≃ -(a'——b') :=
+  AA.subst₁ (self := Impl.negation.neg_substitutive)
 
 end AnalysisI.Ch4.Sec1
