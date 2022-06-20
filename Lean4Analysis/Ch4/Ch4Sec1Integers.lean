@@ -212,4 +212,17 @@ example {x : ℤ}
     :=
   Impl.negation.trichotomy
 
+-- Proposition 4.1.6 (Laws of algebra for integers).
+-- Let `x`, `y`, `z` be integers. Then we have:
+section proposition_4_1_6
+
+variable {x y z : ℤ}
+
+example : x + y ≃ y + x := AA.comm (self := Impl.addition.add_commutative)
+
+example : (x + y) + z ≃ x + (y + z) :=
+  AA.assoc (self := Impl.addition.add_associative)
+
+end proposition_4_1_6
+
 end AnalysisI.Ch4.Sec1
