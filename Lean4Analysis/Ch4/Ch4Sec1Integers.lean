@@ -200,4 +200,16 @@ example : -(3——5) ≃ 5——3 := rfl
 example {a b a' b' : ℕ} : a——b ≃ a'——b' → -(a——b) ≃ -(a'——b') :=
   AA.subst₁ (self := Impl.negation.neg_substitutive)
 
+-- Lemma 4.1.5 (Trichotomy of integers).
+-- Let `x` be an integer. Then exactly one of the following three statements is
+-- true: (a) `x` is zero; (b) `x` is equal to a positive natural number `n`; or
+-- (c) `x` is the negation `-n` of a positive natural number `n`.
+example {x : ℤ}
+    : AA.ExactlyOneOfThree
+      (x ≃ 0)
+      (∃ (n : ℕ), Natural.Positive n ∧ x ≃ n)
+      (∃ (n : ℕ), Natural.Positive n ∧ x ≃ -n)
+    :=
+  Impl.negation.trichotomy
+
 end AnalysisI.Ch4.Sec1
