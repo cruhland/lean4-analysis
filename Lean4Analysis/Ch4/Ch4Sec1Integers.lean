@@ -223,6 +223,10 @@ example : x + y ≃ y + x := AA.comm (self := Impl.addition.add_commutative)
 example : (x + y) + z ≃ x + (y + z) :=
   AA.assoc (self := Impl.addition.add_associative)
 
+example : x + 0 ≃ x := AA.identR (self := Impl.addition.add_identity.identityR)
+
+example : 0 + x ≃ x := AA.identL (self := Impl.addition.add_identity.identityL)
+
 end proposition_4_1_6
 
 end AnalysisI.Ch4.Sec1
