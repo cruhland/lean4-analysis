@@ -212,6 +212,7 @@ example {x : ℤ}
     :=
   Impl.negation.trichotomy
 
+-- Exercise 4.1.4.
 -- Proposition 4.1.6 (Laws of algebra for integers).
 -- Let `x`, `y`, `z` be integers. Then we have:
 section proposition_4_1_6
@@ -244,6 +245,12 @@ example : x * 1 ≃ x :=
 
 example : 1 * x ≃ x :=
   AA.identL (self := Impl.multiplication.mul_identity.identityL)
+
+example : x * (y + z) ≃ x * y + x * z :=
+  AA.distribL (self := Impl.multiplication.mul_distributive.distributiveL)
+
+example : (y + z) * x ≃ y * x + z * x :=
+  AA.distribR (self := Impl.multiplication.mul_distributive.distributiveR)
 
 end proposition_4_1_6
 
