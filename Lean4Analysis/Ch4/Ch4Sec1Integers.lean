@@ -233,6 +233,12 @@ example : x + (-x) ≃ 0 :=
 example : (-x) + x ≃ 0 :=
   AA.inverseL (self := Impl.negation.neg_inverse.inverseL)
 
+example : x * y ≃ y * x :=
+  AA.comm (self := Impl.multiplication.mul_commutative)
+
+example : (x * y) * z ≃ x * (y * z) :=
+  AA.assoc (self := Impl.multiplication.mul_associative)
+
 end proposition_4_1_6
 
 end AnalysisI.Ch4.Sec1
