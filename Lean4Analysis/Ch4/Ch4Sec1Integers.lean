@@ -239,6 +239,12 @@ example : x * y ≃ y * x :=
 example : (x * y) * z ≃ x * (y * z) :=
   AA.assoc (self := Impl.multiplication.mul_associative)
 
+example : x * 1 ≃ x :=
+  AA.identR (self := Impl.multiplication.mul_identity.identityR)
+
+example : 1 * x ≃ x :=
+  AA.identL (self := Impl.multiplication.mul_identity.identityL)
+
 end proposition_4_1_6
 
 end AnalysisI.Ch4.Sec1
