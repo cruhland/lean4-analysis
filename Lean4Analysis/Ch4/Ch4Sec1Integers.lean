@@ -227,6 +227,12 @@ example : x + 0 ≃ x := AA.identR (self := Impl.addition.add_identity.identityR
 
 example : 0 + x ≃ x := AA.identL (self := Impl.addition.add_identity.identityL)
 
+example : x + (-x) ≃ 0 :=
+  AA.inverseR (self := Impl.negation.neg_inverse.inverseR)
+
+example : (-x) + x ≃ 0 :=
+  AA.inverseL (self := Impl.negation.neg_inverse.inverseL)
+
 end proposition_4_1_6
 
 end AnalysisI.Ch4.Sec1
