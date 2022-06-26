@@ -254,4 +254,8 @@ example : (y + z) * x ≃ y * x + z * x :=
 
 end proposition_4_1_6
 
+-- We now define the operation of _subtraction_ `x - y` of two integers by the
+-- formula `x - y := x + (-y)`.
+example {x y : ℤ} : x - y ≃ x + (-y) := Rel.refl
+
 end AnalysisI.Ch4.Sec1
