@@ -11,7 +11,8 @@ abbrev ℕ : Type := Nat
 namespace Impl
 
 export Integer.Impl.Difference (
-  addition equality from_prod from_prod_substitutive multiplication negation
+  addition equality from_prod from_prod_substitutive integer multiplication
+  negation
 )
 
 end Impl
@@ -257,5 +258,22 @@ end proposition_4_1_6
 -- We now define the operation of _subtraction_ `x - y` of two integers by the
 -- formula `x - y := x + (-y)`.
 example {x y : ℤ} : x - y ≃ x + (-y) := Rel.refl
+
+-- [Definition of subtraction.]
+example : ℤ → ℤ → ℤ := Impl.integer.toSubtraction.subOp.sub
+
+-- We do not need to verify the substitution axiom for this operation, since we
+-- have defined subtraction in terms of two other operations on integers,
+-- namely addition and negation, and we have already verified that those
+-- operations are well-defined.
+-- [Note: What Tao really means here is that the proof of the substitution
+-- axiom is too trivial to bother with; his explanation is essentially the
+-- proof. We don't have the luxury of hand-waving with Lean, so we have to show
+-- it explicitly.]
+example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → x₁ - y ≃ x₂ - y :=
+  AA.substL (self := Impl.integer.toSubtraction.sub_substitutive.substitutiveL)
+
+example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → y - x₁ ≃ y - x₂ :=
+  AA.substR (self := Impl.integer.toSubtraction.sub_substitutive.substitutiveR)
 
 end AnalysisI.Ch4.Sec1
