@@ -276,4 +276,18 @@ example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → x₁ - y ≃ x₂ - y :=
 example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → y - x₁ ≃ y - x₂ :=
   AA.substR (self := Impl.integer.toSubtraction.sub_substitutive.substitutiveR)
 
+-- One can easily check now that if `a` and `b` are natural numbers, then
+example {a b : ℕ} : ↑a - ↑b ≃ a——b := calc
+  ↑a - (↑b : ℤ)                 ≃ _ := rfl
+  ↑a + (-↑b : ℤ)                ≃ _ := rfl
+  (a——0) + (0——b)               ≃ _ := rfl
+  (a + 0)——(0 + b)              ≃ _ := rfl
+  Impl.from_prod (a + 0, 0 + b) ≃ _ := AA.subst₁ (AA.substL AA.identR)
+  Impl.from_prod (a, 0 + b)     ≃ _ := AA.subst₁ (AA.substR AA.identL)
+  Impl.from_prod (a, b)         ≃ _ := rfl
+  a——b                          ≃ _ := rfl
+-- and so `a——b` is just the same thing as `a - b`. Because of this we can now
+-- discard the `(· —— ·)` notation, and use the familiar operation of
+-- subtraction instead.
+
 end AnalysisI.Ch4.Sec1
