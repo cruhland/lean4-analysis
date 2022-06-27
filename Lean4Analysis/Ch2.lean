@@ -490,7 +490,7 @@ example {n m : ℕ} : n * m ≃ m * n := by
 -- Let `n`, `m` be natural numbers. Then `n * m ≃ 0` if and only if at least
 -- one of `n`, `m` is equal to zero.
 example {n m : ℕ} : n * m ≃ 0 ↔ n ≃ 0 ∨ m ≃ 0 :=
-  Natural.zero_product_split (self := mul_derived)
+  Natural.mul_split_zero (self := mul_derived)
 
 -- In particular, if `n` and `m` are both positive, then `n * m` is also
 -- positive.
