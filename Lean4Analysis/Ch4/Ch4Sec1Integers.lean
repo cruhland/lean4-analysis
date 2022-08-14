@@ -3,6 +3,7 @@ import Lean4Axiomatic.Integer.Impl.Difference
 import Lean4Axiomatic.Natural.Impl.Nat
 
 open Lean4Axiomatic
+open Signed (Negative Positive)
 
 namespace AnalysisI.Ch4.Sec1
 
@@ -11,8 +12,8 @@ abbrev ℕ : Type := Nat
 namespace Impl
 
 export Integer.Impl.Difference (
-  addition equality from_prod from_prod_substitutive integer multiplication
-  negation
+  addition core from_prod from_prod_substitutive integer multiplication
+  negation sign
 )
 
 end Impl
@@ -28,7 +29,7 @@ abbrev ℤ : Type := Integer.Impl.Difference ℕ
 example {a b : ℕ} : ℤ := a——b
 
 -- [definition of the equality relation on ℤ]
-example : ℤ → ℤ → Prop := Impl.equality.eqvOp.tildeDash
+example : ℤ → ℤ → Prop := Impl.core.eqvOp.tildeDash
 
 example {a b c d : ℕ} : a——b ≃ c——d ↔ a + d ≃ c + b := Iff.intro id id
 
@@ -46,11 +47,11 @@ example : 3——5 ≄ 2——3 := by
 -- Exercise 4.1.1.
 -- We have to check that this is a legitimate notion of equality. We need to
 -- verify the reflexivity, symmetry, transitivity, and substitution axioms.
-example {a : ℤ} : a ≃ a := Impl.equality.eqvOp.refl
+example {a : ℤ} : a ≃ a := Impl.core.eqvOp.refl
 
-example {a b : ℤ} : a ≃ b → b ≃ a := Impl.equality.eqvOp.symm
+example {a b : ℤ} : a ≃ b → b ≃ a := Impl.core.eqvOp.symm
 
-example {a b c : ℤ} : a ≃ b → b ≃ c → a ≃ c := Impl.equality.eqvOp.trans
+example {a b c : ℤ} : a ≃ b → b ≃ c → a ≃ c := Impl.core.eqvOp.trans
 
 -- As for the substitution axiom, we cannot verify it at this stage because we
 -- have not yet defined any operations on the integers. However, when we do
@@ -121,20 +122,13 @@ end lemma_4_1_3
 -- The integers `n——0` behave in the same way as the natural numbers `n`;
 -- indeed one can check that `(n——0) + (m——0) ≃ (n + m)——0` and
 -- `(n——0) * (m——0) ≃ (n * m)——0`.
-example {n m : ℕ} : (n——0) + (m——0) ≃ (n + m)——0 := rfl
+example {n m : ℕ} : (n——0) + (m——0) ≃ (n + m)——0 :=
+  let inst := Impl.addition.add_compatible_from_natural
+  Rel.symm (AA.compat₂ (self := inst))
 
-example {n m : ℕ} : (n——0) * (m——0) ≃ (n * m)——0 := by
-  show (n * m + 0 * 0)——(n * 0 + 0 * m) ≃ (n * m)——0
-  show Impl.from_prod (n * m + 0 * 0, n * 0 + 0 * m) ≃ Impl.from_prod (n * m, 0)
-  apply AA.subst₁ (self := Impl.from_prod_substitutive)
-  show (n * m + 0 * 0, n * 0 + 0 * m) ≃ (n * m, 0)
-  calc
-    (n * m + 0 * 0, n * 0 + 0 * m) ≃ _ := AA.substL (AA.substR Natural.zero_mul)
-    (n * m + 0, n * 0 + 0 * m)     ≃ _ := AA.substL Natural.add_zero
-    (n * m, n * 0 + 0 * m)         ≃ _ := AA.substR (AA.substL Natural.mul_zero)
-    (n * m, 0 + 0 * m)             ≃ _ := AA.substR Natural.zero_add
-    (n * m, 0 * m)                 ≃ _ := AA.substR Natural.zero_mul
-    (n * m, 0)                     ≃ _ := Rel.refl
+example {n m : ℕ} : (n——0) * (m——0) ≃ (n * m)——0 :=
+  let inst := Impl.multiplication.mul_compatible_from_natural
+  Rel.symm (AA.compat₂ (self := inst))
 
 -- Furthermore, `(n——0)` is equal to `(m——0)` if and only if `n ≃ m`.
 example {n m : ℕ} : (n——0) ≃ (m——0) ↔ n ≃ m := by
@@ -205,13 +199,95 @@ example {a b a' b' : ℕ} : a——b ≃ a'——b' → -(a——b) ≃ -(a'—�
 -- Let `x` be an integer. Then exactly one of the following three statements is
 -- true: (a) `x` is zero; (b) `x` is equal to a positive natural number `n`; or
 -- (c) `x` is the negation `-n` of a positive natural number `n`.
-example {x : ℤ}
-    : AA.ExactlyOneOfThree
+example
+    : (x : ℤ) →
+    AA.ExactlyOneOfThree
       (x ≃ 0)
-      (∃ (n : ℕ), Natural.Positive n ∧ x ≃ n)
-      (∃ (n : ℕ), Natural.Positive n ∧ x ≃ -n)
-    :=
-  Impl.negation.trichotomy
+      (∃ (n : ℕ), Positive n ∧ x ≃ n)
+      (∃ (n : ℕ), Positive n ∧ x ≃ -n)
+    := by
+  intro (x : ℤ)
+  have tri : AA.ExactlyOneOfThree (x ≃ 0) (Positive x) (Negative x) :=
+    Signed.trichotomy x
+  apply AA.ExactlyOneOfThree.mk
+  case atLeastOne =>
+    show AA.OneOfThree
+      (x ≃ 0)
+      (∃ (n : ℕ), Positive n ∧ x ≃ n)
+      (∃ (n : ℕ), Positive n ∧ x ≃ -n)
+    match tri.atLeastOne with
+    | AA.OneOfThree.first (_ : x ≃ 0) =>
+      exact AA.OneOfThree.first ‹x ≃ 0›
+    | AA.OneOfThree.second (_ : Positive x) =>
+      exact AA.OneOfThree.second (pos_iff_ex.mp ‹Positive x›)
+    | AA.OneOfThree.third (_ : Negative x) =>
+      exact AA.OneOfThree.third (neg_iff_ex.mp ‹Negative x›)
+  case atMostOne =>
+    intro
+      (h : AA.TwoOfThree
+        (x ≃ 0)
+        (∃ (n : ℕ), Positive n ∧ x ≃ n)
+        (∃ (n : ℕ), Positive n ∧ x ≃ -n))
+    show False
+    apply tri.atMostOne
+    show AA.TwoOfThree (x ≃ 0) (Positive x) (Negative x)
+    match h with
+    | AA.TwoOfThree.oneAndTwo
+        (_ : x ≃ 0) (_ : ∃ (n : ℕ), Positive n ∧ x ≃ n) =>
+      have : Positive x := pos_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ n›
+      exact AA.TwoOfThree.oneAndTwo ‹x ≃ 0› ‹Positive x›
+    | AA.TwoOfThree.oneAndThree
+        (_ : x ≃ 0) (_ : ∃ (n : ℕ), Positive n ∧ x ≃ -n) =>
+      have : Negative x := neg_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ -n›
+      exact AA.TwoOfThree.oneAndThree ‹x ≃ 0› ‹Negative x›
+    | AA.TwoOfThree.twoAndThree
+        (_ : ∃ (n : ℕ), Positive n ∧ x ≃ n)
+        (_ : ∃ (n : ℕ), Positive n ∧ x ≃ -n) =>
+      have : Positive x := pos_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ n›
+      have : Negative x := neg_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ -n›
+      exact AA.TwoOfThree.twoAndThree ‹Positive x› ‹Negative x›
+where
+  pos_iff_ex {x : ℤ} : Positive x ↔ ∃ (n : ℕ), Positive n ∧ x ≃ n := by
+    apply Iff.intro
+    case mp =>
+      intro (_ : Positive x)
+      show ∃ (n : ℕ), Positive n ∧ x ≃ n
+      have (Integer.SignedMagnitude.intro
+            (n : ℕ) (_ : Positive n) (_ : x ≃ 1 * ↑n)) :=
+        Impl.sign.positive_defn.mp ‹Positive x›
+      exists n
+      apply And.intro ‹Positive n›
+      show x ≃ n
+      exact Rel.trans ‹x ≃ 1 * ↑n› AA.identL
+    case mpr =>
+      intro (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ n)))
+      show Positive x
+      apply Impl.sign.positive_defn.mpr
+      show Integer.SignedMagnitude x Integer.sqrt1_one
+      apply Integer.SignedMagnitude.intro n ‹Positive n›
+      show x ≃ 1 * n
+      exact Rel.trans ‹x ≃ n› (Rel.symm AA.identL)
+
+  neg_iff_ex {x : ℤ} : Negative x ↔ ∃ (n : ℕ), Positive n ∧ x ≃ -n := by
+    apply Iff.intro
+    case mp =>
+      intro (_ : Negative x)
+      show ∃ (n : ℕ), Positive n ∧ x ≃ -n
+      have (Integer.SignedMagnitude.intro
+            (n : ℕ) (_ : Positive n) (_ : x ≃ -1 * ↑n)) :=
+        Impl.sign.negative_defn.mp ‹Negative x›
+      exists n
+      apply And.intro ‹Positive n›
+      show x ≃ -n
+      exact Rel.trans ‹x ≃ -1 * ↑n› Integer.mul_neg_one
+    case mpr =>
+      intro (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ -n)))
+      show Negative x
+      apply Impl.sign.negative_defn.mpr
+      show Integer.SignedMagnitude x Integer.sqrt1_neg_one
+      apply Integer.SignedMagnitude.intro n ‹Positive n›
+      show x ≃ -1 * n
+      exact Rel.trans ‹x ≃ -n› (Rel.symm Integer.mul_neg_one)
 
 -- Exercise 4.1.4.
 -- Proposition 4.1.6 (Laws of algebra for integers).

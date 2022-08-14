@@ -5,17 +5,17 @@ import Lean4Axiomatic.Operators
 import Lean4Axiomatic.Relation.Equivalence
 
 open Lean4Axiomatic
-open Natural (Positive step)
+open Natural (step)
 open Operators (TildeDash)
+open Signed (Positive)
 
 namespace AnalysisI.Ch2
 
 namespace Impl
 
-export Natural.Default (order_base sign_base)
+export Natural.Default (order_base sign)
 export Natural.Derived (
   addition_derived axioms_derived multiplication_derived order_derived
-  sign_derived
 )
 export Natural.Impl.Nat (
   addition_base axioms_base constructors core equality exponentiation_base
@@ -243,14 +243,13 @@ example {a b c : ℕ} : a + b ≃ a + c → b ≃ c :=
 
 -- Definition 2.2.7 (Positive natural numbers).
 -- A natural number `n` is said to be _positive_ iff it is not equal to `0`.
-example : ℕ → Prop := Positive (self := Impl.sign_base)
+example : ℕ → Prop := Positive (self := Impl.sign.positivity.toOps)
 example {n : ℕ} : Positive n ↔ n ≄ 0 :=
-  Natural.positive_defn (self := Impl.sign_base)
+  Signed.positive_defn (self := Impl.sign.positivity)
 
 -- Proposition 2.2.8.
 -- If `a` is positive and `b` is a natural number, then `a + b` is positive.
-example {a b : ℕ} : Positive a → Positive (a + b) :=
-  Natural.positive_add (self := Impl.sign_derived)
+example {a b : ℕ} : Positive a → Positive (a + b) := Natural.positive_add
 
 -- Corollary 2.2.9.
 -- If `a` and `b` are natural numbers such that `a + b ≃ 0`,
@@ -266,8 +265,7 @@ example {a : ℕ}
     : Positive a → ∃ b : ℕ, step b ≃ a ∧ ∀ b' : ℕ, step b' ≃ a → b ≃ b' := by
   intro (_ : Positive a)
   show ∃ b, step b ≃ a ∧ ∀ b', step b' ≃ a → b ≃ b'
-  have ⟨b, (_ : step b ≃ a)⟩ :=
-    Natural.positive_step (self := Impl.sign_derived) ‹Positive a›
+  have ⟨b, (_ : step b ≃ a)⟩ := Natural.positive_step ‹Positive a›
   exists b
   apply And.intro ‹step b ≃ a›
   intro b' (_ : step b' ≃ a)
