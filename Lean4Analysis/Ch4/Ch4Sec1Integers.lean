@@ -333,7 +333,7 @@ end proposition_4_1_6
 
 -- We now define the operation of _subtraction_ `x - y` of two integers by the
 -- formula `x - y := x + (-y)`.
-example {x y : ℤ} : x - y ≃ x + (-y) := Rel.refl
+example {x y : ℤ} : x - y ≃ x + (-y) := Integer.sub_defn
 
 -- [Definition of subtraction.]
 example : ℤ → ℤ → ℤ := Impl.integer.toSubtraction.subOp.sub
@@ -347,10 +347,10 @@ example : ℤ → ℤ → ℤ := Impl.integer.toSubtraction.subOp.sub
 -- proof. We don't have the luxury of hand-waving with Lean, so we have to show
 -- it explicitly.]
 example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → x₁ - y ≃ x₂ - y :=
-  AA.substL (self := Impl.integer.toSubtraction.sub_substitutive.substitutiveL)
+  AA.substL (self := Integer.sub_substitutive.substitutiveL)
 
 example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → y - x₁ ≃ y - x₂ :=
-  AA.substR (self := Impl.integer.toSubtraction.sub_substitutive.substitutiveR)
+  AA.substR (self := Integer.sub_substitutive.substitutiveR)
 
 -- One can easily check now that if `a` and `b` are natural numbers, then
 example {a b : ℕ} : ↑a - ↑b ≃ a——b := calc
@@ -365,5 +365,23 @@ example {a b : ℕ} : ↑a - ↑b ≃ a——b := calc
 -- and so `a——b` is just the same thing as `a - b`. Because of this we can now
 -- discard the `(· —— ·)` notation, and use the familiar operation of
 -- subtraction instead.
+
+-- We can now generalize Lemma 2.3.3 and Corollary 2.3.7 from the natural
+-- numbers to the integers:
+
+-- Exercise 4.1.5.
+-- Proposition 4.1.8 (Integers have no zero divisors).
+-- Let `a` and `b` be integers such that `a * b ≃ 0`. Then either `a ≃ 0` or
+-- `b ≃ 0` (or both).
+example {a b : ℤ} : a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0 := Integer.mul_split_zero.mp
+
+-- Exercise 4.1.6.
+-- Corollary 4.1.9 (Cancellation law for integers).
+-- If `a`, `b`, `c` are integers such that `a * c ≃ b * c` and `c` is non-zero,
+-- then `a ≃ b`.
+example {a b c : ℤ} : a * c ≃ b * c → c ≄ 0 → a ≃ b := by
+  intro (_ : a * c ≃ b * c) (_ : c ≄ 0)
+  let inst := Integer.mul_cancellative.cancellativeR
+  exact AA.cancelRC (self := inst) ‹c ≄ 0› ‹a * c ≃ b * c›
 
 end AnalysisI.Ch4.Sec1
