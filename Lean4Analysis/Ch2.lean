@@ -15,10 +15,10 @@ namespace Impl
 
 export Natural.Default (order_base sign)
 export Natural.Derived (
-  addition_derived axioms_derived multiplication_derived order_derived
+  addition_derived multiplication_derived order_derived
 )
 export Natural.Impl.Nat (
-  addition_base axioms_base constructors core equality exponentiation_base
+  addition_base axioms constructors core equality exponentiation_base
   literals multiplication_base
 )
 
@@ -81,7 +81,7 @@ example : ℕ := 3
 -- `0` is not the successor of any natural number; i.e., we have `step n ≄ 0`
 -- for every natural number `n`.
 example {n : ℕ} : step n ≄ 0 :=
-  Natural.step_neq_zero (self := Impl.axioms_base)
+  Natural.step_neq_zero (self := Impl.axioms)
 
 -- Proposition 2.1.6.
 -- `4` is not equal to `0`.
@@ -92,7 +92,7 @@ example : 4 ≄ 0 := Natural.step_neq_zero (ℕ := ℕ)
 -- are natural numbers and `n ≄ m`, then `step n ≄ step m`. Equivalently, if
 -- `step n ≃ step m`, then we must have `n ≃ m`.
 example {n m : ℕ} : step n ≃ step m → n ≃ m :=
-  AA.inject (self := Natural.step_injective (self := Impl.axioms_base))
+  AA.inject (self := Natural.step_injective (self := Impl.axioms))
 
 -- Proposition 2.1.8.
 -- `6` is not equal to `2`.
@@ -112,7 +112,7 @@ example : 6 ≄ 2 := by
 -- `P 0` is true, and suppose that whenever `P n` is true, `P (step n)` is also
 -- true. Then `P n` is true for every natural number `n`.
 example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n :=
-  Natural.ind (self := Impl.axioms_base)
+  Natural.ind (self := Impl.axioms)
 
 -- Proposition 2.1.16 (Recursive definitions).
 -- Suppose for each natural number `n`, we have some function `f n : ℕ → ℕ`
@@ -384,7 +384,7 @@ example
   apply h m ‹m₀ ≤ m›
   show ∀ m', m₀ ≤ m' → m' < m → P m'
   let motive := λ m => ∀ m', m₀ ≤ m' → m' < m → P m'
-  apply Natural.ind_on (self := Impl.axioms_derived) (motive := motive) m
+  apply Natural.ind_on (motive := motive) m
   case zero =>
     intro m' (_ : m₀ ≤ m') (_ : m' < 0)
     show P m'
