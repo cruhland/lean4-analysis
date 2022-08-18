@@ -248,17 +248,19 @@ example
       exact AA.TwoOfThree.twoAndThree ‹Positive x› ‹Negative x›
 where
   pos_iff_ex {x : ℤ} : Positive x ↔ ∃ (n : ℕ), Positive n ∧ x ≃ n := by
+    -- Explicitly add instance to scope to help resolve `AA.identL` calls below
+    have mul_ident := Impl.multiplication.mul_identity (ℕ := ℕ)
     apply Iff.intro
     case mp =>
       intro (_ : Positive x)
       show ∃ (n : ℕ), Positive n ∧ x ≃ n
       have (Integer.SignedMagnitude.intro
-            (n : ℕ) (_ : Positive n) (_ : x ≃ 1 * ↑n)) :=
+            (n : ℕ) (_ : Positive n) (_ : x ≃ 1 * n)) :=
         Impl.sign.positive_defn.mp ‹Positive x›
       exists n
       apply And.intro ‹Positive n›
       show x ≃ n
-      exact Rel.trans ‹x ≃ 1 * ↑n› AA.identL
+      exact Rel.trans ‹x ≃ 1 * n› AA.identL
     case mpr =>
       intro (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ n)))
       show Positive x

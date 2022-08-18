@@ -15,10 +15,10 @@ namespace Impl
 
 export Natural.Default (order_base sign)
 export Natural.Derived (
-  addition_derived multiplication_derived order_derived
+  multiplication_derived order_derived
 )
 export Natural.Impl.Nat (
-  addition_base axioms constructors core equality exponentiation_base
+  addition axioms constructors core equality exponentiation_base
   literals multiplication_base
 )
 
@@ -134,18 +134,16 @@ example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n 
 -- Let `m` be a natural number. To add zero to `m`, we define `0 + m := m`. Now
 -- suppose inductively that we have defined how to add `n` to `m`. Then we can
 -- add `step n` to `m` by defining `step n + m := step (n + m)`.
-example : ℕ → ℕ → ℕ :=
-  Add.add (self := Natural.addOp (self := Impl.addition_base))
+example : ℕ → ℕ → ℕ := Add.add (self := Natural.addOp (self := Impl.addition))
 
-example {m : ℕ} : 0 + m ≃ m :=
-  Natural.zero_add (self := Impl.addition_base)
+example {m : ℕ} : 0 + m ≃ m := Natural.zero_add (self := Impl.addition)
 
 example {n m : ℕ} : step n + m ≃ step (n + m) :=
-  Natural.step_add (self := Impl.addition_base)
+  Natural.step_add (self := Impl.addition)
 
 -- [Addition obeys left and right substitution]
 example : AA.Substitutive₂ (α := ℕ) (· + ·) AA.tc (· ≃ ·) (· ≃ ·) :=
-  Natural.add_substitutive (self := Impl.addition_derived)
+  Natural.add_substitutive
 
 -- Thus `0 + m` is `m`,
 example {m : ℕ} : 0 + m ≃ m := Natural.zero_add
@@ -208,38 +206,31 @@ example : 5 + 3 ≃ 8 := by
 
 -- Lemma 2.2.2.
 -- For any natural number `n`, `n + 0 ≃ n`.
-example {n : ℕ} : n + 0 ≃ n :=
-  Natural.add_zero (self := Impl.addition_derived)
+example {n : ℕ} : n + 0 ≃ n := Natural.add_zero
 
 -- Lemma 2.2.3.
 -- For any natural numbers `n` and `m`, `n + step m ≃ step (n + m)`.
-example {n m : ℕ} : n + step m ≃ step (n + m) :=
-  Natural.add_step (self := Impl.addition_derived)
+example {n m : ℕ} : n + step m ≃ step (n + m) := Natural.add_step
 
 -- As a particular corollary of Lemma 2.2.2 and Lemma 2.2.3 we see that
 -- `step n ≃ n + 1`.
-example {n : ℕ} : step n ≃ n + 1 :=
-  Rel.symm
-    (Natural.add_one_step (ℕ := ℕ) (self := Impl.addition_derived))
+example {n : ℕ} : step n ≃ n + 1 := Rel.symm Natural.add_one_step
 
 -- Proposition 2.2.4 (Addition is commutative).
 -- For any natural numbers `n` and `m`, `n + m ≃ m + n`.
-example {n m : ℕ} : n + m ≃ m + n :=
-  AA.comm (self := Natural.add_commutative (self := Impl.addition_derived))
+example {n m : ℕ} : n + m ≃ m + n := AA.comm (self := Natural.add_commutative)
 
 -- Exercise 2.2.1.
 -- Proposition 2.2.5 (Addition is associative).
 -- For any natural numbers `a`, `b`, `c`, we have `(a + b) + c ≃ a + (b + c)`.
 example {a b c : ℕ} : (a + b) + c ≃ a + (b + c) :=
-  AA.assoc (self := Natural.add_associative (self := Impl.addition_derived))
+  AA.assoc (self := Natural.add_associative)
 
 -- Proposition 2.2.6 (Cancellation law).
 -- Let `a`, `b`, `c` be natural numbers such that `a + b ≃ a + c`. Then we have
 -- `b ≃ c`.
 example {a b c : ℕ} : a + b ≃ a + c → b ≃ c :=
-  let addition_derived := Impl.addition_derived
-  let add_cancellative := Natural.add_cancellative (self := addition_derived)
-  AA.cancelL (self := add_cancellative.cancellativeL)
+  AA.cancelL (self := Natural.add_cancellative.cancellativeL)
 
 -- Definition 2.2.7 (Positive natural numbers).
 -- A natural number `n` is said to be _positive_ iff it is not equal to `0`.
@@ -254,8 +245,7 @@ example {a b : ℕ} : Positive a → Positive (a + b) := Natural.positive_add
 -- Corollary 2.2.9.
 -- If `a` and `b` are natural numbers such that `a + b ≃ 0`,
 -- then `a ≃ 0` and `b ≃ 0`.
-example {a b : ℕ} : a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0 :=
-  Natural.zero_sum_split (self := Impl.addition_derived)
+example {a b : ℕ} : a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0 := Natural.zero_sum_split
 
 -- Exercise 2.2.2.
 -- Lemma 2.2.10.
