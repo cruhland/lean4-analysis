@@ -15,8 +15,8 @@ namespace Impl
 
 export Natural.Default (order sign)
 export Natural.Impl.Nat (
-  addition axioms constructors core equality exponentiation_base
-  literals multiplication
+  addition axioms constructors core equality exponentiation literals
+  multiplication
 )
 
 end Impl
@@ -564,12 +564,11 @@ theorem euclidean_algorithm {n q : ℕ} : Positive q → Euclid n q := by
 
 -- Definition 2.3.11 (Exponentiation for natural numbers).
 example : ℕ → ℕ → ℕ :=
-  Pow.pow (self := Natural.powOp (self := Impl.exponentiation_base))
+  Pow.pow (self := Natural.powOp (self := Impl.exponentiation))
 
 -- Let `m` be a natural number. To raise `m` to the power `0`, we define
 -- `m ^ 0 := 1`;
-example {m : ℕ} : m ^ 0 ≃ 1 :=
-  Natural.pow_zero (self := Impl.exponentiation_base)
+example {m : ℕ} : m ^ 0 ≃ 1 := Natural.pow_zero (self := Impl.exponentiation)
 
 -- in particular, we define `0 ^ 0 := 1`.
 example : 0 ^ (0 : ℕ) ≃ 1 := Natural.pow_zero
@@ -577,7 +576,7 @@ example : 0 ^ (0 : ℕ) ≃ 1 := Natural.pow_zero
 -- Now suppose recursively that `m ^ n` has been defined for some natural
 -- number `n`, then we define `m ^ step n := m ^ n * m`.
 example {m n : ℕ} : m ^ step n ≃ m ^ n * m :=
-  Natural.pow_step (self := Impl.exponentiation_base)
+  Natural.pow_step (self := Impl.exponentiation)
 
 -- Examples 2.3.12.
 -- Thus for instance `x ^ 1 ≃ x ^ 0 * x ≃ 1 * x ≃ x`;
