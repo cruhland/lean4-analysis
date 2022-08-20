@@ -13,10 +13,8 @@ namespace AnalysisI.Ch2
 
 namespace Impl
 
-export Natural.Default (order_base sign)
-export Natural.Derived (
-  multiplication_derived order_derived
-)
+export Natural.Default (order sign)
+export Natural.Derived (multiplication_derived)
 export Natural.Impl.Nat (
   addition axioms constructors core equality exponentiation_base
   literals multiplication_base
@@ -272,9 +270,9 @@ example {a : ℕ}
 -- _greater than or equal to_ `m`, and write `n ≥ m` or `m ≤ n`, iff we have
 -- `n ≃ m + a` for some natural number `a`.
 example : ℕ → ℕ → Prop :=
-  @GE.ge ℕ (Natural.leOp (self := Impl.order_base))
+  @GE.ge ℕ (Natural.leOp (self := Impl.order))
 example {n m : ℕ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := by
-  let le_defn := @Natural.le_defn (ℕ := ℕ) (self := Impl.order_base)
+  let le_defn := @Natural.le_defn (ℕ := ℕ) (self := Impl.order)
   apply Iff.intro
   · intro (_ : m ≤ n)
     show ∃ a, n ≃ m + a
@@ -287,9 +285,9 @@ example {n m : ℕ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := by
 -- We say that `n` is _strictly greater than_ `m`, and write `n > m` or
 -- `m < n`, iff `n ≥ m` and `n ≄ m`.
 example : ℕ → ℕ → Prop :=
-  @GT.gt ℕ (Natural.ltOp (self := Impl.order_base))
+  @GT.gt ℕ (Natural.ltOp (self := Impl.order))
 example {n m : ℕ} : n > m ↔ n ≥ m ∧ n ≄ m := by
-  let lt_defn := @Natural.lt_defn (ℕ := ℕ) (self := Impl.order_base)
+  let lt_defn := @Natural.lt_defn (ℕ := ℕ) (self := Impl.order)
   apply Iff.intro
   · intro (_ : n > m)
     show n ≥ m ∧ n ≄ m
@@ -315,19 +313,17 @@ example : 8 > 5 := by
     rfl
 
 -- Also note that `step n > n` for any `n`
-example {n : ℕ} : step n > n :=
-  Natural.lt_step (self := Impl.order_derived)
+example {n : ℕ} : step n > n := Natural.lt_step
 
 -- Exercise 2.2.3.
 -- Proposition 2.2.12 (Basic properties of order for natural numbers).
 -- Let `a`, `b`, `c` be natural numbers. Then
 -- (a) (Order is reflexive) `a ≥ a`.
-example {a : ℕ} : a ≥ a :=
-  Rel.refl (self := Natural.le_reflexive (self := Impl.order_derived))
+example {a : ℕ} : a ≥ a := Rel.refl (self := Natural.le_reflexive)
 
 -- (b) (Order is transitive) If `a ≥ b` and `b ≥ c`, then `a ≥ c`.
 example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c :=
-  flip (Rel.trans (self := Natural.le_transitive (self := Impl.order_derived)))
+  flip (Rel.trans (self := Natural.le_transitive))
 
 -- (c) (Order is anti-symmetric) If `a ≥ b` and `b ≥ a`, then `a ≃ b`.
 example {a b : ℕ} : a ≥ b → b ≥ a → a ≃ b := flip Natural.le_antisymm
@@ -343,8 +339,7 @@ example {a b c : ℕ} : a ≥ b ↔ a + c ≥ b + c := by
     exact AA.cancelR ‹b + c ≤ a + c›
 
 -- (e) `a < b` if and only if `step a ≤ b`.
-example {a b : ℕ} : a < b ↔ step a ≤ b :=
-  Natural.lt_step_le (self := Impl.order_derived)
+example {a b : ℕ} : a < b ↔ step a ≤ b := Natural.lt_step_le
 
 -- (f) `a < b` if and only if `b ≃ a + d` for some _positive_ number `d`.
 example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := Natural.lt_defn_add
@@ -354,7 +349,7 @@ example {a b : ℕ} : a < b ↔ ∃ d, Positive d ∧ b ≃ a + d := Natural.lt_
 -- Let `a` and `b` be natural numbers. Then exactly one of the following
 -- statements is true: `a < b`, `a ≃ b`, or `a > b`.
 example {a b : ℕ} : AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b) :=
-  Natural.trichotomy (self := Impl.order_derived) a b
+  Natural.trichotomy a b
 
 -- Exercise 2.2.5.
 -- Proposition 2.2.14 (Strong principle of induction).
@@ -378,12 +373,12 @@ example
   case zero =>
     intro m' (_ : m₀ ≤ m') (_ : m' < 0)
     show P m'
-    exact absurd ‹m' < 0› (Natural.lt_zero (self := Impl.order_derived))
+    exact absurd ‹m' < 0› (Natural.lt_zero)
   case step =>
     intro m (ih : ∀ m', m₀ ≤ m' → m' < m → P m')
     intro m' (_ : m₀ ≤ m') (_ : m' < step m)
     show P m'
-    match Natural.lt_split (self := Impl.order_derived) ‹m' < step m› with
+    match Natural.lt_split ‹m' < step m› with
     | Or.inl (_ : m' < m) =>
       exact ih m' ‹m₀ ≤ m'› ‹m' < m›
     | Or.inr (_ : m' ≃ m) =>
@@ -405,7 +400,7 @@ example {P : ℕ → Prop} [AA.Substitutive₁ P (· ≃ ·) (· → ·)] {n : �
   case zero =>
     intro (_ : P 0) m (_ : m ≤ 0)
     show P m
-    match Natural.le_split (self := Impl.order_derived) ‹m ≤ 0› with
+    match Natural.le_split ‹m ≤ 0› with
     | Or.inl (_ : m < 0) =>
       exact absurd ‹m < 0› Natural.lt_zero
     | Or.inr (_ : m ≃ 0) =>
