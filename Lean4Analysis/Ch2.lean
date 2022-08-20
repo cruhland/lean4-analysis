@@ -14,10 +14,9 @@ namespace AnalysisI.Ch2
 namespace Impl
 
 export Natural.Default (order sign)
-export Natural.Derived (multiplication_derived)
 export Natural.Impl.Nat (
   addition axioms constructors core equality exponentiation_base
-  literals multiplication_base
+  literals multiplication
 )
 
 end Impl
@@ -425,20 +424,16 @@ example {P : ℕ → Prop} [AA.Substitutive₁ P (· ≃ ·) (· → ·)] {n : �
 -- `n` to `m`. Then we can multiply `step n` to `m` by defining
 -- `step n * m := (n * m) + m`.
 example : ℕ → ℕ → ℕ :=
-  Mul.mul (self := Natural.mulOp (self := Impl.multiplication_base))
+  Mul.mul (self := Natural.mulOp (self := Impl.multiplication))
 
-example {m : ℕ} : 0 * m ≃ 0 :=
-  Natural.zero_mul (self := Impl.multiplication_base)
+example {m : ℕ} : 0 * m ≃ 0 := Natural.zero_mul (self := Impl.multiplication)
 
 example {n m : ℕ} : step n * m ≃ (n * m) + m :=
-  Natural.step_mul (self := Impl.multiplication_base)
-
--- [Shorter name for convenient reference below]
-abbrev mul_derived := Impl.multiplication_derived (ℕ := ℕ)
+  Natural.step_mul (self := Impl.multiplication)
 
 -- [Multiplication obeys left and right substitution]
 example : AA.Substitutive₂ (α := ℕ) (· * ·) AA.tc (· ≃ ·) (· ≃ ·) :=
-  Natural.mul_substitutive_eq (self := mul_derived)
+  Natural.mul_substitutive_eq
 
 -- Thus for instance `0 * m ≃ 0`,
 def ex_zero_mul {m : ℕ} : 0 * m ≃ 0 := Natural.zero_mul
@@ -466,26 +461,24 @@ def two_mul_sum {m : ℕ} : 2 * m ≃ m + m := calc
 -- Lemma 2.3.2 (Multiplication is commutative).
 -- Let `n`, `m` be natural numbers. Then `n * m ≃ m * n`.
 example {n m : ℕ} : n * m ≃ m * n := by
-  exact AA.comm (self := Natural.mul_commutative (self := mul_derived))
+  exact AA.comm (self := Natural.mul_commutative)
 
 -- Exercise 2.3.2.
 -- Lemma 2.3.3 (Positive natural numbers have no zero divisors).
 -- Let `n`, `m` be natural numbers. Then `n * m ≃ 0` if and only if at least
 -- one of `n`, `m` is equal to zero.
-example {n m : ℕ} : n * m ≃ 0 ↔ n ≃ 0 ∨ m ≃ 0 :=
-  Natural.mul_split_zero (self := mul_derived)
+example {n m : ℕ} : n * m ≃ 0 ↔ n ≃ 0 ∨ m ≃ 0 := Natural.mul_split_zero
 
 -- In particular, if `n` and `m` are both positive, then `n * m` is also
 -- positive.
 example {n m : ℕ} : Positive n → Positive m → Positive (n * m) :=
-  Natural.mul_positive (self := mul_derived)
+  Natural.mul_positive
 
 -- Proposition 2.3.4 (Distributive law).
 -- For any natural numbers `a`, `b`, `c`, we have `a * (b + c) ≃ a * b + a * c`
 -- and `(b + c) * a ≃ b * a + c * a`.
 example {a b c : ℕ} : a * (b + c) ≃ a * b + a * c :=
-  let mul_distributive := Natural.mul_distributive (self := mul_derived)
-  AA.distrib (self := mul_distributive.distributiveL)
+  AA.distrib (self := Natural.mul_distributive.distributiveL)
 
 example {a b c : ℕ} : (b + c) * a ≃ b * a + c * a := AA.distribR
 
@@ -493,7 +486,7 @@ example {a b c : ℕ} : (b + c) * a ≃ b * a + c * a := AA.distribR
 -- Proposition 2.3.5 (Multiplication is associative).
 -- For any natural numbers `a`, `b`, `c`, we have `(a * b) * c ≃ a * (b * c)`.
 example {a b c : ℕ} : (a * b) * c ≃ a * (b * c) :=
-  AA.assoc (self := Natural.mul_associative (self := mul_derived))
+  AA.assoc (self := Natural.mul_associative)
 
 -- Proposition 2.3.6 (Multiplication preserves order).
 -- If `a`, `b` are natural numbers such that `a < b`, and `c` is positive, then
@@ -501,8 +494,7 @@ example {a b c : ℕ} : (a * b) * c ≃ a * (b * c) :=
 example {a b c : ℕ} : a < b → Positive c → a * c < b * c := by
   intro (_ : a < b) (_ : Positive c)
   show a * c < b * c
-  let mul_substitutive_lt := Natural.mul_substitutive_lt (self := mul_derived)
-  let mul_substL_lt := mul_substitutive_lt.substitutiveL
+  let mul_substL_lt := (Natural.mul_substitutive_lt (ℕ := ℕ)).substitutiveL
   exact AA.substLC (self := mul_substL_lt) ‹Positive c› ‹a < b›
 
 -- Corollary 2.3.7 (Cancellation law).
@@ -511,8 +503,7 @@ example {a b c : ℕ} : a < b → Positive c → a * c < b * c := by
 example {a b c : ℕ} : a * c ≃ b * c → c ≄ 0 → a ≃ b := by
   intro (_ : a * c ≃ b * c) (_ : c ≄ 0)
   show a ≃ b
-  let mul_cancellative := Natural.mul_cancellative (self := mul_derived)
-  let mul_cancelR := mul_cancellative.cancellativeR
+  let mul_cancelR := (Natural.mul_cancellative (ℕ := ℕ)).cancellativeR
   exact AA.cancelRC (self := mul_cancelR) ‹c ≄ 0› ‹a * c ≃ b * c›
 
 -- Exercise 2.3.5
