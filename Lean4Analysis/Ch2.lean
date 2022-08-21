@@ -13,7 +13,7 @@ namespace AnalysisI.Ch2
 
 namespace Impl
 
-export Natural.Default (order sign)
+export Natural.Impl.Generic (order sign)
 export Natural.Impl.Nat (
   addition axioms constructors core equality exponentiation literals
   multiplication
