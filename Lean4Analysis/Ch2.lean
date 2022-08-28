@@ -122,7 +122,7 @@ example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n 
 -- rigorous proof, once functions have been given an exact definition. So I
 -- will postpone the formal proof until then. For now, here's my translation of
 -- the statement.]
-#check {f : ∀ n : ℕ, ℕ → ℕ} → {c : ℕ} →
+#check {f : ℕ → ℕ → ℕ} → {c : ℕ} →
   ∃ a : ℕ → ℕ, a 0 ≃ c ∧ ∀ n, a (step n) ≃ f n (a n)
 
 /- 2.2 Addition -/
@@ -304,11 +304,11 @@ example : 8 > 5 := by
   apply And.intro
   · show 5 ≤ 8
     apply Natural.le_defn.mpr
-    exists (3 : ℕ)
-    apply of_decide_eq_true (s := 5 + 3 ≃? 8)
+    apply Exists.intro (3 : ℕ)
+    apply of_decide_eq_true
     rfl
   · show 5 ≄ 8
-    apply of_decide_eq_false (s := 5 ≃? 8)
+    apply of_decide_eq_false
     rfl
 
 -- Also note that `step n > n` for any `n`

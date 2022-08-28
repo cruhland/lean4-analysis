@@ -2,6 +2,7 @@ import Lean4Axiomatic.Integer
 import Lean4Axiomatic.Integer.Impl.Difference
 import Lean4Axiomatic.Natural.Impl.Nat
 
+open Coe (coe)
 open Lean4Axiomatic
 open Signed (Negative Positive)
 
@@ -151,7 +152,7 @@ example {n m : ℕ} : (n——0) ≃ (m——0) ↔ n ≃ m := by
 -- same type, so we can't follow the book exactly here. However, we can define
 -- a _coercion_ that converts natural numbers to integers, and use that to
 -- demonstrate equivalence.]
-example {n : ℕ} : ↑n ≃ n——0 := rfl
+example {n : ℕ} : coe n ≃ n——0 := rfl
 
 -- For instance the natural number `3` is now considered to be the same as the
 -- integer `3——0`, thus `3 ≃ 3——0`.
@@ -173,7 +174,7 @@ example : 3 ≃ 5——2 := rfl
 -- no longer an important operation for us, as it has now been superceded by
 -- the more general notion of addition.
 def step (x : ℤ) := x + 1
-example {n : ℕ} : step ↑n ≃ ↑(Natural.step n) := rfl
+example {n : ℕ} : step (coe n) ≃ coe (Natural.step n) := rfl
 
 -- Definition 4.1.4 (Negation of integers).
 -- If `(a——b)` is an integer, we define the negation `-(a——b)` to be the
@@ -185,7 +186,7 @@ example : ℤ → ℤ := Impl.negation.negOp.neg
 
 -- In particular if `n ≃ n——0` is a positive natural number, we can define its
 -- negation `-n ≃ 0——n`.
-example {n : ℕ} : -↑n ≃ 0——n := rfl
+example {n : ℕ} : -(coe n) ≃ 0——n := rfl
 
 -- For instance `-(3——5) ≃ (5——3)`.
 example : -(3——5) ≃ 5——3 := rfl
@@ -199,12 +200,61 @@ example {a b a' b' : ℕ} : a——b ≃ a'——b' → -(a——b) ≃ -(a'—�
 -- Let `x` be an integer. Then exactly one of the following three statements is
 -- true: (a) `x` is zero; (b) `x` is equal to a positive natural number `n`; or
 -- (c) `x` is the negation `-n` of a positive natural number `n`.
+theorem pos_iff_ex
+    {x : ℤ} : Positive x ↔ ∃ (n : ℕ), Positive n ∧ x ≃ coe n
+    := by
+  -- Explicitly add instance to scope to help resolve `AA.identL` calls below
+  have mul_ident := Impl.multiplication.mul_identity (ℕ := ℕ)
+  apply Iff.intro
+  case mp =>
+    intro (_ : Positive x)
+    show ∃ (n : ℕ), Positive n ∧ x ≃ coe n
+    have (Integer.SignedMagnitude.intro
+          (n : ℕ) (_ : Positive n) (_ : x ≃ 1 * coe n)) :=
+      Impl.sign.positive_defn.mp ‹Positive x›
+    exists n
+    apply And.intro ‹Positive n›
+    show x ≃ coe n
+    exact Rel.trans ‹x ≃ 1 * coe n› AA.identL
+  case mpr =>
+    intro (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ coe n)))
+    show Positive x
+    apply Impl.sign.positive_defn.mpr
+    show Integer.SignedMagnitude x Integer.sqrt1_one
+    apply Integer.SignedMagnitude.intro n ‹Positive n›
+    show x ≃ 1 * coe n
+    exact Rel.trans ‹x ≃ coe n› (Rel.symm AA.identL)
+
+theorem neg_iff_ex
+    {x : ℤ} : Negative x ↔ ∃ (n : ℕ), Positive n ∧ x ≃ -(coe n)
+    := by
+  apply Iff.intro
+  case mp =>
+    intro (_ : Negative x)
+    show ∃ (n : ℕ), Positive n ∧ x ≃ -(coe n)
+    have (Integer.SignedMagnitude.intro
+          (n : ℕ) (_ : Positive n) (_ : x ≃ -1 * coe n)) :=
+      Impl.sign.negative_defn.mp ‹Negative x›
+    exists n
+    apply And.intro ‹Positive n›
+    show x ≃ -(coe n)
+    exact Rel.trans ‹x ≃ -1 * coe n› Integer.mul_neg_one
+  case mpr =>
+    intro
+      (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ -(coe n))))
+    show Negative x
+    apply Impl.sign.negative_defn.mpr
+    show Integer.SignedMagnitude x Integer.sqrt1_neg_one
+    apply Integer.SignedMagnitude.intro n ‹Positive n›
+    show x ≃ -1 * coe n
+    exact Rel.trans ‹x ≃ -(coe n)› (Rel.symm Integer.mul_neg_one)
+
 example
     : (x : ℤ) →
     AA.ExactlyOneOfThree
       (x ≃ 0)
-      (∃ (n : ℕ), Positive n ∧ x ≃ n)
-      (∃ (n : ℕ), Positive n ∧ x ≃ -n)
+      (∃ (n : ℕ), Positive n ∧ x ≃ coe n)
+      (∃ (n : ℕ), Positive n ∧ x ≃ -(coe n))
     := by
   intro (x : ℤ)
   have tri : AA.ExactlyOneOfThree (x ≃ 0) (Positive x) (Negative x) :=
@@ -213,8 +263,8 @@ example
   case atLeastOne =>
     show AA.OneOfThree
       (x ≃ 0)
-      (∃ (n : ℕ), Positive n ∧ x ≃ n)
-      (∃ (n : ℕ), Positive n ∧ x ≃ -n)
+      (∃ (n : ℕ), Positive n ∧ x ≃ coe n)
+      (∃ (n : ℕ), Positive n ∧ x ≃ -(coe n))
     match tri.atLeastOne with
     | AA.OneOfThree.first (_ : x ≃ 0) =>
       exact AA.OneOfThree.first ‹x ≃ 0›
@@ -226,70 +276,28 @@ example
     intro
       (h : AA.TwoOfThree
         (x ≃ 0)
-        (∃ (n : ℕ), Positive n ∧ x ≃ n)
-        (∃ (n : ℕ), Positive n ∧ x ≃ -n))
+        (∃ (n : ℕ), Positive n ∧ x ≃ coe n)
+        (∃ (n : ℕ), Positive n ∧ x ≃ -(coe n)))
     show False
     apply tri.atMostOne
     show AA.TwoOfThree (x ≃ 0) (Positive x) (Negative x)
     match h with
     | AA.TwoOfThree.oneAndTwo
-        (_ : x ≃ 0) (_ : ∃ (n : ℕ), Positive n ∧ x ≃ n) =>
-      have : Positive x := pos_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ n›
+        (_ : x ≃ 0) (_ : ∃ (n : ℕ), Positive n ∧ x ≃ coe n) =>
+      have : Positive x := pos_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ coe n›
       exact AA.TwoOfThree.oneAndTwo ‹x ≃ 0› ‹Positive x›
     | AA.TwoOfThree.oneAndThree
-        (_ : x ≃ 0) (_ : ∃ (n : ℕ), Positive n ∧ x ≃ -n) =>
-      have : Negative x := neg_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ -n›
+        (_ : x ≃ 0) (_ : ∃ (n : ℕ), Positive n ∧ x ≃ -(coe n)) =>
+      have : Negative x :=
+        neg_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ -(coe n)›
       exact AA.TwoOfThree.oneAndThree ‹x ≃ 0› ‹Negative x›
     | AA.TwoOfThree.twoAndThree
-        (_ : ∃ (n : ℕ), Positive n ∧ x ≃ n)
-        (_ : ∃ (n : ℕ), Positive n ∧ x ≃ -n) =>
-      have : Positive x := pos_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ n›
-      have : Negative x := neg_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ -n›
+        (_ : ∃ (n : ℕ), Positive n ∧ x ≃ coe n)
+        (_ : ∃ (n : ℕ), Positive n ∧ x ≃ -(coe n)) =>
+      have : Positive x := pos_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ coe n›
+      have : Negative x :=
+        neg_iff_ex.mpr ‹∃ (n : ℕ), Positive n ∧ x ≃ -(coe n)›
       exact AA.TwoOfThree.twoAndThree ‹Positive x› ‹Negative x›
-where
-  pos_iff_ex {x : ℤ} : Positive x ↔ ∃ (n : ℕ), Positive n ∧ x ≃ n := by
-    -- Explicitly add instance to scope to help resolve `AA.identL` calls below
-    have mul_ident := Impl.multiplication.mul_identity (ℕ := ℕ)
-    apply Iff.intro
-    case mp =>
-      intro (_ : Positive x)
-      show ∃ (n : ℕ), Positive n ∧ x ≃ n
-      have (Integer.SignedMagnitude.intro
-            (n : ℕ) (_ : Positive n) (_ : x ≃ 1 * n)) :=
-        Impl.sign.positive_defn.mp ‹Positive x›
-      exists n
-      apply And.intro ‹Positive n›
-      show x ≃ n
-      exact Rel.trans ‹x ≃ 1 * n› AA.identL
-    case mpr =>
-      intro (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ n)))
-      show Positive x
-      apply Impl.sign.positive_defn.mpr
-      show Integer.SignedMagnitude x Integer.sqrt1_one
-      apply Integer.SignedMagnitude.intro n ‹Positive n›
-      show x ≃ 1 * n
-      exact Rel.trans ‹x ≃ n› (Rel.symm AA.identL)
-
-  neg_iff_ex {x : ℤ} : Negative x ↔ ∃ (n : ℕ), Positive n ∧ x ≃ -n := by
-    apply Iff.intro
-    case mp =>
-      intro (_ : Negative x)
-      show ∃ (n : ℕ), Positive n ∧ x ≃ -n
-      have (Integer.SignedMagnitude.intro
-            (n : ℕ) (_ : Positive n) (_ : x ≃ -1 * ↑n)) :=
-        Impl.sign.negative_defn.mp ‹Negative x›
-      exists n
-      apply And.intro ‹Positive n›
-      show x ≃ -n
-      exact Rel.trans ‹x ≃ -1 * ↑n› Integer.mul_neg_one
-    case mpr =>
-      intro (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ -n)))
-      show Negative x
-      apply Impl.sign.negative_defn.mpr
-      show Integer.SignedMagnitude x Integer.sqrt1_neg_one
-      apply Integer.SignedMagnitude.intro n ‹Positive n›
-      show x ≃ -1 * n
-      exact Rel.trans ‹x ≃ -n› (Rel.symm Integer.mul_neg_one)
 
 -- Exercise 4.1.4.
 -- Proposition 4.1.6 (Laws of algebra for integers).
@@ -355,15 +363,15 @@ example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → y - x₁ ≃ y - x₂ :=
   AA.substR (self := Integer.sub_substitutive.substitutiveR)
 
 -- One can easily check now that if `a` and `b` are natural numbers, then
-example {a b : ℕ} : ↑a - ↑b ≃ a——b := calc
-  ↑a - (↑b : ℤ)                 ≃ _ := rfl
-  ↑a + (-↑b : ℤ)                ≃ _ := rfl
-  (a——0) + (0——b)               ≃ _ := rfl
-  (a + 0)——(0 + b)              ≃ _ := rfl
+example {a b : ℕ} : coe a - coe b ≃ a——b := calc
+  coe a - (coe b : ℤ)           ≃ _ := Rel.refl
+  coe a + -(coe b : ℤ)          ≃ _ := Rel.refl
+  (a——0) + (0——b)               ≃ _ := Rel.refl
+  (a + 0)——(0 + b)              ≃ _ := Rel.refl
   Impl.from_prod (a + 0, 0 + b) ≃ _ := AA.subst₁ (AA.substL AA.identR)
   Impl.from_prod (a, 0 + b)     ≃ _ := AA.subst₁ (AA.substR AA.identL)
-  Impl.from_prod (a, b)         ≃ _ := rfl
-  a——b                          ≃ _ := rfl
+  Impl.from_prod (a, b)         ≃ _ := Rel.refl
+  a——b                          ≃ _ := Rel.refl
 -- and so `a——b` is just the same thing as `a - b`. Because of this we can now
 -- discard the `(· —— ·)` notation, and use the familiar operation of
 -- subtraction instead.

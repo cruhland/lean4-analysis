@@ -1,18 +1,20 @@
 import Lake
-open Lake DSL
-open System
+open System Lake DSL
 
-package «lean4-analysis» {
-  dependencies := #[
-    {
-      name := `«lean4-axiomatic»
-      -- If you need to pick up local changes to this library, use this
-      -- alternative `src` setting instead, after changing the path prefix to
-      -- match your personal setup
-      -- src := Source.path (FilePath.mk ".." / "lean4-axiomatic")
-      src := Source.git
-        "https://github.com/cruhland/lean4-axiomatic.git"
-        "865d0bafbc09c16b04b0fac7feaef7d2b1af1d4f"
-    }
-  ]
+package «lean4-analysis»
+-- add package configuration options here
+
+require «lean4-axiomatic» from
+  -- If you need to pick up local changes to this library, use this alternative
+  -- source instead, after editing the path prefix to match your personal setup
+  -- ".."/"lean4-axiomatic"
+  git "https://github.com/cruhland/lean4-axiomatic.git"
+
+lean_lib Lean4Analysis {
+  -- add library configuration options here
+}
+
+@[defaultTarget]
+lean_exe «lean4-analysis» {
+  root := `Main
 }
