@@ -394,4 +394,33 @@ example {a b c : ℤ} : a * c ≃ b * c → c ≄ 0 → a ≃ b := by
   let inst := Integer.mul_cancellative.cancellativeR
   exact AA.cancelRC (self := inst) ‹c ≄ 0› ‹a * c ≃ b * c›
 
+-- We now extend the notion of order, which was defined on the natural numbers,
+-- to the integers by repeating the definition verbatim:
+
+-- Definition 4.1.10 (Ordering of the integers).
+-- Let `n` and `m` be integers. We say that `n` is _greater than or equal to_
+-- `m`, and write `n ≥ m` or `m ≤ n`, iff we have `n ≃ m + a` for some natural
+-- number `a`. We say that `n` is _strictly greater than_ `m`, and write
+-- `n > m` or `m < n`, iff `n ≥ m` and `n ≄ m`.
+example : ℤ → ℤ → Prop := LE.le (self := Integer.leOp ℕ)
+example {n m : ℤ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := Integer.le_iff_add_nat
+
+example : ℤ → ℤ → Prop := LT.lt (self := Integer.ltOp ℕ)
+example {n m : ℤ} : n > m ↔ n ≥ m ∧ n ≄ m := by
+  apply Iff.intro
+  case mp =>
+    intro (_ : n > m)
+    show n ≥ m ∧ n ≄ m
+    have (And.intro (_ : n ≥ m) (_ : m ≄ n)) :=
+      Integer.lt_iff_le_neqv.mp ‹n > m›
+    have : n ≄ m := Rel.symm ‹m ≄ n›
+    exact And.intro ‹n ≥ m› ‹n ≄ m›
+  case mpr =>
+    intro (And.intro (_ : n ≥ m) (_ : n ≄ m))
+    show n > m
+    apply Integer.lt_iff_le_neqv.mpr
+    show n ≥ m ∧ m ≄ n
+    have : m ≄ n := Rel.symm ‹n ≄ m›
+    exact And.intro ‹n ≥ m› ‹m ≄ n›
+
 end AnalysisI.Ch4.Sec1
