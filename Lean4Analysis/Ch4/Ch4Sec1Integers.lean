@@ -406,7 +406,7 @@ example : ℤ → ℤ → Prop := LE.le (self := Integer.leOp ℕ)
 example {n m : ℤ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := Integer.le_iff_add_nat
 
 example : ℤ → ℤ → Prop := LT.lt (self := Integer.ltOp ℕ)
-example {n m : ℤ} : n > m ↔ n ≥ m ∧ n ≄ m := by
+theorem gt_iff_ge_neqv {n m : ℤ} : n > m ↔ n ≥ m ∧ n ≄ m := by
   apply Iff.intro
   case mp =>
     intro (_ : n > m)
@@ -422,5 +422,42 @@ example {n m : ℤ} : n > m ↔ n ≥ m ∧ n ≄ m := by
     show n ≥ m ∧ m ≄ n
     have : m ≄ n := Rel.symm ‹n ≄ m›
     exact And.intro ‹n ≥ m› ‹m ≄ n›
+
+-- Thus for instance `5 > -3`, because `5 ≃ -3 + 8` and `5 ≄ -3`.
+example : (5 : ℤ) > -3 := by
+  show (5 : ℤ) > -3
+  apply gt_iff_ge_neqv.mpr
+  show (5 : ℤ) ≥ -3 ∧ 5 ≄ -3
+  apply And.intro
+  case left =>
+    show (5 : ℤ) ≥ -3
+    apply Integer.le_iff_add_nat.mpr
+    show ∃ k : ℕ, 5 ≃ -3 + coe k
+    apply Exists.intro 8
+    show 5 ≃ -3 + coe 8
+    show 5——0 ≃ 0——3 + 8——0
+    show 5——0 ≃ 8——3
+    show 5 + 3 ≃ 8 + 0
+    show 8 ≃ 8
+    exact Rel.refl
+  case right =>
+    show (5 : ℤ) ≄ -3
+    intro (_ : (5 : ℤ) ≃ -3)
+    show False
+    have : 5——0 ≃ 0——3 := ‹(5 : ℤ) ≃ -3›
+    have : 5 + 3 ≃ 0 + 0 := this
+    have : 8 ≃ 0 := this
+    exact absurd ‹8 ≃ 0› Natural.step_neq_zero
+
+-- Lemma 4.1.11 (Properties of order).
+-- Let `a`, `b`, `c` be integers.
+section lemma_4_1_11
+
+variable {a b c : ℤ}
+
+-- (a) `a > b` if and only if `a - b` is a positive natural number.
+example : a > b ↔ Positive (a - b) := Integer.gt_iff_pos_diff
+
+end lemma_4_1_11
 
 end AnalysisI.Ch4.Sec1
