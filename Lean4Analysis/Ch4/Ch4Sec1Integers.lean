@@ -449,6 +449,7 @@ example : (5 : ℤ) > -3 := by
     have : 8 ≃ 0 := this
     exact absurd ‹8 ≃ 0› Natural.step_neq_zero
 
+-- Exercise 4.1.7.
 -- Lemma 4.1.11 (Properties of order).
 -- Let `a`, `b`, `c` be integers.
 section lemma_4_1_11
@@ -457,6 +458,10 @@ variable {a b c : ℤ}
 
 -- (a) `a > b` if and only if `a - b` is a positive natural number.
 example : a > b ↔ Positive (a - b) := Integer.gt_iff_pos_diff
+
+-- (b) (Addition preserves order) If `a > b`, then `a + c > b + c`.
+example : a > b → a + c > b + c :=
+  AA.substL (self := Integer.add_substitutive_lt.substitutiveL)
 
 end lemma_4_1_11
 
