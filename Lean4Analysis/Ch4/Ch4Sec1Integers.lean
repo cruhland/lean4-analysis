@@ -463,6 +463,14 @@ example : a > b ↔ Positive (a - b) := Integer.gt_iff_pos_diff
 example : a > b → a + c > b + c :=
   AA.substL (self := Integer.add_substitutive_lt.substitutiveL)
 
+-- (c) (Positive multiplication preserves order) If `a > b` and `c` is
+-- positive, then `a * c > b * c`.
+example : a > b → Positive c → a * c > b * c := by
+  intro (_ : b < a) (_ : Positive c)
+  show b * c < a * c
+  let inst := Integer.mul_substitutive_lt.substitutiveL
+  exact AA.substLC (self := inst) ‹Positive c› ‹b < a›
+
 end lemma_4_1_11
 
 end AnalysisI.Ch4.Sec1
