@@ -209,9 +209,9 @@ theorem pos_iff_ex
   case mp =>
     intro (_ : Positive x)
     show ∃ (n : ℕ), Positive n ∧ x ≃ coe n
-    have (Integer.SignedMagnitude.intro
+    have (Integer.NonzeroWithSign.intro
           (n : ℕ) (_ : Positive n) (_ : x ≃ 1 * coe n)) :=
-      Impl.sign.positive_defn.mp ‹Positive x›
+      Impl.sign.positive_iff_sign_pos1.mp ‹Positive x›
     exists n
     apply And.intro ‹Positive n›
     show x ≃ coe n
@@ -219,9 +219,9 @@ theorem pos_iff_ex
   case mpr =>
     intro (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ coe n)))
     show Positive x
-    apply Impl.sign.positive_defn.mpr
-    show Integer.SignedMagnitude x Integer.sqrt1_one
-    apply Integer.SignedMagnitude.intro n ‹Positive n›
+    apply Impl.sign.positive_iff_sign_pos1.mpr
+    show Integer.NonzeroWithSign x 1
+    apply Integer.NonzeroWithSign.intro n ‹Positive n›
     show x ≃ 1 * coe n
     exact Rel.trans ‹x ≃ coe n› (Rel.symm AA.identL)
 
@@ -232,9 +232,9 @@ theorem neg_iff_ex
   case mp =>
     intro (_ : Negative x)
     show ∃ (n : ℕ), Positive n ∧ x ≃ -(coe n)
-    have (Integer.SignedMagnitude.intro
+    have (Integer.NonzeroWithSign.intro
           (n : ℕ) (_ : Positive n) (_ : x ≃ -1 * coe n)) :=
-      Impl.sign.negative_defn.mp ‹Negative x›
+      Impl.sign.negative_iff_sign_neg1.mp ‹Negative x›
     exists n
     apply And.intro ‹Positive n›
     show x ≃ -(coe n)
@@ -243,9 +243,9 @@ theorem neg_iff_ex
     intro
       (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ -(coe n))))
     show Negative x
-    apply Impl.sign.negative_defn.mpr
-    show Integer.SignedMagnitude x Integer.sqrt1_neg_one
-    apply Integer.SignedMagnitude.intro n ‹Positive n›
+    apply Impl.sign.negative_iff_sign_neg1.mpr
+    show Integer.NonzeroWithSign x (-1)
+    apply Integer.NonzeroWithSign.intro n ‹Positive n›
     show x ≃ -1 * coe n
     exact Rel.trans ‹x ≃ -(coe n)› (Rel.symm Integer.mul_neg_one)
 
