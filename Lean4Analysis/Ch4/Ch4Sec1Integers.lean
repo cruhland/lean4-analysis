@@ -471,6 +471,9 @@ example : a > b → Positive c → a * c > b * c := by
   let inst := Integer.mul_substitutive_lt.substitutiveL
   exact AA.substLC (self := inst) ‹Positive c› ‹b < a›
 
+-- (d) (Negation reverses order) If `a > b`, then `-a < -b`.
+example : a > b → -a < -b := Integer.lt_neg_flip.mp
+
 end lemma_4_1_11
 
 end AnalysisI.Ch4.Sec1
