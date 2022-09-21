@@ -474,6 +474,12 @@ example : a > b → Positive c → a * c > b * c := by
 -- (d) (Negation reverses order) If `a > b`, then `-a < -b`.
 example : a > b → -a < -b := Integer.lt_neg_flip.mp
 
+-- (e) (Order is transitive) If `a > b` and `b > c`, then `a > c`.
+example : a > b → b > c → a > c := by
+  intro (_ : b < a) (_ : c < b)
+  show c < a
+  exact Integer.lt_trans ‹c < b› ‹b < a›
+
 end lemma_4_1_11
 
 end AnalysisI.Ch4.Sec1
