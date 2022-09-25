@@ -480,6 +480,11 @@ example : a > b → b > c → a > c := by
   show c < a
   exact Integer.lt_trans ‹c < b› ‹b < a›
 
+-- (f) (Order trichotomy) Exactly one of the statements `a > b`, `a < b`, or
+-- `a ≃ b` is true.
+example : AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b) :=
+  Integer.order_trichotomy a b
+
 end lemma_4_1_11
 
 end AnalysisI.Ch4.Sec1
