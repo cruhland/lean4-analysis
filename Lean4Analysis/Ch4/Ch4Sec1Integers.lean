@@ -196,6 +196,10 @@ example : -(3——5) ≃ 5——3 := rfl
 example {a b a' b' : ℕ} : a——b ≃ a'——b' → -(a——b) ≃ -(a'——b') :=
   AA.subst₁ (self := Impl.negation.neg_substitutive)
 
+-- Exercise 4.1.3.
+-- Show that `(-1) * a ≃ -a` for every integer `a`.
+example {a : ℤ} : -1 * a ≃ -a := Integer.mul_neg_one
+
 -- Lemma 4.1.5 (Trichotomy of integers).
 -- Let `x` be an integer. Then exactly one of the following three statements is
 -- true: (a) `x` is zero; (b) `x` is equal to a positive natural number `n`; or
@@ -447,7 +451,7 @@ example : (5 : ℤ) > -3 := by
     have : 5——0 ≃ 0——3 := ‹(5 : ℤ) ≃ -3›
     have : 5 + 3 ≃ 0 + 0 := this
     have : 8 ≃ 0 := this
-    exact absurd ‹8 ≃ 0› Natural.step_neq_zero
+    exact absurd ‹8 ≃ 0› Natural.step_neqv_zero
 
 -- Exercise 4.1.7.
 -- Lemma 4.1.11 (Properties of order).
@@ -486,5 +490,55 @@ example : AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b) :=
   Integer.order_trichotomy a b
 
 end lemma_4_1_11
+
+-- Exercise 4.1.8.
+-- Show that the principle of induction (Axiom 2.5) does not apply directly to
+-- the integers. More precisely, give an example of a property `P n` pertaining
+-- to an integer `n` such that `P 0` is true, and that `P n` implies
+-- `P (step n)` for all integers `n`, but that `P n` is not true for all
+-- integers `n`. Thus induction is not as useful a tool for dealing with the
+-- integers as it is with the natural numbers.
+example
+    : ¬∀ (P : ℤ → Prop), P 0 → ({n : ℤ} → P n → P (step n)) → ∀ (n : ℤ), P n
+    := by
+  intro (ind : ∀ (P : ℤ → Prop), P 0 → ({n : ℤ} → P n → P (step n)) → ∀ n, P n)
+  show False
+  let P : ℤ → Prop := (0 ≤ ·)
+
+  have : P 0 := by
+    show 0 ≤ 0
+    apply Integer.le_iff_add_nat.mpr
+    show ∃ (k : ℕ), 0 ≃ 0 + coe k
+    have : (0 : ℤ) ≃ 0 + coe 0 := calc
+      (0 : ℤ)         ≃ _ := Rel.symm AA.identR
+      0 + 0           ≃ _ := Rel.refl
+      0 + coe (0 : ℕ) ≃ _ := Rel.refl
+    exact Exists.intro 0 ‹(0 : ℤ) ≃ 0 + coe 0›
+
+  have : {n : ℤ} → P n → P (step n) := by
+    intro (n : ℤ) (_ : 0 ≤ n)
+    show 0 ≤ n + 1
+    have (Exists.intro (k : ℕ) (_ : n ≃ 0 + coe k)) :=
+      Integer.le_iff_add_nat.mp ‹0 ≤ n›
+    apply Integer.le_iff_add_nat.mpr
+    show ∃ (k : ℕ), n + 1 ≃ 0 + coe k
+    have : n + 1 ≃ 0 + coe (k + 1) := calc
+      n + 1               ≃ _ := AA.substL ‹n ≃ 0 + coe k›
+      (0 + coe k) + 1     ≃ _ := Integer.add_assoc
+      0 + (coe k + 1)     ≃ _ := Rel.refl
+      0 + (coe k + coe 1) ≃ _ := AA.substR (Rel.symm AA.compat₂)
+      0 + coe (k + 1)     ≃ _ := Rel.refl
+    exact Exists.intro (k + 1) ‹n + 1 ≃ 0 + coe (k + 1)›
+
+  have : P (-1) := ind P ‹P 0› ‹∀ n, P n → P (step n)› (-1)
+  have : (0 : ℤ) ≤ -1 := this
+  have : (0 : ℤ) < -1 + 1 := Integer.le_widen_lt ‹(0 : ℤ) ≤ -1›
+  have : (0 : ℤ) < 0 := AA.substRFn Integer.neg_invL ‹(0 : ℤ) < -1 + 1›
+  have : (0 : ℤ) ≃ 0 := Rel.refl
+  have two : AA.TwoOfThree (0 < 0) (0 ≃ 0) ((0 : ℤ) > 0) :=
+    AA.TwoOfThree.oneAndTwo ‹(0 : ℤ) < 0› ‹(0 : ℤ) ≃ 0›
+  have notTwo : ¬ AA.TwoOfThree (0 < 0) (0 ≃ 0) ((0 : ℤ) > 0) :=
+    (Integer.order_trichotomy 0 0).atMostOne
+  exact absurd two notTwo
 
 end AnalysisI.Ch4.Sec1

@@ -78,11 +78,11 @@ example : ℕ := 3
 -- `0` is not the successor of any natural number; i.e., we have `step n ≄ 0`
 -- for every natural number `n`.
 example {n : ℕ} : step n ≄ 0 :=
-  Natural.step_neq_zero (self := Impl.axioms)
+  Natural.step_neqv_zero (self := Impl.axioms)
 
 -- Proposition 2.1.6.
 -- `4` is not equal to `0`.
-example : 4 ≄ 0 := Natural.step_neq_zero (ℕ := ℕ)
+example : 4 ≄ 0 := Natural.step_neqv_zero (ℕ := ℕ)
 
 -- Axiom 2.4.
 -- Different natural numbers must have different successors; i.e., if `n`, `m`
@@ -101,8 +101,7 @@ example : 6 ≄ 2 := by
   have : step 4 ≃ step 0 := this
   have : 4 ≃ 0           := AA.inject this
   have : step 3 ≃ 0      := this
-  have : False           := Natural.step_neq_zero this
-  exact this
+  exact absurd ‹step 3 ≃ 0› Natural.step_neqv_zero
 
 -- Axiom 2.5 (Principle of mathematical induction).
 -- Let `P n` be any property pertaining to a natural number `n`. Suppose that
