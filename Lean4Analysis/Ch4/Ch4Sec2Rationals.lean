@@ -76,4 +76,23 @@ example {p q : ℚ} : p ≃ q → q ≃ p := Fraction.eqv_symm
 example
   {p q r : ℚ} : q.denominator ≄ 0 → p ≃ q → q ≃ r → p ≃ r := Fraction.eqv_trans
 
+-- Definition 4.2.2.
+-- If `a//b` and `c//d` are rational numbers, we define their sum
+example {a b c d : ℤ} : (a//b) + (c//d) ≃ (a * d + b * c)//(b * d) := rfl
+
+-- [implementation of addition]
+example : ℚ → ℚ → ℚ := Fraction.add
+
+-- their product
+example {a b c d : ℤ} : (a//b) * (c//d) ≃ (a * c)//(b * d) := rfl
+
+-- [implementation of multiplication]
+example : ℚ → ℚ → ℚ := Fraction.mul
+
+-- and the negation
+example {a b : ℤ} : -(a//b) ≃ (-a)//b := rfl
+
+-- [implementation of negation]
+example : ℚ → ℚ := Fraction.neg
+
 end AnalysisI.Ch4.Sec2
