@@ -65,4 +65,15 @@ example : (3 : ℤ)//4 ≄ 4//3 := by
   have : 0 ≃ step 6 := this
   exact absurd (Rel.symm ‹0 ≃ step 6›) Natural.step_neqv_zero
 
+-- This is a valid definition of equality.
+-- Exercise 4.2.1.
+-- Show that the definition of equality for the rational numbers is reflexive,
+-- symmetric, and transitive. (Hint: for transitivity, use Corollary 4.1.9.)
+example {p : ℚ} : p ≃ p := Fraction.eqv_refl
+
+example {p q : ℚ} : p ≃ q → q ≃ p := Fraction.eqv_symm
+
+example
+  {p q r : ℚ} : q.denominator ≄ 0 → p ≃ q → q ≃ r → p ≃ r := Fraction.eqv_trans
+
 end AnalysisI.Ch4.Sec2
