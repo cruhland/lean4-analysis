@@ -5,7 +5,9 @@ import Lean4Axiomatic.Rational.Impl.Fraction
 
 namespace AnalysisI.Ch4.Sec2
 
+open Coe (coe)
 open Lean4Axiomatic
+open Lean4Axiomatic.Integer (Nonzero)
 open Lean4Axiomatic.Natural (step)
 open Lean4Axiomatic.Rational.Impl
 
@@ -21,12 +23,23 @@ abbrev ℤ : Type := Integer.Impl.Difference ℕ
 -- and only if `a * d ≃ c * b`. The set of all rational numbers is denoted `ℚ`.
 abbrev ℚ : Type := Fraction ℤ
 
-example {a b : ℤ} : ℚ := a//b
+example {a b : ℤ} [Nonzero b] : ℚ := a//b
 
-example {a b c d : ℤ} : a//b ≃ c//d ↔ a * d ≃ c * b := Iff.intro id id
+example {a b c d : ℤ} [Nonzero b] [Nonzero d] : a//b ≃ c//d ↔ a * d ≃ c * b :=
+  Iff.intro id id
 
 -- [definition of rational equality]
 example : ℚ → ℚ → Prop := Fraction.eqv
+
+def literal_nonzero {n : ℕ} : n ≄ 0 → Nonzero (coe n : ℤ) := by
+  intro (_ : n ≄ 0)
+  have : coe n ≄ coe 0 := AA.subst₁ (β := ℤ) ‹n ≄ 0›
+  have : Nonzero (coe n) := Integer.nonzero_iff_neqv_zero.mpr ‹coe n ≄ coe 0›
+  exact this
+
+instance : Nonzero 3 := literal_nonzero Natural.step_neqv_zero
+instance : Nonzero 4 := literal_nonzero Natural.step_neqv_zero
+instance : Nonzero 8 := literal_nonzero Natural.step_neqv_zero
 
 -- Thus for instance `3//4 ≃ 6//8 ≃ -3//-4`, but `3//4 ≄ 4//3`.
 example : (3 : ℤ)//4 ≃ 6//8 := by
@@ -73,26 +86,68 @@ example {p : ℚ} : p ≃ p := Fraction.eqv_refl
 
 example {p q : ℚ} : p ≃ q → q ≃ p := Fraction.eqv_symm
 
-example
-  {p q r : ℚ} : q.denominator ≄ 0 → p ≃ q → q ≃ r → p ≃ r := Fraction.eqv_trans
+example {p q r : ℚ} : p ≃ q → q ≃ r → p ≃ r := Fraction.eqv_trans
 
 -- Definition 4.2.2.
 -- If `a//b` and `c//d` are rational numbers, we define their sum
-example {a b c d : ℤ} : (a//b) + (c//d) ≃ (a * d + b * c)//(b * d) := rfl
+example
+    {a b c d : ℤ} [Nonzero b] [Nonzero d]
+    : (a//b) + (c//d) ≃ (a * d + b * c)//(b * d)
+    :=
+  rfl
 
 -- [implementation of addition]
 example : ℚ → ℚ → ℚ := Fraction.add
 
 -- their product
-example {a b c d : ℤ} : (a//b) * (c//d) ≃ (a * c)//(b * d) := rfl
+example
+    {a b c d : ℤ} [Nonzero b] [Nonzero d]
+    : (a//b) * (c//d) ≃ (a * c)//(b * d)
+    :=
+  rfl
 
 -- [implementation of multiplication]
 example : ℚ → ℚ → ℚ := Fraction.mul
 
 -- and the negation
-example {a b : ℤ} : -(a//b) ≃ (-a)//b := rfl
+example {a b : ℤ} [Nonzero b] : -(a//b) ≃ (-a)//b := rfl
 
 -- [implementation of negation]
 example : ℚ → ℚ := Fraction.neg
+
+-- Lemma 4.2.3. / Exercise 4.2.2.
+-- The sum, product, and negation operations on rational numbers are
+-- well-defined, in the sense that if one replaces `a//b` with another rational
+-- number `a'//b'` which is equal to `a//b`, then the output of the above
+-- operations remains unchanged, and similarly for `c//d`.
+example
+    {a a' b b' c d : ℤ} [Nonzero b] [Nonzero b'] [Nonzero d]
+    : a//b ≃ a'//b' → a//b + c//d ≃ a'//b' + c//d
+    :=
+  Fraction.add_substL
+
+example
+    {a b c c' d d' : ℤ} [Nonzero b] [Nonzero d] [Nonzero d']
+    : c//d ≃ c'//d' → a//b + c//d ≃ a//b + c'//d'
+    :=
+  Fraction.add_substR
+
+example
+    {a a' b b' c d : ℤ} [Nonzero b] [Nonzero b'] [Nonzero d]
+    : a//b ≃ a'//b' → a//b * c//d ≃ a'//b' * c//d
+    :=
+  Fraction.mul_substL
+
+example
+    {a b c c' d d' : ℤ} [Nonzero b] [Nonzero d] [Nonzero d']
+    : c//d ≃ c'//d' → a//b * c//d ≃ a//b * c'//d'
+    :=
+  Fraction.mul_substR
+
+example
+    {a a' b b' : ℤ} [Nonzero b] [Nonzero b']
+    : a//b ≃ a'//b' → -(a//b) ≃ -(a'//b')
+    :=
+  Fraction.neg_subst
 
 end AnalysisI.Ch4.Sec2
