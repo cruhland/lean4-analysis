@@ -14,7 +14,7 @@ lean_lib Lean4Analysis {
   -- add library configuration options here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_exe «lean4-analysis» {
   root := `Main
 }
