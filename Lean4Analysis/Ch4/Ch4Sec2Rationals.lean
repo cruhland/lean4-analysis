@@ -150,4 +150,20 @@ example
     :=
   Fraction.neg_subst
 
+-- We note that the rational numbers `a//1` behave in a manner identical to the
+-- integers `a`:
+example {a b : ℤ} : a//1 + b//1 ≃ (a + b)//1 := calc
+  a//1 + b//1              ≃ _ := Rel.refl
+  (a * 1 + 1 * b)//(1 * 1) ≃ _ := Fraction.substL (AA.substL AA.identR)
+  (a + 1 * b)//(1 * 1)     ≃ _ := Fraction.substL (AA.substR AA.identL)
+  (a + b)//(1 * 1)         ≃ _ := Fraction.substR AA.identL
+  (a + b)//1               ≃ _ := Rel.refl
+
+example {a b : ℤ} : a//1 * b//1 ≃ (a * b)//1 := calc
+  a//1 * b//1      ≃ _ := Rel.refl
+  (a * b)//(1 * 1) ≃ _ := Fraction.substR AA.identL
+  (a * b)//1       ≃ _ := Rel.refl
+
+example {a : ℤ} : -(a//1) ≃ (-a)//1 := Rel.refl
+
 end AnalysisI.Ch4.Sec2
