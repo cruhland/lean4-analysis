@@ -180,4 +180,11 @@ example {a b : ℤ} : a ≃ b ↔ a//1 ≃ b//1 := by
     have : a * 1 ≃ b * 1 := ‹a//1 ≃ b//1›
     exact AA.cancelRC (C := (· ≄ 0)) Integer.one_neqv_zero ‹a * 1 ≃ b * 1›
 
+-- Because of this, we will identify `a` with `a//1` for each integer `a`:
+-- `a ≡ a//1`; the above identities then guarantee that the arithmetic of the
+-- integers is consistent with the arithmetic of the rationals.
+-- [Note: we can't make integers equal to rationals in Lean, but we can provide
+-- a coercion from integers to rationals.]
+example {a : ℤ} : coe a ≃ a//1 := Rel.refl
+
 end AnalysisI.Ch4.Sec2
