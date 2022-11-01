@@ -166,4 +166,18 @@ example {a b : ℤ} : a//1 * b//1 ≃ (a * b)//1 := calc
 
 example {a : ℤ} : -(a//1) ≃ (-a)//1 := Rel.refl
 
+-- Also, `a//1` and `b//1` are only equal when `a` and `b` are equal.
+example {a b : ℤ} : a ≃ b ↔ a//1 ≃ b//1 := by
+  apply Iff.intro
+  case mp =>
+    intro (_ : a ≃ b)
+    show a//1 ≃ b//1
+    show a * 1 ≃ b * 1
+    exact AA.substL ‹a ≃ b›
+  case mpr =>
+    intro (_ : a//1 ≃ b//1)
+    show a ≃ b
+    have : a * 1 ≃ b * 1 := ‹a//1 ≃ b//1›
+    exact AA.cancelRC (C := (· ≄ 0)) Integer.one_neqv_zero ‹a * 1 ≃ b * 1›
+
 end AnalysisI.Ch4.Sec2

@@ -503,7 +503,7 @@ example {a b c : ℕ} : a * c ≃ b * c → c ≄ 0 → a ≃ b := by
   intro (_ : a * c ≃ b * c) (_ : c ≄ 0)
   show a ≃ b
   let mul_cancelR := (Natural.mul_cancellative (ℕ := ℕ)).cancellativeR
-  exact AA.cancelRC (self := mul_cancelR) ‹c ≄ 0› ‹a * c ≃ b * c›
+  exact AA.cancelRC (C := (· ≄ 0)) ‹c ≄ 0› ‹a * c ≃ b * c›
 
 -- Exercise 2.3.5
 -- Proposition 2.3.9 (Euclidean algorithm).

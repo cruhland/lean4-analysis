@@ -396,7 +396,7 @@ example {a b : ℤ} : a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0 := Integer.mul_split_z
 example {a b c : ℤ} : a * c ≃ b * c → c ≄ 0 → a ≃ b := by
   intro (_ : a * c ≃ b * c) (_ : c ≄ 0)
   let inst := Integer.mul_cancellative.cancellativeR
-  exact AA.cancelRC (self := inst) ‹c ≄ 0› ‹a * c ≃ b * c›
+  exact AA.cancelRC (C := (· ≄ 0)) ‹c ≄ 0› ‹a * c ≃ b * c›
 
 -- We now extend the notion of order, which was defined on the natural numbers,
 -- to the integers by repeating the definition verbatim:
