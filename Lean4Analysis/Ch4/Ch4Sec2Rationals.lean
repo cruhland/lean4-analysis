@@ -187,4 +187,40 @@ example {a b : ℤ} : a ≃ b ↔ a//1 ≃ b//1 := by
 -- a coercion from integers to rationals.]
 example {a : ℤ} : coe a ≃ a//1 := Rel.refl
 
+-- Thus just as we embedded the natural numbers inside the integers, we embed
+-- the integers inside the rational numbers. In particular, all natural numbers
+-- are rational numbers, for instance `0` is equal to `0//1` and `1` is equal
+-- to `1//1`.
+example : (coe (coe (0 : ℕ) : ℤ) : ℚ) ≃ 0//1 := Rel.refl
+example : (coe (coe (1 : ℕ) : ℤ) : ℚ) ≃ 1//1 := Rel.refl
+
+-- Observe that a rational number `a//b` is equal to `0 ≃ 0//1` if and only if
+-- `a * 1 ≃ b * 0`, i.e., if the numerator `a` is equal to `0`. Thus if `a` and
+-- `b` are non-zero then so is `a//b`.
+example {p : ℚ} : p ≃ 0 ↔ p.numerator ≃ 0 := by
+  revert p; intro (a//b)
+  apply Iff.intro
+  case mp =>
+    intro (_ : a//b ≃ 0)
+    show a ≃ 0
+    have : a//b ≃ 0//1 := ‹a//b ≃ 0›
+    -- For some reason the line below gives an error
+    -- have : a * 1 ≃ 0 * b := ‹a//b ≃ 0//1›
+    calc
+      a     ≃ _ := Rel.symm AA.identR
+      a * 1 ≃ _ := ‹a * 1 ≃ 0 * b›
+      0 * b ≃ _ := AA.absorbL
+      0     ≃ _ := Rel.refl
+  case mpr =>
+    intro (_ : a ≃ 0)
+    show a//b ≃ 0
+    show a//b ≃ 0//1
+    -- Same here, this line gives an error
+    -- show a * 1 ≃ 0 * b
+    calc
+      a * 1 ≃ _ := AA.substL ‹a ≃ 0›
+      0 * 1 ≃ _ := AA.absorbL
+      0     ≃ _ := Rel.symm AA.absorbL
+      0 * b ≃ _ := Rel.refl
+
 end AnalysisI.Ch4.Sec2
