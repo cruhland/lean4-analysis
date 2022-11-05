@@ -223,4 +223,12 @@ example {p : ℚ} : p ≃ 0 ↔ p.numerator ≃ 0 := by
       0     ≃ _ := Rel.symm AA.absorbL
       0 * b ≃ _ := Rel.refl
 
+-- We now define a new operation on the rationals: reciprocal. If `x ≃ a//b` is
+-- a non-zero rational (so that `a, b ≄ 0`) then we define the _reciprocal_
+-- `x⁻¹` of `x` to be the rational number `x⁻¹ := b//a`.
+example {a b : ℤ} [Nonzero a] [Nonzero b] : (a//b)⁻¹ ≃ b//a := rfl
+
+-- [implementation of reciprocal]
+example : (q : ℚ) → [Fraction.Nonzero q] → ℚ := Fraction.reciprocal
+
 end AnalysisI.Ch4.Sec2

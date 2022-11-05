@@ -1,5 +1,5 @@
 {"version": 2,
  "packages":
  [{"url": "https://github.com/cruhland/lean4-axiomatic.git",
-   "rev": "648bb99fe39de9b48da1d2fb6d7c76900e881246",
+   "rev": "c7f96b624ba111644851048fe9c7dc6cefcc95ba",
    "name": "lean4-axiomatic"}]}
