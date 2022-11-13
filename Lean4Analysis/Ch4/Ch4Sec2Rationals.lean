@@ -239,4 +239,17 @@ example
     :=
   Fraction.recip_subst
 
+section prop_4_2_4
+
+-- Exercise 4.2.3.
+-- Proposition 4.2.4 (Laws of algebra for rationals).
+-- Let `x`, `y`, `z` be rationals. Then the following laws of algebra hold:
+variable {x y z : ℚ}
+
+example : x + y ≃ y + x := Fraction.add_comm
+
+example : (x + y) + z ≃ x + (y + z) := Fraction.add_assoc
+
+end prop_4_2_4
+
 end AnalysisI.Ch4.Sec2
