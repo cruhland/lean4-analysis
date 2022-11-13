@@ -231,4 +231,12 @@ example {a b : ℤ} [Nonzero a] [Nonzero b] : (a//b)⁻¹ ≃ b//a := rfl
 -- [implementation of reciprocal]
 example : (q : ℚ) → [Fraction.Nonzero q] → ℚ := Fraction.reciprocal
 
+-- It is easy to check that this operation is consistent with our notion of
+-- equality: if two rational numbers `a//b`, `a'//b'` are equal, then their
+-- reciprocals are also equal.
+example
+    {p q : ℚ} [Fraction.Nonzero p] [Fraction.Nonzero q] : p ≃ q → p⁻¹ ≃ q⁻¹
+    :=
+  Fraction.recip_subst
+
 end AnalysisI.Ch4.Sec2
