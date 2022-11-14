@@ -250,6 +250,10 @@ example : x + y ≃ y + x := Fraction.add_comm
 
 example : (x + y) + z ≃ x + (y + z) := Fraction.add_assoc
 
+example : x + 0 ≃ x := Fraction.add_identR
+
+example : 0 + x ≃ x := Fraction.add_identL
+
 end prop_4_2_4
 
 end AnalysisI.Ch4.Sec2
