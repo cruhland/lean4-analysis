@@ -243,6 +243,10 @@ example : x * 1 ≃ x := Fraction.mul_identR
 
 example : 1 * x ≃ x := Fraction.mul_identL
 
+example : x * (y + z) ≃ x * y + x * z := Fraction.mul_distribL
+
+example : (y + z) * x ≃ y * x + z * x := Fraction.mul_distribR
+
 end prop_4_2_4
 
 end AnalysisI.Ch4.Sec2
