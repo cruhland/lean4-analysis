@@ -247,6 +247,11 @@ example : x * (y + z) ≃ x * y + x * z := Fraction.mul_distribL
 
 example : (y + z) * x ≃ y * x + z * x := Fraction.mul_distribR
 
+-- If `x` is non-zero, we also have
+example [Fraction.Nonzero x] : x * x⁻¹ ≃ 1 := Fraction.recip_inverseR
+
+example [Fraction.Nonzero x] : x⁻¹ * x ≃ 1 := Fraction.recip_inverseL
+
 end prop_4_2_4
 
 end AnalysisI.Ch4.Sec2
