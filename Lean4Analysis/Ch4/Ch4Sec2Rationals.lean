@@ -16,6 +16,8 @@ abbrev ℤ : Type := Integer.Impl.Difference ℕ
 
 /- 4.2 The rationals -/
 
+section formal_fractions
+
 -- Definition 4.2.1.
 -- A _rational number_ is an expression of the form `a//b`, where `a` and `b`
 -- are integers and `b` is non-zero; `a//0` is not considered to be a rational
@@ -37,9 +39,14 @@ def literal_nonzero {n : ℕ} : n ≄ 0 → Nonzero (coe n : ℤ) := by
   have : Nonzero (coe n) := Integer.nonzero_iff_neqv_zero.mpr ‹coe n ≄ coe 0›
   exact this
 
+instance : Nonzero 2 := literal_nonzero Natural.step_neqv_zero
 instance : Nonzero 3 := literal_nonzero Natural.step_neqv_zero
 instance : Nonzero 4 := literal_nonzero Natural.step_neqv_zero
+instance : Nonzero 5 := literal_nonzero Natural.step_neqv_zero
+instance : Nonzero 6 := literal_nonzero Natural.step_neqv_zero
 instance : Nonzero 8 := literal_nonzero Natural.step_neqv_zero
+instance : Nonzero 10 := literal_nonzero Natural.step_neqv_zero
+instance : Nonzero 20 := literal_nonzero Natural.step_neqv_zero
 
 -- Thus for instance `3//4 ≃ 6//8 ≃ -3//-4`, but `3//4 ≄ 4//3`.
 example : (3 : ℤ)//4 ≃ 6//8 := by
@@ -260,5 +267,36 @@ example {x y : ℚ} [Fraction.Nonzero y] : x / y ≃ x * y⁻¹ := rfl
 
 -- [definition of division]
 example : (x y : ℚ) → [Fraction.Nonzero y] → ℚ := Fraction.div
+
+-- Thus, for instance
+example : ((3 : ℤ)//4) / ((5 : ℤ)//6) ≃ (9 : ℤ)//10 := calc
+  ((3 : ℤ)//4) / ((5 : ℤ)//6) ≃ _ := Fraction.eqv_refl
+  3//4 * (5//6)⁻¹             ≃ _ := Fraction.eqv_refl
+  3//4 * 6//5                 ≃ _ := Fraction.eqv_refl
+  (3 * 6)//(4 * 5)            ≃ _ := Fraction.eqv_refl
+  18//20                      ≃ _ := Fraction.eqv_refl
+  (2 * 9 : ℤ)//(2 * 10)       ≃ _ := Fraction.cancelL
+  9//10                       ≃ _ := Fraction.eqv_refl
+
+-- Using this formula, it is easy to see that `a / b ≃ a//b` for every integer
+-- `a` and every non-zero integer `b`.
+example {a b : ℤ} [Nonzero b] : a / (b : Fraction ℤ) ≃ a//b := calc
+  a / (b : Fraction ℤ) ≃ _ := Fraction.eqv_refl
+  (a//1) / (b//1)      ≃ _ := Fraction.eqv_refl
+  (a//1) * (b//1)⁻¹    ≃ _ := Fraction.eqv_refl
+  (a//1) * (1//b)      ≃ _ := Fraction.eqv_refl
+  (a * 1)//(1 * b)     ≃ _ := Fraction.substL AA.identR
+  a//(1 * b)           ≃ _ := Fraction.substR AA.identL
+  a//b                 ≃ _ := Fraction.eqv_refl
+
+-- Thus we can now discard the `//` notation, and use the more customary
+-- `a / b` instead of `a//b`. [Note: we enforce that in this file by only
+-- allowing the `//` notation in this first section; the remainder of this
+-- document does not have access to it.]
+
+-- In a similar spirit, we define subtraction on the rationals by the formula
+example {x y : ℚ} : x - y ≃ x + (-y) := rfl
+
+end formal_fractions
 
 end AnalysisI.Ch4.Sec2
