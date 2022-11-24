@@ -254,4 +254,11 @@ example [Fraction.Nonzero x] : x⁻¹ * x ≃ 1 := Fraction.recip_inverseL
 
 end prop_4_2_4
 
+-- We can now define the _quotient_ `x / y` of two rational numbers `x` and
+-- `y`, _provided that_ `y` is non-zero, by the formula
+example {x y : ℚ} [Fraction.Nonzero y] : x / y ≃ x * y⁻¹ := rfl
+
+-- [definition of division]
+example : (x y : ℚ) → [Fraction.Nonzero y] → ℚ := Fraction.div
+
 end AnalysisI.Ch4.Sec2
