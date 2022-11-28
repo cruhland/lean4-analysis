@@ -62,7 +62,7 @@ example : 3 ≃ step (step (step 0)) := Rel.refl
 -- etc.
 -- [We can convert any natural number literal (`Nat`) into `ℕ`]
 example (n : Nat) : ℕ :=
-  OfNat.ofNat n (self := Natural.literal (self := Impl.literals))
+  @OfNat.ofNat ℕ n (Natural.literal (self := Impl.literals))
 
 -- (In other words, `1 := step 0`, `2 := step 1`, `3 := step 2`, etc.)
 example : 1 ≃ step 0 := Rel.refl
