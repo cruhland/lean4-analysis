@@ -39,6 +39,12 @@ def literal_nonzero {n : ℕ} : n ≄ 0 → Nonzero (coe n : ℤ) := by
   have : Nonzero (coe n) := Integer.nonzero_iff_neqv_zero.mpr ‹coe n ≄ coe 0›
   exact this
 
+-- [This is a default instance so that integer literals can be used without
+-- type annotations. The priority is higher than both `Neg Int` and `OfNat Nat`
+-- from the Prelude.]
+@[default_instance mid+1]
+abbrev integer_literal {n : Nat} := Integer.literal (ℤ := ℤ) (n := n)
+
 instance : Nonzero 2 := literal_nonzero Natural.step_neqv_zero
 instance : Nonzero 3 := literal_nonzero Natural.step_neqv_zero
 instance : Nonzero 4 := literal_nonzero Natural.step_neqv_zero
@@ -49,20 +55,20 @@ instance : Nonzero 10 := literal_nonzero Natural.step_neqv_zero
 instance : Nonzero 20 := literal_nonzero Natural.step_neqv_zero
 
 -- Thus for instance `3//4 ≃ 6//8 ≃ -3//-4`, but `3//4 ≄ 4//3`.
-example : (3 : ℤ)//4 ≃ 6//8 := by
-  show (3 : ℤ) * 8 ≃ 6 * 4
+example : 3//4 ≃ 6//8 := by
+  show 3 * 8 ≃ 6 * 4
   show 24 ≃ 24
   rfl
 
-example : (6 : ℤ)//8 ≃ -3//(-4) := by
-  show (6 : ℤ) * -4 ≃ -3 * 8
+example : 6//8 ≃ -3//(-4) := by
+  show 6 * -4 ≃ -3 * 8
   show -24 ≃ -24
   rfl
 
-example : (3 : ℤ)//4 ≄ 4//3 := by
-  intro (_ : (3 : ℤ)//4 ≃ 4//3)
+example : 3//4 ≄ 4//3 := by
+  intro (_ : 3//4 ≃ 4//3)
   show False
-  have : (3 : ℤ) * 3 ≃ 4 * 4 := ‹(3 : ℤ)//4 ≃ 4//3›
+  have : 3 * 3 ≃ 4 * 4 := ‹3//4 ≃ 4//3›
   have : 9 ≃ 16 := this
   have : step 8 ≃ step 15 := this
   have : 8 ≃ 15 := AA.inject this
@@ -198,8 +204,8 @@ example {a : ℤ} : coe a ≃ a//1 := Rel.refl
 -- the integers inside the rational numbers. In particular, all natural numbers
 -- are rational numbers, for instance `0` is equal to `0//1` and `1` is equal
 -- to `1//1`.
-example : (coe (coe (0 : ℕ) : ℤ) : ℚ) ≃ 0//1 := Rel.refl
-example : (coe (coe (1 : ℕ) : ℤ) : ℚ) ≃ 1//1 := Rel.refl
+example : 0 ≃ 0//1 := Rel.refl
+example : 1 ≃ 1//1 := Rel.refl
 
 -- Observe that a rational number `a//b` is equal to `0 ≃ 0//1` if and only if
 -- `a * 1 ≃ b * 0`, i.e., if the numerator `a` is equal to `0`. Thus if `a` and
@@ -269,25 +275,25 @@ example {x y : ℚ} [Fraction.Nonzero y] : x / y ≃ x * y⁻¹ := rfl
 example : (x y : ℚ) → [Fraction.Nonzero y] → ℚ := Fraction.div
 
 -- Thus, for instance
-example : ((3 : ℤ)//4) / ((5 : ℤ)//6) ≃ (9 : ℤ)//10 := calc
-  ((3 : ℤ)//4) / ((5 : ℤ)//6) ≃ _ := Fraction.eqv_refl
-  3//4 * (5//6)⁻¹             ≃ _ := Fraction.eqv_refl
-  3//4 * 6//5                 ≃ _ := Fraction.eqv_refl
-  (3 * 6)//(4 * 5)            ≃ _ := Fraction.eqv_refl
-  18//20                      ≃ _ := Fraction.eqv_refl
-  (2 * 9 : ℤ)//(2 * 10)       ≃ _ := Fraction.cancelL
-  9//10                       ≃ _ := Fraction.eqv_refl
+example : (3//4 : ℚ) / (5//6 : ℚ) ≃ 9//10 := calc
+  (3//4 : ℚ) / (5//6 : ℚ) ≃ _ := Fraction.eqv_refl
+  3//4 * (5//6)⁻¹         ≃ _ := Fraction.eqv_refl
+  3//4 * 6//5             ≃ _ := Fraction.eqv_refl
+  (3 * 6)//(4 * 5)        ≃ _ := Fraction.eqv_refl
+  18//20                  ≃ _ := Fraction.eqv_refl
+  ((2 * 9)//(2 * 10) : ℚ) ≃ _ := Fraction.cancelL
+  9//10                   ≃ _ := Fraction.eqv_refl
 
 -- Using this formula, it is easy to see that `a / b ≃ a//b` for every integer
 -- `a` and every non-zero integer `b`.
-example {a b : ℤ} [Nonzero b] : a / (b : Fraction ℤ) ≃ a//b := calc
-  a / (b : Fraction ℤ) ≃ _ := Fraction.eqv_refl
-  (a//1) / (b//1)      ≃ _ := Fraction.eqv_refl
-  (a//1) * (b//1)⁻¹    ≃ _ := Fraction.eqv_refl
-  (a//1) * (1//b)      ≃ _ := Fraction.eqv_refl
-  (a * 1)//(1 * b)     ≃ _ := Fraction.substL AA.identR
-  a//(1 * b)           ≃ _ := Fraction.substR AA.identL
-  a//b                 ≃ _ := Fraction.eqv_refl
+example {a b : ℤ} [Nonzero b] : a / (b : ℚ) ≃ a//b := calc
+  a / (b : ℚ)       ≃ _ := Fraction.eqv_refl
+  (a//1) / (b//1)   ≃ _ := Fraction.eqv_refl
+  (a//1) * (b//1)⁻¹ ≃ _ := Fraction.eqv_refl
+  (a//1) * (1//b)   ≃ _ := Fraction.eqv_refl
+  (a * 1)//(1 * b)  ≃ _ := Fraction.substL AA.identR
+  a//(1 * b)        ≃ _ := Fraction.substR AA.identL
+  a//b              ≃ _ := Fraction.eqv_refl
 
 -- Thus we can now discard the `//` notation, and use the more customary
 -- `a / b` instead of `a//b`. [Note: we enforce that in this file by only

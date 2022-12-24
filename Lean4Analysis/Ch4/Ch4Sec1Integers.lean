@@ -395,7 +395,7 @@ example {a b : ℤ} : a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0 := Integer.mul_split_z
 -- then `a ≃ b`.
 example {a b c : ℤ} : a * c ≃ b * c → c ≄ 0 → a ≃ b := by
   intro (_ : a * c ≃ b * c) (_ : c ≄ 0)
-  let inst := Integer.mul_cancellative.cancellativeR
+  let inst := (Integer.mul_cancellative (ℤ := ℤ)).cancellativeR
   exact AA.cancelRC (C := (· ≄ 0)) ‹c ≄ 0› ‹a * c ≃ b * c›
 
 -- We now extend the notion of order, which was defined on the natural numbers,
@@ -406,10 +406,10 @@ example {a b c : ℤ} : a * c ≃ b * c → c ≄ 0 → a ≃ b := by
 -- `m`, and write `n ≥ m` or `m ≤ n`, iff we have `n ≃ m + a` for some natural
 -- number `a`. We say that `n` is _strictly greater than_ `m`, and write
 -- `n > m` or `m < n`, iff `n ≥ m` and `n ≄ m`.
-example : ℤ → ℤ → Prop := LE.le (self := Integer.leOp ℕ)
+example : ℤ → ℤ → Prop := LE.le (self := Integer.leOp)
 example {n m : ℤ} : n ≥ m ↔ ∃ a : ℕ, n ≃ m + a := Integer.le_iff_add_nat
 
-example : ℤ → ℤ → Prop := LT.lt (self := Integer.ltOp ℕ)
+example : ℤ → ℤ → Prop := LT.lt (self := Integer.ltOp)
 theorem gt_iff_ge_neqv {n m : ℤ} : n > m ↔ n ≥ m ∧ n ≄ m := by
   apply Iff.intro
   case mp =>
@@ -472,7 +472,7 @@ example : a > b → a + c > b + c :=
 example : a > b → Positive c → a * c > b * c := by
   intro (_ : b < a) (_ : Positive c)
   show b * c < a * c
-  let inst := Integer.mul_substitutive_lt.substitutiveL
+  let inst := (Integer.mul_substitutive_lt (ℤ := ℤ)).substitutiveL
   exact AA.substLC (self := inst) ‹Positive c› ‹b < a›
 
 -- (d) (Negation reverses order) If `a > b`, then `-a < -b`.
