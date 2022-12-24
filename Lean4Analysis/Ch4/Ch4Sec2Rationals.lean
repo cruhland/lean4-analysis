@@ -167,14 +167,14 @@ example
 -- integers `a`:
 example {a b : ℤ} : a//1 + b//1 ≃ (a + b)//1 := calc
   a//1 + b//1              ≃ _ := Rel.refl
-  (a * 1 + 1 * b)//(1 * 1) ≃ _ := Fraction.substL (AA.substL AA.identR)
-  (a + 1 * b)//(1 * 1)     ≃ _ := Fraction.substL (AA.substR AA.identL)
-  (a + b)//(1 * 1)         ≃ _ := Fraction.substR AA.identL
+  (a * 1 + 1 * b)//(1 * 1) ≃ _ := Fraction.substN (AA.substL AA.identR)
+  (a + 1 * b)//(1 * 1)     ≃ _ := Fraction.substN (AA.substR AA.identL)
+  (a + b)//(1 * 1)         ≃ _ := Fraction.substD AA.identL
   (a + b)//1               ≃ _ := Rel.refl
 
 example {a b : ℤ} : a//1 * b//1 ≃ (a * b)//1 := calc
   a//1 * b//1      ≃ _ := Rel.refl
-  (a * b)//(1 * 1) ≃ _ := Fraction.substR AA.identL
+  (a * b)//(1 * 1) ≃ _ := Fraction.substD AA.identL
   (a * b)//1       ≃ _ := Rel.refl
 
 example {a : ℤ} : -(a//1) ≃ (-a)//1 := Rel.refl
@@ -291,8 +291,8 @@ example {a b : ℤ} [Nonzero b] : a / (b : ℚ) ≃ a//b := calc
   (a//1) / (b//1)   ≃ _ := Fraction.eqv_refl
   (a//1) * (b//1)⁻¹ ≃ _ := Fraction.eqv_refl
   (a//1) * (1//b)   ≃ _ := Fraction.eqv_refl
-  (a * 1)//(1 * b)  ≃ _ := Fraction.substL AA.identR
-  a//(1 * b)        ≃ _ := Fraction.substR AA.identL
+  (a * 1)//(1 * b)  ≃ _ := Fraction.substN AA.identR
+  a//(1 * b)        ≃ _ := Fraction.substD AA.identL
   a//b              ≃ _ := Fraction.eqv_refl
 
 -- Thus we can now discard the `//` notation, and use the more customary
