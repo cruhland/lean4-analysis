@@ -3,6 +3,6 @@
  [{"git":
    {"url": "https://github.com/cruhland/lean4-axiomatic.git",
     "subDir?": null,
-    "rev": "eca0f3ad3959ff75285e3333266d3d4a5aaef0c2",
+    "rev": "45f3e3f38b076391231ce4e66676ab0f6ade1fe5",
     "name": "lean4-axiomatic",
     "inputRev?": null}}]}
