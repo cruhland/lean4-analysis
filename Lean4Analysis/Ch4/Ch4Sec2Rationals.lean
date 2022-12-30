@@ -7,9 +7,11 @@ namespace AnalysisI.Ch4.Sec2
 
 open Coe (coe)
 open Lean4Axiomatic
-open Lean4Axiomatic.Integer (Nonzero)
+open Lean4Axiomatic.Integer (Nonzero sgn)
+open Lean4Axiomatic.Logic (AP)
 open Lean4Axiomatic.Natural (step)
 open Lean4Axiomatic.Rational.Impl
+open Lean4Axiomatic.Signed (Positive)
 
 abbrev ℕ : Type := Nat
 abbrev ℤ : Type := Integer.Impl.Difference ℕ
@@ -25,9 +27,16 @@ section formal_fractions
 -- and only if `a * d ≃ c * b`. The set of all rational numbers is denoted `ℚ`.
 abbrev ℚ : Type := Fraction ℤ
 
-example {a b : ℤ} [Nonzero b] : ℚ := a//b
+-- [Note: the implementation of rationals we're using requires denominators to
+-- be _positive_, not just nonzero. Since this is a stronger requirement it
+-- shouldn't impact the code here too much; we'll clarify with a note when it
+-- does.]
+example {a b : ℤ} [AP (Positive b)] : ℚ := a//b
 
-example {a b c d : ℤ} [Nonzero b] [Nonzero d] : a//b ≃ c//d ↔ a * d ≃ c * b :=
+example
+    {a b c d : ℤ} [AP (Positive b)] [AP (Positive d)]
+    : a//b ≃ c//d ↔ a * d ≃ c * b
+    :=
   Iff.intro id id
 
 -- [definition of rational equality]
@@ -39,20 +48,28 @@ def literal_nonzero {n : ℕ} : n ≄ 0 → Nonzero (coe n : ℤ) := by
   have : Nonzero (coe n) := Integer.nonzero_iff_neqv_zero.mpr ‹coe n ≄ coe 0›
   exact this
 
+def literal_positive {n : ℕ} : n ≄ 0 → AP (Positive (coe n : ℤ)) := by
+  intro (_ : n ≄ 0)
+  have : Positive n := Signed.positive_defn.mpr ‹n ≄ 0›
+  have : Positive (coe n) :=
+    Integer.positive_intro_nat (ℤ := ℤ) ‹Positive n› Rel.refl
+  exact AP.mk this
+
 -- [This is a default instance so that integer literals can be used without
 -- type annotations. The priority is higher than both `Neg Int` and `OfNat Nat`
 -- from the Prelude.]
 @[default_instance mid+1]
 abbrev integer_literal {n : Nat} := Integer.literal (ℤ := ℤ) (n := n)
 
-instance : Nonzero 2 := literal_nonzero Natural.step_neqv_zero
-instance : Nonzero 3 := literal_nonzero Natural.step_neqv_zero
-instance : Nonzero 4 := literal_nonzero Natural.step_neqv_zero
 instance : Nonzero 5 := literal_nonzero Natural.step_neqv_zero
-instance : Nonzero 6 := literal_nonzero Natural.step_neqv_zero
-instance : Nonzero 8 := literal_nonzero Natural.step_neqv_zero
-instance : Nonzero 10 := literal_nonzero Natural.step_neqv_zero
-instance : Nonzero 20 := literal_nonzero Natural.step_neqv_zero
+instance : AP (Positive 2) := literal_positive Natural.step_neqv_zero
+instance : AP (Positive 3) := literal_positive Natural.step_neqv_zero
+instance : AP (Positive 4) := literal_positive Natural.step_neqv_zero
+instance : AP (Positive 5) := literal_positive Natural.step_neqv_zero
+instance : AP (Positive 6) := literal_positive Natural.step_neqv_zero
+instance : AP (Positive 8) := literal_positive Natural.step_neqv_zero
+instance : AP (Positive 10) := literal_positive Natural.step_neqv_zero
+instance : AP (Positive 20) := literal_positive Natural.step_neqv_zero
 
 -- Thus for instance `3//4 ≃ 6//8 ≃ -3//-4`, but `3//4 ≄ 4//3`.
 example : 3//4 ≃ 6//8 := by
@@ -60,8 +77,11 @@ example : 3//4 ≃ 6//8 := by
   show 24 ≃ 24
   rfl
 
-example : 6//8 ≃ -3//(-4) := by
-  show 6 * -4 ≃ -3 * 8
+-- [Note: `-3//(-4)` is not a valid fraction in our definition; so we show a
+-- slightly different equivalence.]
+-- example : 6//8 ≃ (-3)//(-4) := by
+example : (-6)//8 ≃ (-3)//4 := by
+  show -6 * 4 ≃ -3 * 8
   show -24 ≃ -24
   rfl
 
@@ -104,7 +124,7 @@ example {p q r : ℚ} : p ≃ q → q ≃ r → p ≃ r := Fraction.eqv_trans
 -- Definition 4.2.2.
 -- If `a//b` and `c//d` are rational numbers, we define their sum
 example
-    {a b c d : ℤ} [Nonzero b] [Nonzero d]
+    {a b c d : ℤ} [AP (Positive b)] [AP (Positive d)]
     : (a//b) + (c//d) ≃ (a * d + b * c)//(b * d)
     :=
   rfl
@@ -114,7 +134,7 @@ example : ℚ → ℚ → ℚ := Fraction.add
 
 -- their product
 example
-    {a b c d : ℤ} [Nonzero b] [Nonzero d]
+    {a b c d : ℤ} [AP (Positive b)] [AP (Positive d)]
     : (a//b) * (c//d) ≃ (a * c)//(b * d)
     :=
   rfl
@@ -123,7 +143,7 @@ example
 example : ℚ → ℚ → ℚ := Fraction.mul
 
 -- and the negation
-example {a b : ℤ} [Nonzero b] : -(a//b) ≃ (-a)//b := rfl
+example {a b : ℤ} [AP (Positive b)] : -(a//b) ≃ (-a)//b := rfl
 
 -- [implementation of negation]
 example : ℚ → ℚ := Fraction.neg
@@ -134,31 +154,31 @@ example : ℚ → ℚ := Fraction.neg
 -- number `a'//b'` which is equal to `a//b`, then the output of the above
 -- operations remains unchanged, and similarly for `c//d`.
 example
-    {a a' b b' c d : ℤ} [Nonzero b] [Nonzero b'] [Nonzero d]
+    {a a' b b' c d : ℤ} [AP (Positive b)] [AP (Positive b')] [AP (Positive d)]
     : a//b ≃ a'//b' → a//b + c//d ≃ a'//b' + c//d
     :=
   Fraction.add_substL
 
 example
-    {a b c c' d d' : ℤ} [Nonzero b] [Nonzero d] [Nonzero d']
+    {a b c c' d d' : ℤ} [AP (Positive b)] [AP (Positive d)] [AP (Positive d')]
     : c//d ≃ c'//d' → a//b + c//d ≃ a//b + c'//d'
     :=
   Fraction.add_substR
 
 example
-    {a a' b b' c d : ℤ} [Nonzero b] [Nonzero b'] [Nonzero d]
+    {a a' b b' c d : ℤ} [AP (Positive b)] [AP (Positive b')] [AP (Positive d)]
     : a//b ≃ a'//b' → a//b * c//d ≃ a'//b' * c//d
     :=
   Fraction.mul_substL
 
 example
-    {a b c c' d d' : ℤ} [Nonzero b] [Nonzero d] [Nonzero d']
+    {a b c c' d d' : ℤ} [AP (Positive b)] [AP (Positive d)] [AP (Positive d')]
     : c//d ≃ c'//d' → a//b * c//d ≃ a//b * c'//d'
     :=
   Fraction.mul_substR
 
 example
-    {a a' b b' : ℤ} [Nonzero b] [Nonzero b']
+    {a a' b b' : ℤ} [AP (Positive b)] [AP (Positive b')]
     : a//b ≃ a'//b' → -(a//b) ≃ -(a'//b')
     :=
   Fraction.neg_subst
@@ -216,7 +236,17 @@ example {p : ℚ} : p ≃ 0 ↔ p.numerator ≃ 0 :=
 -- We now define a new operation on the rationals: reciprocal. If `x ≃ a//b` is
 -- a non-zero rational (so that `a, b ≄ 0`) then we define the _reciprocal_
 -- `x⁻¹` of `x` to be the rational number `x⁻¹ := b//a`.
-example {a b : ℤ} [Nonzero a] [Nonzero b] : (a//b)⁻¹ ≃ b//a := rfl
+-- [Note: this is one place where we must use a different definition due to our
+-- stronger positive-denominator constraint. The denominator of the reciprocal
+-- needs to be positive, but we only know that the numerator of the original
+-- fraction is nonzero. Multiply it by `sgn` of itself to ensure that it is
+-- positive, then multiply the numerator of the reciprocal by the same amount
+-- so that the value of the fraction doesn't change.]
+example
+    {a b : ℤ} [Nonzero a] [AP (Positive b)]
+    : (a//b)⁻¹ ≃ (b * sgn a)//(a * sgn a)
+    :=
+  rfl
 
 -- [implementation of reciprocal]
 example : (q : ℚ) → [Fraction.Nonzero q] → ℚ := Fraction.reciprocal
@@ -286,14 +316,36 @@ example : (3//4 : ℚ) / (5//6 : ℚ) ≃ 9//10 := calc
 
 -- Using this formula, it is easy to see that `a / b ≃ a//b` for every integer
 -- `a` and every non-zero integer `b`.
-example {a b : ℤ} [Nonzero b] : a / (b : ℚ) ≃ a//b := calc
-  a / (b : ℚ)       ≃ _ := Fraction.eqv_refl
-  (a//1) / (b//1)   ≃ _ := Fraction.eqv_refl
-  (a//1) * (b//1)⁻¹ ≃ _ := Fraction.eqv_refl
-  (a//1) * (1//b)   ≃ _ := Fraction.eqv_refl
-  (a * 1)//(1 * b)  ≃ _ := Fraction.substN AA.identR
-  a//(1 * b)        ≃ _ := Fraction.substD AA.identL
-  a//b              ≃ _ := Fraction.eqv_refl
+example {a b : ℤ} [AP (Positive b)] : a / (b : ℚ) ≃ a//b := by
+  have : sgn b ≃ 1 := Integer.sgn_positive.mp ‹AP (Positive b)›.ev
+  have : AP (Positive (b * 1)) := Integer.mul_preserves_positive_inst
+  calc
+    a / (b : ℚ)
+      ≃ _ := Fraction.eqv_refl
+    (a//1) / (b//1)
+      ≃ _ := Fraction.eqv_refl
+    (a//1) * (b//1)⁻¹
+      ≃ _ := Fraction.eqv_refl
+    (a//1) * (1 * sgn b)//(b * sgn b)
+      ≃ _ := Fraction.mul_substR (Fraction.substN (AA.substR ‹sgn b ≃ 1›))
+    (a//1) * (1 * 1)//(b * sgn b)
+      ≃ _ :=
+        Fraction.mul_substR
+          (Fraction.substD
+            (pb₂ := ‹AP (Positive (b * 1))›)
+            (AA.substR ‹sgn b ≃ 1›))
+    (a//1) * (1 * 1)//(b * 1)
+      ≃ _ := Fraction.mul_substR (Fraction.substN AA.identR)
+    (a//1) * 1//(b * 1)
+      ≃ _ := Fraction.mul_substR (Fraction.substD AA.identR)
+    (a//1) * (1//b)
+      ≃ _ := Fraction.eqv_refl
+    (a * 1)//(1 * b)
+      ≃ _ := Fraction.substN AA.identR
+    a//(1 * b)
+      ≃ _ := Fraction.substD AA.identL
+    a//b
+      ≃ _ := Fraction.eqv_refl
 
 -- Thus we can now discard the `//` notation, and use the more customary
 -- `a / b` instead of `a//b`. [Note: we enforce that in this file by only
