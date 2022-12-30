@@ -39,20 +39,22 @@ example
     :=
   Iff.intro id id
 
--- [definition of rational equality]
+-- [axiom and definition for rational equality]
+example : ℚ → ℚ → Prop := Rational.eqv
 example : ℚ → ℚ → Prop := Fraction.eqv
 
-def literal_nonzero {n : ℕ} : n ≄ 0 → Nonzero (coe n : ℤ) := by
+-- [helper function to generate `Nonzero` instances for integer literals]
+def literal_nonzero {n : ℕ} : n ≄ 0 → Nonzero (n : ℤ) := by
   intro (_ : n ≄ 0)
   have : coe n ≄ coe 0 := AA.subst₁ (β := ℤ) ‹n ≄ 0›
-  have : Nonzero (coe n) := Integer.nonzero_iff_neqv_zero.mpr ‹coe n ≄ coe 0›
+  have : Nonzero (n : ℤ) := Integer.nonzero_iff_neqv_zero.mpr ‹coe n ≄ coe 0›
   exact this
 
-def literal_positive {n : ℕ} : n ≄ 0 → AP (Positive (coe n : ℤ)) := by
+-- [helper function to generate `Positive` instances for integer literals]
+def literal_positive {n : ℕ} : n ≄ 0 → AP (Positive (n : ℤ)) := by
   intro (_ : n ≄ 0)
   have : Positive n := Signed.positive_defn.mpr ‹n ≄ 0›
-  have : Positive (coe n) :=
-    Integer.positive_intro_nat (ℤ := ℤ) ‹Positive n› Rel.refl
+  have : Positive (n : ℤ) := Integer.positive_intro_nat ‹Positive n› Rel.refl
   exact AP.mk this
 
 -- [This is a default instance so that integer literals can be used without
@@ -61,6 +63,7 @@ def literal_positive {n : ℕ} : n ≄ 0 → AP (Positive (coe n : ℤ)) := by
 @[default_instance mid+1]
 abbrev integer_literal {n : Nat} := Integer.literal (ℤ := ℤ) (n := n)
 
+-- [these instances are needed for literals to be denominators of fractions]
 instance : Nonzero 5 := literal_nonzero Natural.step_neqv_zero
 instance : AP (Positive 2) := literal_positive Natural.step_neqv_zero
 instance : AP (Positive 3) := literal_positive Natural.step_neqv_zero
@@ -109,12 +112,13 @@ example : 3//4 ≄ 4//3 := by
   have : step 0 ≃ step 7 := this
   have : 0 ≃ 7 := AA.inject this
   have : 0 ≃ step 6 := this
-  exact absurd (Rel.symm ‹0 ≃ step 6›) Natural.step_neqv_zero
+  have : 0 ≄ step 6 := Rel.symm Natural.step_neqv_zero
+  exact absurd ‹0 ≃ step 6› ‹0 ≄ step 6›
 
 -- This is a valid definition of equality.
 -- Exercise 4.2.1.
 -- Show that the definition of equality for the rational numbers is reflexive,
--- symmetric, and transitive. (Hint: for transitivity, use Corollary 4.1.9.)
+-- symmetric, and transitive.
 example {p : ℚ} : p ≃ p := Fraction.eqv_refl
 
 example {p q : ℚ} : p ≃ q → q ≃ p := Fraction.eqv_symm
