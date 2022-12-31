@@ -119,10 +119,14 @@ example : 3//4 ≄ 4//3 := by
 -- Exercise 4.2.1.
 -- Show that the definition of equality for the rational numbers is reflexive,
 -- symmetric, and transitive.
+-- [axioms]
+example {p : ℚ} : p ≃ p := Rational.eqv_refl
+example {p q : ℚ} : p ≃ q → q ≃ p := Rational.eqv_symm
+example {p q r : ℚ} : p ≃ q → q ≃ r → p ≃ r := Rational.eqv_trans
+
+-- [fraction implementations]
 example {p : ℚ} : p ≃ p := Fraction.eqv_refl
-
 example {p q : ℚ} : p ≃ q → q ≃ p := Fraction.eqv_symm
-
 example {p q r : ℚ} : p ≃ q → q ≃ r → p ≃ r := Fraction.eqv_trans
 
 -- Definition 4.2.2.
