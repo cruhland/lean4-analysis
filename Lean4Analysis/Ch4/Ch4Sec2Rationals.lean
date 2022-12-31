@@ -137,7 +137,8 @@ example
     :=
   rfl
 
--- [implementation of addition]
+-- [declaration and definition of addition]
+example : ℚ → ℚ → ℚ := Rational.add
 example : ℚ → ℚ → ℚ := Fraction.add
 
 -- their product
@@ -249,7 +250,7 @@ example {p : ℚ} : p ≃ 0 ↔ p.numerator ≃ 0 :=
 -- needs to be positive, but we only know that the numerator of the original
 -- fraction is nonzero. Multiply it by `sgn` of itself to ensure that it is
 -- positive, then multiply the numerator of the reciprocal by the same amount
--- so that the value of the fraction doesn't change.]
+-- so that the sign of the fraction doesn't change.]
 example
     {a b : ℤ} [Nonzero a] [AP (Positive b)]
     : (a//b)⁻¹ ≃ (b * sgn a)//(a * sgn a)
