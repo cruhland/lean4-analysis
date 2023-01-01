@@ -155,7 +155,8 @@ example : ℚ → ℚ → ℚ := Fraction.mul
 -- and the negation
 example {a b : ℤ} [AP (Positive b)] : -(a//b) ≃ (-a)//b := rfl
 
--- [implementation of negation]
+-- [declaration and definition of negation]
+example : ℚ → ℚ := Rational.neg
 example : ℚ → ℚ := Fraction.neg
 
 -- Lemma 4.2.3. / Exercise 4.2.2.
