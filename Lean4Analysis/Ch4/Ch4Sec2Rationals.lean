@@ -194,6 +194,13 @@ example
     :=
   Fraction.neg_subst
 
+-- [axioms for all substitution properties]
+example {p p' q : ℚ} : p ≃ p' → p + q ≃ p' + q := Rational.add_substL
+example {p p' q : ℚ} : p ≃ p' → q + p ≃ q + p' := Rational.add_substR
+example {p p' q : ℚ} : p ≃ p' → p * q ≃ p' * q := Rational.mul_substL
+example {p p' q : ℚ} : p ≃ p' → q * p ≃ q * p' := Rational.mul_substR
+example {p p' : ℚ} : p ≃ p' → -p ≃ -p' := Rational.neg_subst
+
 -- We note that the rational numbers `a//1` behave in a manner identical to the
 -- integers `a`:
 example {a b : ℤ} : a//1 + b//1 ≃ (a + b)//1 := calc
