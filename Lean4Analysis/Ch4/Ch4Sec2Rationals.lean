@@ -148,7 +148,8 @@ example
     :=
   rfl
 
--- [implementation of multiplication]
+-- [declaration and definition of multiplication]
+example : ℚ → ℚ → ℚ := Rational.mul
 example : ℚ → ℚ → ℚ := Fraction.mul
 
 -- and the negation
