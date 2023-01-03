@@ -195,55 +195,60 @@ example
   Fraction.neg_subst
 
 -- [axioms for all substitution properties]
-example {p p' q : ℚ} : p ≃ p' → p + q ≃ p' + q := Rational.add_substL
-example {p p' q : ℚ} : p ≃ p' → q + p ≃ q + p' := Rational.add_substR
-example {p p' q : ℚ} : p ≃ p' → p * q ≃ p' * q := Rational.mul_substL
-example {p p' q : ℚ} : p ≃ p' → q * p ≃ q * p' := Rational.mul_substR
-example {p p' : ℚ} : p ≃ p' → -p ≃ -p' := Rational.neg_subst
+example {p p' q : ℚ} : p ≃ p' → p + q ≃ p' + q :=
+  Rational.add_substL (core_ops := Fraction.core_ops)
+example {p p' q : ℚ} : p ≃ p' → q + p ≃ q + p' :=
+  Rational.add_substR (core_ops := Fraction.core_ops)
+example {p p' q : ℚ} : p ≃ p' → p * q ≃ p' * q :=
+  Rational.mul_substL (core_ops := Fraction.core_ops)
+example {p p' q : ℚ} : p ≃ p' → q * p ≃ q * p' :=
+  Rational.mul_substR (core_ops := Fraction.core_ops)
+example {p p' : ℚ} : p ≃ p' → -p ≃ -p' :=
+  Rational.neg_subst (core_ops := Fraction.core_ops)
 
 -- We note that the rational numbers `a//1` behave in a manner identical to the
 -- integers `a`:
-example {a b : ℤ} : a//1 + b//1 ≃ (a + b)//1 := calc
-  a//1 + b//1              ≃ _ := Rel.refl
-  (a * 1 + 1 * b)//(1 * 1) ≃ _ := Fraction.substN (AA.substL AA.identR)
-  (a + 1 * b)//(1 * 1)     ≃ _ := Fraction.substN (AA.substR AA.identL)
-  (a + b)//(1 * 1)         ≃ _ := Fraction.substD AA.identL
-  (a + b)//1               ≃ _ := Rel.refl
+example {a b : ℤ} : a//1 + b//1 ≃ (a + b)//1 :=
+  Fraction.eqv_symm Fraction.add_compat_from_integer
 
-example {a b : ℤ} : a//1 * b//1 ≃ (a * b)//1 := calc
-  a//1 * b//1      ≃ _ := Rel.refl
-  (a * b)//(1 * 1) ≃ _ := Fraction.substD AA.identL
-  (a * b)//1       ≃ _ := Rel.refl
+example {a b : ℤ} : a//1 * b//1 ≃ (a * b)//1 :=
+  Fraction.eqv_symm Fraction.mul_compat_from_integer
 
-example {a : ℤ} : -(a//1) ≃ (-a)//1 := Rel.refl
+example {a : ℤ} : -(a//1) ≃ (-a)//1 :=
+  Fraction.eqv_symm Fraction.neg_compat_from_integer
 
 -- Also, `a//1` and `b//1` are only equal when `a` and `b` are equal.
-example {a b : ℤ} : a ≃ b ↔ a//1 ≃ b//1 := by
-  apply Iff.intro
-  case mp =>
-    intro (_ : a ≃ b)
-    show a//1 ≃ b//1
-    show a * 1 ≃ b * 1
-    exact AA.substL ‹a ≃ b›
-  case mpr =>
-    intro (_ : a//1 ≃ b//1)
-    show a ≃ b
-    have : a * 1 ≃ b * 1 := ‹a//1 ≃ b//1›
-    exact AA.cancelRC (C := (· ≄ 0)) Integer.one_neqv_zero ‹a * 1 ≃ b * 1›
+example {a b : ℤ} : a ≃ b ↔ a//1 ≃ b//1 :=
+  Iff.intro Fraction.from_integer_subst Fraction.from_integer_inject
 
 -- Because of this, we will identify `a` with `a//1` for each integer `a`:
 -- `a ≡ a//1`; the above identities then guarantee that the arithmetic of the
 -- integers is consistent with the arithmetic of the rationals.
 -- [Note: we can't make integers equal to rationals in Lean, but we can provide
 -- a coercion from integers to rationals.]
-example {a : ℤ} : coe a ≃ a//1 := Rel.refl
+example {a : ℤ} : (a : ℚ) ≃ a//1 := Rel.refl
+
+-- [corresponding axioms for integer conversion]
+example : ℤ → ℚ := Rational.from_integer
+example : ℤ → ℚ := coe -- typeclass, backed by `from_integer`
+
+example {a₁ a₂ : ℤ} : a₁ ≃ a₂ → (a₁ : ℚ) ≃ (a₂ : ℚ) :=
+  Rational.from_integer_subst
+example {a₁ a₂ : ℤ} : (a₁ : ℚ) ≃ (a₂ : ℚ) → a₁ ≃ a₂ :=
+  Rational.from_integer_inject
+
+example {a b : ℤ} : ((a + b : ℤ) : ℚ) ≃ (a : ℚ) + (b : ℚ) :=
+  Rational.add_compat_from_integer
+example {a b : ℤ} : ((a * b : ℤ) : ℚ) ≃ (a : ℚ) * (b : ℚ) :=
+  Rational.mul_compat_from_integer
+example {a : ℤ} : ((-a : ℤ) : ℚ) ≃ -(a : ℚ) := Rational.neg_compat_from_integer
 
 -- Thus just as we embedded the natural numbers inside the integers, we embed
 -- the integers inside the rational numbers. In particular, all natural numbers
 -- are rational numbers, for instance `0` is equal to `0//1` and `1` is equal
 -- to `1//1`.
-example : 0 ≃ 0//1 := Rel.refl
-example : 1 ≃ 1//1 := Rel.refl
+example : 0 ≃ 0//1 := Rational.eqv_refl
+example : 1 ≃ 1//1 := Rational.eqv_refl
 
 -- Observe that a rational number `a//b` is equal to `0 ≃ 0//1` if and only if
 -- `a * 1 ≃ b * 0`, i.e., if the numerator `a` is equal to `0`. Thus if `a` and
@@ -334,9 +339,14 @@ example : (3//4 : ℚ) / (5//6 : ℚ) ≃ 9//10 := calc
 
 -- Using this formula, it is easy to see that `a / b ≃ a//b` for every integer
 -- `a` and every non-zero integer `b`.
-example {a b : ℤ} [AP (Positive b)] : a / (b : ℚ) ≃ a//b := by
-  have : sgn b ≃ 1 := Integer.sgn_positive.mp ‹AP (Positive b)›.ev
+example
+    {a b : ℤ} [AP (Positive b)]
+    : have : AP (Positive (b : ℚ).numerator) := ‹AP (Positive b)›
+      a / (b : ℚ) ≃ a//b
+    := by
+  have : AP (Positive (b : ℚ).numerator) := ‹AP (Positive b)›
   have : AP (Positive (b * 1)) := Integer.mul_preserves_positive_inst
+  have : sgn b ≃ 1 := Integer.sgn_positive.mp ‹AP (Positive b)›.ev
   calc
     a / (b : ℚ)
       ≃ _ := Fraction.eqv_refl
