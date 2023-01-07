@@ -266,20 +266,20 @@ example {p : ℚ} : p ≃ 0 ↔ p.numerator ≃ 0 :=
 -- positive, then multiply the numerator of the reciprocal by the same amount
 -- so that the sign of the fraction doesn't change.]
 example
-    {a b : ℤ} [Nonzero a] [AP (Positive b)]
-    : (a//b)⁻¹ ≃ (b * sgn a)//(a * sgn a)
+    {a b : ℤ} [AP (Positive b)] [AP (a//b ≄ 0)]
+    : have : Integer.Nonzero a := Fraction.nonzero_numerator (a//b)
+      (a//b)⁻¹ ≃ (b * sgn a)//(a * sgn a)
     :=
   rfl
 
--- [implementation of reciprocal]
-example : (q : ℚ) → [Fraction.Nonzero q] → ℚ := Fraction.reciprocal
+-- [declaration and definition of reciprocal]
+example : (q : ℚ) → [AP (q ≄ 0)] → ℚ := Rational.reciprocal
+example : (q : ℚ) → [AP (q ≄ 0)] → ℚ := Fraction.reciprocal
 
 -- It is easy to check that this operation is consistent with our notion of
 -- equality: if two rational numbers `a//b`, `a'//b'` are equal, then their
 -- reciprocals are also equal.
-example
-    {p q : ℚ} [Fraction.Nonzero p] [Fraction.Nonzero q] : p ≃ q → p⁻¹ ≃ q⁻¹
-    :=
+example {p q : ℚ} [AP (p ≄ 0)] [AP (q ≄ 0)] : p ≃ q → p⁻¹ ≃ q⁻¹ :=
   Fraction.recip_subst
 
 section prop_4_2_4
@@ -314,18 +314,30 @@ example : x * (y + z) ≃ x * y + x * z := Fraction.mul_distribL
 example : (y + z) * x ≃ y * x + z * x := Fraction.mul_distribR
 
 -- If `x` is non-zero, we also have
-example [Fraction.Nonzero x] : x * x⁻¹ ≃ 1 := Fraction.recip_inverseR
+example [AP (x ≄ 0)] : x * x⁻¹ ≃ 1 := Fraction.recip_inverseR
 
-example [Fraction.Nonzero x] : x⁻¹ * x ≃ 1 := Fraction.recip_inverseL
+example [AP (x ≄ 0)] : x⁻¹ * x ≃ 1 := Fraction.recip_inverseL
 
 end prop_4_2_4
 
 -- We can now define the _quotient_ `x / y` of two rational numbers `x` and
 -- `y`, _provided that_ `y` is non-zero, by the formula
-example {x y : ℚ} [Fraction.Nonzero y] : x / y ≃ x * y⁻¹ := rfl
+example {x y : ℚ} [AP (y ≄ 0)] : x / y ≃ x * y⁻¹ := rfl
 
 -- [definition of division]
-example : (x y : ℚ) → [Fraction.Nonzero y] → ℚ := Fraction.div
+example : (x y : ℚ) → [AP (y ≄ 0)] → ℚ := Fraction.div
+
+-- [instance needed for example below]
+instance : AP (5//6 ≄ 0) := by
+  apply AP.mk
+  intro (_ : 5//6 ≃ 0)
+  show False
+  have : 5//6 ≃ 0//1 := ‹5//6 ≃ 0›
+  have : 5 * 1 ≃ 0 * 6 := this
+  have : 5 ≃ 0 := this
+  have : (5 : ℕ) ≃ (0 : ℕ) → (5 : ℤ) ≃ (0 : ℤ) := AA.subst₁ (f := coe)
+  have : (5 : ℤ) ≄ (0 : ℤ) := mt this Natural.step_neqv_zero
+  exact absurd ‹5 ≃ 0› ‹5 ≄ 0›
 
 -- Thus, for instance
 example : (3//4 : ℚ) / (5//6 : ℚ) ≃ 9//10 := calc
@@ -341,10 +353,13 @@ example : (3//4 : ℚ) / (5//6 : ℚ) ≃ 9//10 := calc
 -- `a` and every non-zero integer `b`.
 example
     {a b : ℤ} [AP (Positive b)]
-    : have : AP (Positive (b : ℚ).numerator) := ‹AP (Positive b)›
+    : have : Integer.Nonzero b := Integer.nonzero_from_positive_inst
+      have : AP ((b : ℚ) ≄ 0) := Fraction.nonzero_fraction b
       a / (b : ℚ) ≃ a//b
     := by
-  have : AP (Positive (b : ℚ).numerator) := ‹AP (Positive b)›
+  have : Integer.Nonzero b := Integer.nonzero_from_positive_inst
+  have : AP ((b : ℚ) ≄ 0) := Fraction.nonzero_fraction b
+  have : AP (b//1 ≄ 0) := this
   have : AP (Positive (b * 1)) := Integer.mul_preserves_positive_inst
   have : sgn b ≃ 1 := Integer.sgn_positive.mp ‹AP (Positive b)›.ev
   calc
