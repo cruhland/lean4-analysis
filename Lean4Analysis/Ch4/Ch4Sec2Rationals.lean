@@ -195,16 +195,11 @@ example
   Fraction.neg_subst
 
 -- [axioms for all substitution properties]
-example {p p' q : ℚ} : p ≃ p' → p + q ≃ p' + q :=
-  Rational.add_substL (core_ops := Fraction.core_ops)
-example {p p' q : ℚ} : p ≃ p' → q + p ≃ q + p' :=
-  Rational.add_substR (core_ops := Fraction.core_ops)
-example {p p' q : ℚ} : p ≃ p' → p * q ≃ p' * q :=
-  Rational.mul_substL (core_ops := Fraction.core_ops)
-example {p p' q : ℚ} : p ≃ p' → q * p ≃ q * p' :=
-  Rational.mul_substR (core_ops := Fraction.core_ops)
-example {p p' : ℚ} : p ≃ p' → -p ≃ -p' :=
-  Rational.neg_subst (core_ops := Fraction.core_ops)
+example {p p' q : ℚ} : p ≃ p' → p + q ≃ p' + q := Rational.add_substL
+example {p p' q : ℚ} : p ≃ p' → q + p ≃ q + p' := Rational.add_substR
+example {p p' q : ℚ} : p ≃ p' → p * q ≃ p' * q := Rational.mul_substL
+example {p p' q : ℚ} : p ≃ p' → q * p ≃ q * p' := Rational.mul_substR
+example {p p' : ℚ} : p ≃ p' → -p ≃ -p' := Rational.neg_subst
 
 -- We note that the rational numbers `a//1` behave in a manner identical to the
 -- integers `a`:
@@ -280,6 +275,8 @@ example : (q : ℚ) → [AP (q ≄ 0)] → ℚ := Fraction.reciprocal
 -- equality: if two rational numbers `a//b`, `a'//b'` are equal, then their
 -- reciprocals are also equal.
 example {p q : ℚ} [AP (p ≄ 0)] [AP (q ≄ 0)] : p ≃ q → p⁻¹ ≃ q⁻¹ :=
+  Rational.recip_subst (p₁ := p)
+example {p q : ℚ} [AP (p ≄ 0)] [AP (q ≄ 0)] : p ≃ q → p⁻¹ ≃ q⁻¹ :=
   Fraction.recip_subst
 
 section prop_4_2_4
@@ -289,33 +286,47 @@ section prop_4_2_4
 -- Let `x`, `y`, `z` be rationals. Then the following laws of algebra hold:
 variable {x y z : ℚ}
 
+example : x + y ≃ y + x := Rational.add_comm
 example : x + y ≃ y + x := Fraction.add_comm
 
+example : (x + y) + z ≃ x + (y + z) := Rational.add_assoc
 example : (x + y) + z ≃ x + (y + z) := Fraction.add_assoc
 
+example : x + 0 ≃ x := Rational.add_identR
 example : x + 0 ≃ x := Fraction.add_identR
 
+example : 0 + x ≃ x := Rational.add_identL
 example : 0 + x ≃ x := Fraction.add_identL
 
+example : x + -x ≃ 0 := Rational.add_inverseR
 example : x + -x ≃ 0 := Fraction.add_inverseR
 
+example : -x + x ≃ 0 := Rational.add_inverseL
 example : -x + x ≃ 0 := Fraction.add_inverseL
 
+example : x * y ≃ y * x := Rational.mul_comm
 example : x * y ≃ y * x := Fraction.mul_comm
 
+example : (x * y) * z ≃ x * (y * z) := Rational.mul_assoc
 example : (x * y) * z ≃ x * (y * z) := Fraction.mul_assoc
 
+example : x * 1 ≃ x := Rational.mul_identR
 example : x * 1 ≃ x := Fraction.mul_identR
 
+example : 1 * x ≃ x := Rational.mul_identL
 example : 1 * x ≃ x := Fraction.mul_identL
 
+example : x * (y + z) ≃ x * y + x * z := Rational.mul_distribL
 example : x * (y + z) ≃ x * y + x * z := Fraction.mul_distribL
 
+example : (y + z) * x ≃ y * x + z * x := Rational.mul_distribR
 example : (y + z) * x ≃ y * x + z * x := Fraction.mul_distribR
 
 -- If `x` is non-zero, we also have
+example [AP (x ≄ 0)] : x * x⁻¹ ≃ 1 := Rational.recip_inverseR
 example [AP (x ≄ 0)] : x * x⁻¹ ≃ 1 := Fraction.recip_inverseR
 
+example [AP (x ≄ 0)] : x⁻¹ * x ≃ 1 := Rational.recip_inverseL
 example [AP (x ≄ 0)] : x⁻¹ * x ≃ 1 := Fraction.recip_inverseL
 
 end prop_4_2_4
