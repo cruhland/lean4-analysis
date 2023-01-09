@@ -333,9 +333,10 @@ end prop_4_2_4
 
 -- We can now define the _quotient_ `x / y` of two rational numbers `x` and
 -- `y`, _provided that_ `y` is non-zero, by the formula
-example {x y : ℚ} [AP (y ≄ 0)] : x / y ≃ x * y⁻¹ := rfl
+example {x y : ℚ} [AP (y ≄ 0)] : x / y ≃ x * y⁻¹ := Rational.div_mul_recip
 
--- [definition of division]
+-- [declaration and definition of division]
+example : (x y : ℚ) → [AP (y ≄ 0)] → ℚ := Rational.div
 example : (x y : ℚ) → [AP (y ≄ 0)] → ℚ := Fraction.div
 
 -- [instance needed for example below]
@@ -352,7 +353,7 @@ instance : AP (5//6 ≄ 0) := by
 
 -- Thus, for instance
 example : (3//4 : ℚ) / (5//6 : ℚ) ≃ 9//10 := calc
-  (3//4 : ℚ) / (5//6 : ℚ) ≃ _ := Fraction.eqv_refl
+  (3//4 : ℚ) / (5//6 : ℚ) ≃ _ := Rational.div_mul_recip
   3//4 * (5//6)⁻¹         ≃ _ := Fraction.eqv_refl
   3//4 * 6//5             ≃ _ := Fraction.eqv_refl
   (3 * 6)//(4 * 5)        ≃ _ := Fraction.eqv_refl
@@ -366,7 +367,7 @@ example
     {a b : ℤ} [AP (Positive b)]
     : have : Integer.Nonzero b := Integer.nonzero_from_positive_inst
       have : AP ((b : ℚ) ≄ 0) := Fraction.nonzero_fraction b
-      a / (b : ℚ) ≃ a//b
+      (a : ℚ) / (b : ℚ) ≃ a//b
     := by
   have : Integer.Nonzero b := Integer.nonzero_from_positive_inst
   have : AP ((b : ℚ) ≄ 0) := Fraction.nonzero_fraction b
@@ -374,7 +375,7 @@ example
   have : AP (Positive (b * 1)) := Integer.mul_preserves_positive_inst
   have : sgn b ≃ 1 := Integer.sgn_positive.mp ‹AP (Positive b)›.ev
   calc
-    a / (b : ℚ)
+    (a : ℚ) / (b : ℚ)
       ≃ _ := Fraction.eqv_refl
     (a//1) / (b//1)
       ≃ _ := Fraction.eqv_refl
@@ -407,7 +408,11 @@ example
 -- document does not have access to it.]
 
 -- In a similar spirit, we define subtraction on the rationals by the formula
-example {x y : ℚ} : x - y ≃ x + (-y) := rfl
+example {x y : ℚ} : x - y ≃ x + (-y) := Rational.sub_add_neg
+
+-- [declaration and definition of subtraction]
+example : ℚ → ℚ → ℚ := Rational.sub
+example : ℚ → ℚ → ℚ := Fraction.sub
 
 end formal_fractions
 
