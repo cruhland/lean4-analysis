@@ -14,7 +14,7 @@ namespace Impl
 
 export Integer.Impl.Difference (
   addition core from_prod from_prod_substitutive integer multiplication
-  negation sign
+  negation sign sign_props
 )
 
 end Impl
@@ -215,7 +215,7 @@ theorem pos_iff_ex
     show ∃ (n : ℕ), Positive n ∧ x ≃ coe n
     have (Integer.NonzeroWithSign.intro
           (n : ℕ) (_ : Positive n) (_ : x ≃ 1 * coe n)) :=
-      Impl.sign.positive_iff_sign_pos1.mp ‹Positive x›
+      Impl.sign_props.positive_iff_sign_pos1.mp ‹Positive x›
     exists n
     apply And.intro ‹Positive n›
     show x ≃ coe n
@@ -223,7 +223,7 @@ theorem pos_iff_ex
   case mpr =>
     intro (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ coe n)))
     show Positive x
-    apply Impl.sign.positive_iff_sign_pos1.mpr
+    apply Impl.sign_props.positive_iff_sign_pos1.mpr
     show Integer.NonzeroWithSign x 1
     apply Integer.NonzeroWithSign.intro n ‹Positive n›
     show x ≃ 1 * coe n
@@ -238,7 +238,7 @@ theorem neg_iff_ex
     show ∃ (n : ℕ), Positive n ∧ x ≃ -(coe n)
     have (Integer.NonzeroWithSign.intro
           (n : ℕ) (_ : Positive n) (_ : x ≃ -1 * coe n)) :=
-      Impl.sign.negative_iff_sign_neg1.mp ‹Negative x›
+      Impl.sign_props.negative_iff_sign_neg1.mp ‹Negative x›
     exists n
     apply And.intro ‹Positive n›
     show x ≃ -(coe n)
@@ -247,7 +247,7 @@ theorem neg_iff_ex
     intro
       (Exists.intro (n : ℕ) (And.intro (_ : Positive n) (_ : x ≃ -(coe n))))
     show Negative x
-    apply Impl.sign.negative_iff_sign_neg1.mpr
+    apply Impl.sign_props.negative_iff_sign_neg1.mpr
     show Integer.NonzeroWithSign x (-1)
     apply Integer.NonzeroWithSign.intro n ‹Positive n›
     show x ≃ -1 * coe n
