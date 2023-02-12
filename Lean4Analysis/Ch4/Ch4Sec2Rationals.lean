@@ -7,11 +7,11 @@ namespace AnalysisI.Ch4.Sec2
 
 open Coe (coe)
 open Lean4Axiomatic
-open Lean4Axiomatic.Integer (Nonzero sgn)
+open Lean4Axiomatic.Integer (Nonzero)
 open Lean4Axiomatic.Logic (AP)
 open Lean4Axiomatic.Natural (step)
 open Lean4Axiomatic.Rational.Impl
-open Lean4Axiomatic.Signed (Positive)
+open Lean4Axiomatic.Signed (Negative Positive sgn)
 
 abbrev ℕ : Type := Nat
 abbrev ℤ : Type := Integer.Impl.Difference ℕ
@@ -363,44 +363,8 @@ example : (3//4 : ℚ) / (5//6 : ℚ) ≃ 9//10 := calc
 
 -- Using this formula, it is easy to see that `a / b ≃ a//b` for every integer
 -- `a` and every non-zero integer `b`.
-example
-    {a b : ℤ} [AP (Positive b)]
-    : have : Integer.Nonzero b := Integer.nonzero_from_positive_inst
-      have : AP ((b : ℚ) ≄ 0) := Fraction.nonzero_fraction b
-      (a : ℚ) / (b : ℚ) ≃ a//b
-    := by
-  have : Integer.Nonzero b := Integer.nonzero_from_positive_inst
-  have : AP ((b : ℚ) ≄ 0) := Fraction.nonzero_fraction b
-  have : AP (b//1 ≄ 0) := this
-  have : AP (Positive (b * 1)) := Integer.mul_preserves_positive_inst
-  have : sgn b ≃ 1 := Integer.sgn_positive.mp ‹AP (Positive b)›.ev
-  calc
-    (a : ℚ) / (b : ℚ)
-      ≃ _ := Fraction.eqv_refl
-    (a//1) / (b//1)
-      ≃ _ := Fraction.eqv_refl
-    (a//1) * (b//1)⁻¹
-      ≃ _ := Fraction.eqv_refl
-    (a//1) * (1 * sgn b)//(b * sgn b)
-      ≃ _ := Fraction.mul_substR (Fraction.substN (AA.substR ‹sgn b ≃ 1›))
-    (a//1) * (1 * 1)//(b * sgn b)
-      ≃ _ :=
-        Fraction.mul_substR
-          (Fraction.substD
-            (pb₂ := ‹AP (Positive (b * 1))›)
-            (AA.substR ‹sgn b ≃ 1›))
-    (a//1) * (1 * 1)//(b * 1)
-      ≃ _ := Fraction.mul_substR (Fraction.substN AA.identR)
-    (a//1) * 1//(b * 1)
-      ≃ _ := Fraction.mul_substR (Fraction.substD AA.identR)
-    (a//1) * (1//b)
-      ≃ _ := Fraction.eqv_refl
-    (a * 1)//(1 * b)
-      ≃ _ := Fraction.substN AA.identR
-    a//(1 * b)
-      ≃ _ := Fraction.substD AA.identL
-    a//b
-      ≃ _ := Fraction.eqv_refl
+example {a b : ℤ} [AP (Positive b)] : (a : ℚ) / (b : ℚ) ≃ a//b :=
+  Fraction.div_eqv_fraction
 
 -- Thus we can now discard the `//` notation, and use the more customary
 -- `a / b` instead of `a//b`. [Note: we enforce that in this file by only
@@ -415,5 +379,94 @@ example : ℚ → ℚ → ℚ := Rational.sub
 example : ℚ → ℚ → ℚ := Fraction.sub
 
 end formal_fractions
+
+variable {ℚ : Type} [Rational (ℤ := ℤ) ℚ]
+
+-- Definition 4.2.6
+-- A rational number `x` is said to be _positive_ iff we have `x ≃ a / b` for
+-- some positive integers `a` and `b`.
+inductive AltPositive (x : ℚ) : Prop :=
+| intro
+    (a b : ℤ)
+    (a_pos : AP (Positive a))
+    (b_pos : AP (Positive b))
+    (eqv : x ≃ a / b)
+
+def AltPositive.mk
+    {a b : ℤ} {x : ℚ} [AP (Positive a)] [AP (Positive b)] (_ : x ≃ a / b)
+    : AltPositive x
+    :=
+  AltPositive.intro a b ‹AP (Positive a)› ‹AP (Positive b)› ‹x ≃ a / b›
+
+theorem alt_positive {x : ℚ} : Positive x ↔ AltPositive x := by
+  apply Iff.intro
+  case mp =>
+    intro (_ : Positive x)
+    show AltPositive x
+    have (Rational.AsRatio.intro a b (_ : Integer.Nonzero b) x_eqv) :=
+      Rational.as_ratio x
+    have : x ≃ a / b := x_eqv
+
+    have : Integer.Sqrt1 (sgn b) := Integer.sgn_nonzero.mp ‹Integer.Nonzero b›
+    have : sgn a * sgn b ≃ 1 := calc
+      sgn a * sgn b     ≃ _ := Rel.symm Rational.sgn_div_integers
+      sgn ((a : ℚ) / b) ≃ _ := Rational.sgn_subst (Rel.symm ‹x ≃ a / b›)
+      sgn x             ≃ _ := Rational.sgn_positive.mp ‹Positive x›
+      1                 ≃ _ := Rel.refl
+    have : sgn a ≃ sgn b := Integer.mul_sqrt1_eqv.mp this
+    have : sgn b ≃ 1 ∨ sgn b ≃ -1 :=
+      Integer.sqrt1_cases.mp ‹Integer.Sqrt1 (sgn b)›
+    match this with
+    | Or.inl (_ : sgn b ≃ 1) =>
+      have : sgn a ≃ 1 := Rel.trans ‹sgn a ≃ sgn b› ‹sgn b ≃ 1›
+      have : AP (Positive a) := AP.mk (Integer.sgn_positive.mpr ‹sgn a ≃ 1›)
+      have : AP (Positive b) := AP.mk (Integer.sgn_positive.mpr ‹sgn b ≃ 1›)
+      exact AltPositive.mk ‹x ≃ a / b›
+    | Or.inr (_ : sgn b ≃ -1) =>
+      have : sgn (-b) ≃ 1 := calc
+        sgn (-b)   ≃ _ := Integer.sgn_compat_neg
+        (-(sgn b)) ≃ _ := AA.subst₁ ‹sgn b ≃ -1›
+        (-(-1))    ≃ _ := Integer.neg_involutive
+        1          ≃ _ := Rel.refl
+      have : sgn (-a) ≃ 1 := calc
+        sgn (-a)   ≃ _ := Integer.sgn_compat_neg
+        (-(sgn a)) ≃ _ := AA.subst₁ ‹sgn a ≃ sgn b›
+        (-(sgn b)) ≃ _ := Rel.symm Integer.sgn_compat_neg
+        sgn (-b)   ≃ _ := ‹sgn (-b) ≃ 1›
+        1          ≃ _ := Rel.refl
+      have : Positive (-a) := Integer.sgn_positive.mpr ‹sgn (-a) ≃ 1›
+      have : Positive (-b) := Integer.sgn_positive.mpr ‹sgn (-b) ≃ 1›
+      have : AP (Positive (-a)) := AP.mk ‹Positive (-a)›
+      have : AP (Positive (-b)) := AP.mk ‹Positive (-b)›
+
+      have neg_eqv {z : ℤ} : -(z : ℚ) ≃ ((-z : ℤ) : ℚ) :=
+        Rational.eqv_symm Rational.neg_compat_from_integer
+      have : x ≃ ((-a : ℤ) : ℚ) / ((-b : ℤ) : ℚ) := calc
+        x                               ≃ _ := ‹x ≃ a / b›
+        (a : ℚ) / b                     ≃ _ := Rel.symm Rational.div_neg_cancel
+        (-(a : ℚ)) / (-(b : ℚ))         ≃ _ := Rational.div_substL neg_eqv
+        ((-a : ℤ) : ℚ) / (-b : ℚ)       ≃ _ := Rational.div_substR neg_eqv
+        ((-a : ℤ) : ℚ) / ((-b : ℤ) : ℚ) ≃ _ := Rational.eqv_refl
+      exact AltPositive.mk this
+  case mpr =>
+    intro (_ : AltPositive x)
+    show Positive x
+    have (AltPositive.intro a b a_pos b_pos x_eqv) := ‹AltPositive x›
+    have : AP (Positive a) := a_pos
+    have : sgn a ≃ 1 := Integer.sgn_positive.mp this.ev
+    have : AP (Positive b) := b_pos
+    have : sgn b ≃ 1 := Integer.sgn_positive.mp this.ev
+    have : x ≃ a / b := x_eqv
+
+    have : sgn a ≃ sgn b := Rel.trans ‹sgn a ≃ 1› (Rel.symm ‹sgn b ≃ 1›)
+    have : Integer.Nonzero b := Integer.nonzero_from_positive_inst
+    have : Integer.Sqrt1 (sgn b) := Integer.sgn_nonzero.mp this
+    have : sgn x ≃ 1 := calc
+      sgn x                   ≃ _ := Rational.sgn_subst ‹x ≃ a / b›
+      sgn ((a : ℚ) / (b : ℚ)) ≃ _ := Rational.sgn_div_integers
+      sgn a * sgn b           ≃ _ := Integer.mul_sqrt1_eqv.mpr ‹sgn a ≃ sgn b›
+      1                       ≃ _ := Rel.refl
+    have : Positive x := Rational.sgn_positive.mpr this
+    exact this
 
 end AnalysisI.Ch4.Sec2
