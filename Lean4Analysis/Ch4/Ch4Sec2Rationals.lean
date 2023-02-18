@@ -323,11 +323,11 @@ example : (y + z) * x ≃ y * x + z * x := Rational.mul_distribR
 example : (y + z) * x ≃ y * x + z * x := Fraction.mul_distribR
 
 -- If `x` is non-zero, we also have
-example [AP (x ≄ 0)] : x * x⁻¹ ≃ 1 := Rational.recip_inverseR
-example [AP (x ≄ 0)] : x * x⁻¹ ≃ 1 := Fraction.recip_inverseR
+example [AP (x ≄ 0)] : x * x⁻¹ ≃ 1 := Rational.mul_inverseR
+example [AP (x ≄ 0)] : x * x⁻¹ ≃ 1 := Fraction.mul_inverseR
 
-example [AP (x ≄ 0)] : x⁻¹ * x ≃ 1 := Rational.recip_inverseL
-example [AP (x ≄ 0)] : x⁻¹ * x ≃ 1 := Fraction.recip_inverseL
+example [AP (x ≄ 0)] : x⁻¹ * x ≃ 1 := Rational.mul_inverseL
+example [AP (x ≄ 0)] : x⁻¹ * x ≃ 1 := Fraction.mul_inverseL
 
 end prop_4_2_4
 
