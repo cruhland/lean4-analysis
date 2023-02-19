@@ -469,4 +469,86 @@ theorem alt_positive {x : ℚ} : Positive x ↔ AltPositive x := by
     have : Positive x := Rational.sgn_positive.mpr this
     exact this
 
+-- It is said to be _negative_ iff we have `x ≃ -y` for some positive rational
+-- `y` (i.e., `x ≃ (-a)/b` for some positive integers `a` and `b`).
+theorem negative_iff_neg_positive
+    {x : ℚ} : Negative x ↔ ∃ (y : ℚ), Positive y ∧ x ≃ -y
+    := by
+  apply Iff.intro
+  case mp =>
+    intro (_ : Negative x)
+    show ∃ (y : ℚ), Positive y ∧ x ≃ -y
+    have : sgn x ≃ -1 := Rational.sgn_negative.mp ‹Negative x›
+    have : sgn (-x) ≃ 1 := calc
+      sgn (-x) ≃ _ := Rational.sgn_compat_neg
+      (-sgn x) ≃ _ := AA.subst₁ ‹sgn x ≃ -1›
+      (-(-1))  ≃ _ := Integer.neg_involutive
+      1        ≃ _ := Rel.refl
+    have : Positive (-x) := Rational.sgn_positive.mpr ‹sgn (-x) ≃ 1›
+    have : x ≃ -(-x) := Rational.eqv_symm Rational.neg_involutive
+    exact Exists.intro (-x) (And.intro ‹Positive (-x)› ‹x ≃ -(-x)›)
+  case mpr =>
+    intro (Exists.intro (y : ℚ) (And.intro (_ : Positive y) (_ : x ≃ -y)))
+    show Negative x
+    have : sgn y ≃ 1 := Rational.sgn_positive.mp ‹Positive y›
+    have : sgn x ≃ -1 := calc
+      sgn x      ≃ _ := Rational.sgn_subst ‹x ≃ -y›
+      sgn (-y)   ≃ _ := Rational.sgn_compat_neg
+      (-(sgn y)) ≃ _ := AA.subst₁ ‹sgn y ≃ 1›
+      (-1)       ≃ _ := Rel.refl
+    have : Negative x := Rational.sgn_negative.mpr this
+    exact this
+
+inductive AltNegative (x : ℚ) : Prop :=
+| intro
+    (a b : ℤ)
+    (a_pos : AP (Positive a))
+    (b_pos : AP (Positive b))
+    (eqv : x ≃ (-a) / b)
+
+def AltNegative.mk
+    {a b : ℤ} {x : ℚ} [AP (Positive a)] [AP (Positive b)] (_ : x ≃ (-a) / b)
+    : AltNegative x
+    :=
+  AltNegative.intro a b ‹AP (Positive a)› ‹AP (Positive b)› ‹x ≃ (-a) / b›
+
+theorem alt_negative {x : ℚ} : Negative x ↔ AltNegative x := by
+  apply Iff.intro
+  case mp =>
+    intro (_ : Negative x)
+    show AltNegative x
+    have (Exists.intro (y : ℚ) (And.intro (_ : Positive y) (_ : x ≃ -y))) :=
+      negative_iff_neg_positive.mp ‹Negative x›
+    have
+      (AltPositive.intro
+        (a : ℤ) (b : ℤ)
+        (_ : AP (Positive a)) (_ : AP (Positive b)) y_eqv_a_over_b)
+      := alt_positive.mp ‹Positive y›
+    have : y ≃ a / b := y_eqv_a_over_b
+    have : x ≃ (-a) / b := calc
+      x                ≃ _ := ‹x ≃ -y›
+      (-y)             ≃ _ := Rational.neg_subst ‹y ≃ a / b›
+      (-((a : ℚ) / b)) ≃ _ := Rational.neg_scompatL_div
+      (-a : ℚ) / b     ≃ _ := Rational.eqv_refl
+    exact AltNegative.mk this
+  case mpr =>
+    intro (_ : AltNegative x)
+    show Negative x
+    have
+      (AltNegative.intro
+        (a : ℤ) (b : ℤ)
+        (_ : AP (Positive a)) (_ : AP (Positive b)) x_eqv_neg_a_over_b)
+      := ‹AltNegative x›
+    have : x ≃ (-a) / b := x_eqv_neg_a_over_b
+    have : AltPositive ((a : ℚ) / b) := AltPositive.mk Rational.eqv_refl
+    have : Positive ((a : ℚ) / b) := alt_positive.mpr this
+    have : x ≃ -((a : ℚ) / b) := calc
+      x                ≃ _ := ‹x ≃ (-a) / b›
+      (-a : ℚ) / b     ≃ _ := Rational.eqv_symm Rational.neg_scompatL_div
+      (-((a : ℚ) / b)) ≃ _ := Rational.eqv_refl
+    have : ∃ (y : ℚ), Positive y ∧ x ≃ -y :=
+      Exists.intro ((a : ℚ) / b) (And.intro ‹Positive ((a : ℚ) / b)› this)
+    have : Negative x := negative_iff_neg_positive.mpr this
+    exact this
+
 end AnalysisI.Ch4.Sec2
