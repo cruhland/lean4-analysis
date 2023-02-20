@@ -551,4 +551,29 @@ theorem alt_negative {x : ℚ} : Negative x ↔ AltNegative x := by
     have : Negative x := negative_iff_neg_positive.mpr this
     exact this
 
+-- Thus for instance, every positive integer is a positive rational number, and
+-- every negative integer is a negative rational number, so our new definition
+-- is consistent with our old one.
+example {a : ℤ} : Positive a → Positive (a : ℚ) := by
+  intro (_ : Positive a)
+  show Positive (a : ℚ)
+  have : sgn a ≃ 1 := Integer.sgn_positive.mp ‹Positive a›
+  have : sgn (a : ℚ) ≃ 1 := calc
+    sgn (a : ℚ) ≃ _ := Rational.sgn_from_integer
+    sgn a       ≃ _ := ‹sgn a ≃ 1›
+    1           ≃ _ := Rel.refl
+  have : Positive (a : ℚ) := Rational.sgn_positive.mpr this
+  exact this
+
+example {a : ℤ} : Negative a → Negative (a : ℚ) := by
+  intro (_ : Negative a)
+  show Negative (a : ℚ)
+  have : sgn a ≃ -1 := Integer.sgn_negative.mp ‹Negative a›
+  have : sgn (a : ℚ) ≃ -1 := calc
+    sgn (a : ℚ) ≃ _ := Rational.sgn_from_integer
+    sgn a       ≃ _ := ‹sgn a ≃ -1›
+    (-1)        ≃ _ := Rel.refl
+  have : Negative (a : ℚ) := Rational.sgn_negative.mpr this
+  exact this
+
 end AnalysisI.Ch4.Sec2
