@@ -576,4 +576,49 @@ example {a : ℤ} : Negative a → Negative (a : ℚ) := by
   have : Negative (a : ℚ) := Rational.sgn_negative.mpr this
   exact this
 
+-- Exercise 4.2.4.
+-- Lemma 4.2.7 (Trichotomy of rationals).
+-- Let `x` be a rational number. Then exactly one of the following three
+-- statements is true: (a) `x` is equal to `0`. (b) `x` is a positive rational
+-- number. (c) `x` is a negative rational number.
+example {x : ℚ} : AA.ExactlyOneOfThree (x ≃ 0) (Positive x) (Negative x) := by
+  apply AA.ExactlyOneOfThree.mk
+  case atLeastOne =>
+    show AA.OneOfThree (x ≃ 0) (Positive x) (Negative x)
+    match Rational.sgn_trichotomy x with
+    | AA.OneOfThree.first (_ : sgn x ≃ 0) =>
+      have : x ≃ 0 := Rational.sgn_zero.mpr ‹sgn x ≃ 0›
+      exact AA.OneOfThree.first this
+    | AA.OneOfThree.second (_ : sgn x ≃ 1) =>
+      have : Positive x := Rational.sgn_positive.mpr ‹sgn x ≃ 1›
+      exact AA.OneOfThree.second this
+    | AA.OneOfThree.third (_ : sgn x ≃ -1) =>
+      have : Negative x := Rational.sgn_negative.mpr ‹sgn x ≃ -1›
+      exact AA.OneOfThree.third this
+  case atMostOne =>
+    intro (twoOfThree : AA.TwoOfThree (x ≃ 0) (Positive x) (Negative x))
+    show False
+    match twoOfThree with
+    | AA.TwoOfThree.oneAndTwo (_ : x ≃ 0) (_ : Positive x) =>
+      have : 1 ≃ 0 := calc
+        1     ≃ _ := Rel.symm (Rational.sgn_positive.mp ‹Positive x›)
+        sgn x ≃ _ := Rational.sgn_zero.mp ‹x ≃ 0›
+        0     ≃ _ := Rel.refl
+      have : 1 ≄ 0 := Integer.one_neqv_zero
+      exact absurd ‹1 ≃ 0› ‹1 ≄ 0›
+    | AA.TwoOfThree.oneAndThree (_ : x ≃ 0) (_ : Negative x) =>
+      have : -1 ≃ 0 := calc
+        -1    ≃ _ := Rel.symm (Rational.sgn_negative.mp ‹Negative x›)
+        sgn x ≃ _ := Rational.sgn_zero.mp ‹x ≃ 0›
+        0     ≃ _ := Rel.refl
+      have : -1 ≄ 0 := Integer.neg_one_neqv_zero
+      exact absurd ‹-1 ≃ 0› ‹-1 ≄ 0›
+    | AA.TwoOfThree.twoAndThree (_ : Positive x) (_ : Negative x) =>
+      have : -1 ≃ 1 := calc
+        -1    ≃ _ := Rel.symm (Rational.sgn_negative.mp ‹Negative x›)
+        sgn x ≃ _ := Rational.sgn_positive.mp ‹Positive x›
+        1     ≃ _ := Rel.refl
+      have : -1 ≄ 1 := Integer.neg_one_neqv_one
+      exact absurd ‹-1 ≃ 1› ‹-1 ≄ 1›
+
 end AnalysisI.Ch4.Sec2
