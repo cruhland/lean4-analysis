@@ -582,43 +582,67 @@ example {a : ℤ} : Negative a → Negative (a : ℚ) := by
 -- statements is true: (a) `x` is equal to `0`. (b) `x` is a positive rational
 -- number. (c) `x` is a negative rational number.
 example {x : ℚ} : AA.ExactlyOneOfThree (x ≃ 0) (Positive x) (Negative x) := by
-  apply AA.ExactlyOneOfThree.mk
-  case atLeastOne =>
-    show AA.OneOfThree (x ≃ 0) (Positive x) (Negative x)
-    match Rational.sgn_trichotomy x with
-    | AA.OneOfThree.first (_ : sgn x ≃ 0) =>
-      have : x ≃ 0 := Rational.sgn_zero.mpr ‹sgn x ≃ 0›
-      exact AA.OneOfThree.first this
-    | AA.OneOfThree.second (_ : sgn x ≃ 1) =>
-      have : Positive x := Rational.sgn_positive.mpr ‹sgn x ≃ 1›
-      exact AA.OneOfThree.second this
-    | AA.OneOfThree.third (_ : sgn x ≃ -1) =>
-      have : Negative x := Rational.sgn_negative.mpr ‹sgn x ≃ -1›
-      exact AA.OneOfThree.third this
-  case atMostOne =>
-    intro (twoOfThree : AA.TwoOfThree (x ≃ 0) (Positive x) (Negative x))
-    show False
-    match twoOfThree with
-    | AA.TwoOfThree.oneAndTwo (_ : x ≃ 0) (_ : Positive x) =>
-      have : 1 ≃ 0 := calc
-        1     ≃ _ := Rel.symm (Rational.sgn_positive.mp ‹Positive x›)
-        sgn x ≃ _ := Rational.sgn_zero.mp ‹x ≃ 0›
-        0     ≃ _ := Rel.refl
-      have : 1 ≄ 0 := Integer.one_neqv_zero
-      exact absurd ‹1 ≃ 0› ‹1 ≄ 0›
-    | AA.TwoOfThree.oneAndThree (_ : x ≃ 0) (_ : Negative x) =>
-      have : -1 ≃ 0 := calc
-        -1    ≃ _ := Rel.symm (Rational.sgn_negative.mp ‹Negative x›)
-        sgn x ≃ _ := Rational.sgn_zero.mp ‹x ≃ 0›
-        0     ≃ _ := Rel.refl
-      have : -1 ≄ 0 := Integer.neg_one_neqv_zero
-      exact absurd ‹-1 ≃ 0› ‹-1 ≄ 0›
-    | AA.TwoOfThree.twoAndThree (_ : Positive x) (_ : Negative x) =>
-      have : -1 ≃ 1 := calc
-        -1    ≃ _ := Rel.symm (Rational.sgn_negative.mp ‹Negative x›)
-        sgn x ≃ _ := Rational.sgn_positive.mp ‹Positive x›
-        1     ≃ _ := Rel.refl
-      have : -1 ≄ 1 := Integer.neg_one_neqv_one
-      exact absurd ‹-1 ≃ 1› ‹-1 ≄ 1›
+  have : AA.OneOfThree (sgn x ≃ 0) (sgn x ≃ 1) (sgn x ≃ -1) :=
+    Rational.sgn_trichotomy x
+  have atLeastOne : AA.OneOfThree (x ≃ 0) (Positive x) (Negative x) :=
+    this.map
+      Rational.sgn_zero.mpr Rational.sgn_positive.mpr Rational.sgn_negative.mpr
+
+  have : ¬AA.TwoOfThree (sgn x ≃ 0) (sgn x ≃ 1) (sgn x ≃ -1) :=
+    Integer.signs_distinct
+  have atMostOne : ¬AA.TwoOfThree (x ≃ 0) (Positive x) (Negative x) :=
+    mt
+      (AA.TwoOfThree.map
+        Rational.sgn_zero.mp Rational.sgn_positive.mp Rational.sgn_negative.mp)
+      this
+
+  exact AA.ExactlyOneOfThree.mk atLeastOne atMostOne
+
+-- Definition 4.2.8 (Ordering of the rationals).
+-- [First, here are the axioms for the operators.]
+example : ℚ → ℚ → Prop := Rational.lt -- [Less than.]
+example : ℚ → ℚ → Prop := Rational.le -- [Less than or equivalent.]
+-- [The "greater than" variants use `lt` and `le`, but with swapped arguments.]
+
+-- [Here are the operator definitions.]
+example : ℚ → ℚ → Prop := Rational.Impl.Generic.lt
+example : ℚ → ℚ → Prop := Rational.Impl.Generic.le
+
+-- Let `x` and `y` be rational numbers. We say that `x > y` iff `x - y` is a
+-- positive rational number, and `x < y` iff `x - y` is a negative rational
+-- number. We write `x ≥ y` iff either `x > y` or `x = y`, and similarly define
+-- `x ≤ y`.
+example {x y : ℚ} : x > y ↔ Positive (x - y) := by
+  apply Iff.intro
+  case mp =>
+    intro (_ : x > y)
+    show Positive (x - y)
+    have : sgn (x - y) ≃ 1 := Rational.gt_sgn.mp ‹x > y›
+    have : Positive (x - y) := Rational.sgn_positive.mpr this
+    exact this
+  case mpr =>
+    intro (_ : Positive (x - y))
+    show x > y
+    have : sgn (x - y) ≃ 1 := Rational.sgn_positive.mp ‹Positive (x - y)›
+    have : x > y := Rational.gt_sgn.mpr this
+    exact this
+
+example {x y : ℚ} : x < y ↔ Negative (x - y) := by
+  apply Iff.intro
+  case mp =>
+    intro (_ : x < y)
+    show Negative (x - y)
+    have : sgn (x - y) ≃ -1 := Rational.lt_sgn.mp ‹x < y›
+    have : Negative (x - y) := Rational.sgn_negative.mpr this
+    exact this
+  case mpr =>
+    intro (_ : Negative (x - y))
+    show x < y
+    have : sgn (x - y) ≃ -1 := Rational.sgn_negative.mp ‹Negative (x - y)›
+    have : x < y := Rational.lt_sgn.mpr this
+    exact this
+
+example {x y : ℚ} : x ≥ y ↔ x > y ∨ x ≃ y := Rational.ge_cases
+example {x y : ℚ} : x ≤ y ↔ x < y ∨ x ≃ y := Rational.le_cases
 
 end AnalysisI.Ch4.Sec2
