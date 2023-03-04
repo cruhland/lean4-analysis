@@ -645,4 +645,21 @@ example {x y : ℚ} : x < y ↔ Negative (x - y) := by
 example {x y : ℚ} : x ≥ y ↔ x > y ∨ x ≃ y := Rational.ge_cases
 example {x y : ℚ} : x ≤ y ↔ x < y ∨ x ≃ y := Rational.le_cases
 
+-- Exercise 4.2.5.
+-- Proposition 4.2.9 (Basic properties of order on the rationals).
+-- Let `x`, `y`, `z` be rational numbers. Then the following properties hold.
+
+-- (a) (Order trichotomy) Exactly one of the three statements `x = y`, `x < y`,
+-- or `x > y` is true.
+example : ∀ (x y : ℚ), AA.ExactlyOneOfThree (x < y) (x ≃ y) (x > y) :=
+  Rational.order_trichotomy
+
+-- (b) (Order is anti-symmetric) One has `x < y` if and only if `y > x`.
+-- [Note: This is trivial because `· > ·` is defined to be `· < ·` with swapped
+-- arguments.]
+example {x y : ℚ} : x < y ↔ y > x := Iff.intro id id
+
+-- (c) (Order is transitive) If `x < y` and `y < z`, then `x < z`.
+example {x y z : ℚ} : x < y → y < z → x < z := Rational.lt_trans
+
 end AnalysisI.Ch4.Sec2
