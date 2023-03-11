@@ -1,13 +1,24 @@
+import Lean4Axiomatic.Integer.Impl.Difference
+import Lean4Axiomatic.Natural.Impl.Nat
 import Lean4Axiomatic.Rational
+import Lean4Axiomatic.Rational.Impl.Fraction
 
 namespace AnalysisI.Ch4.Sec3
 
 open Lean4Axiomatic
-open Lean4Axiomatic.Metric (abs)
+open Lean4Axiomatic.Metric (abs dist)
 open Lean4Axiomatic.Rational
 open Lean4Axiomatic.Signed (Negative Positive sgn)
 
 variable {ℕ ℤ ℚ : Type} [Natural ℕ] [Integer (ℕ := ℕ) ℤ] [Rational (ℤ := ℤ) ℚ]
+
+section evaluation
+
+abbrev ℕ' : Type := Nat
+abbrev ℤ' : Type := Integer.Impl.Difference ℕ'
+abbrev ℚ' : Type := Rational.Impl.Fraction ℤ'
+
+end evaluation
 
 /-! # 4.3 Absolute value and exponentiation -/
 
@@ -54,5 +65,28 @@ example {x : ℚ} : x ≃ 0 → abs x ≃ 0 := by
     x * sgn x       ≃ _ := mul_substL ‹x ≃ 0›
     (0 * sgn x : ℚ) ≃ _ := mul_absorbL
     0               ≃ _ := eqv_refl
+
+-- Definition 4.3.2 (Distance).
+-- Let `x` and `y` be rational numbers. The quantity `abs (x - y)` is called
+-- the _distance between `x` and `y`_ and is sometimes denoted `dist x y`, thus
+-- `dist x y := abs (x - y)`.
+-- [Rational axiom for distance].
+example : ℚ → ℚ → ℚ := Rational.Metric.toOps._dist
+
+example {x y : ℚ} : dist x y ≃ abs (x - y) := dist_abs
+
+section evaluation
+
+-- For instance, `dist 3 5 ≃ 2`.
+example : dist (3 : ℚ') 5 ≃ 2 := rfl
+/-
+Showing steps with `calc` is causing problems, using comments for now
+    dist 3 5
+  ≃ abs (3 - 5)
+  ≃ abs (-2)
+  ≃ 2
+-/
+
+end evaluation
 
 end AnalysisI.Ch4.Sec3
