@@ -89,4 +89,21 @@ Showing steps with `calc` is causing problems, using comments for now
 
 end evaluation
 
+section prop_4_3_3
+-- Exercise 4.3.1.
+-- Proposition 4.3.3 (Basic properties of absolute value and distance).
+-- Let `x`, `y`, `z` be rational numbers.
+variable {x y z : ℚ}
+
+-- (a) (Non-degeneracy of absolute value) We have `abs x ≥ 0`. Also,
+-- `abs x ≃ 0` if and only if `x` is `0`.
+
+-- [Wikipedia calls this "non-negativity".]
+example : abs x ≥ 0 := Rational.abs_ge_zero
+
+-- [Wikipedia calls this "positive-definiteness".]
+example : abs x ≃ 0 ↔ x ≃ 0 := Rational.abs_zero
+
+end prop_4_3_3
+
 end AnalysisI.Ch4.Sec3
