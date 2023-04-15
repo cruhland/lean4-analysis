@@ -321,7 +321,7 @@ example {a : ℕ} : a ≥ a := Rel.refl (self := Natural.le_reflexive)
 
 -- (b) (Order is transitive) If `a ≥ b` and `b ≥ c`, then `a ≥ c`.
 example {a b c : ℕ} : a ≥ b → b ≥ c → a ≥ c :=
-  flip (Rel.trans (self := Natural.le_transitive))
+  flip (trans (self := Natural.trans_le_le_le))
 
 -- (c) (Order is anti-symmetric) If `a ≥ b` and `b ≥ a`, then `a ≃ b`.
 example {a b : ℕ} : a ≥ b → b ≥ a → a ≃ b := flip Natural.le_antisymm

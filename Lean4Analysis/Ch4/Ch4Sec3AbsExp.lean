@@ -95,14 +95,17 @@ section prop_4_3_3
 -- Let `x`, `y`, `z` be rational numbers.
 variable {x y z : ℚ}
 
--- (a) (Non-degeneracy of absolute value) We have `abs x ≥ 0`. Also,
--- `abs x ≃ 0` if and only if `x` is `0`.
+-- (a) (Non-degeneracy of absolute value)
+-- We have `abs x ≥ 0`. Also, `abs x ≃ 0` if and only if `x` is `0`.
 
 -- [Wikipedia calls this "non-negativity".]
 example : abs x ≥ 0 := Rational.abs_ge_zero
 
 -- [Wikipedia calls this "positive-definiteness".]
 example : abs x ≃ 0 ↔ x ≃ 0 := Rational.abs_zero
+
+-- (b) (Triangle inequality for absolute value) We have
+example : abs (x + y) ≤ abs x + abs y := Rational.abs_compat_add
 
 end prop_4_3_3
 

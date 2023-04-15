@@ -407,13 +407,13 @@ theorem alt_positive {x : ℚ} : Positive x ↔ AltPositive x := by
       Rational.as_ratio x
     have : x ≃ a / b := x_eqv
 
-    have : Integer.Sqrt1 (sgn b) := Integer.sgn_nonzero.mp ‹Integer.Nonzero b›
     have : sgn a * sgn b ≃ 1 := calc
       sgn a * sgn b     ≃ _ := Rel.symm Rational.sgn_div_integers
       sgn ((a : ℚ) / b) ≃ _ := Rational.sgn_subst (Rel.symm ‹x ≃ a / b›)
       sgn x             ≃ _ := Rational.sgn_positive.mp ‹Positive x›
       1                 ≃ _ := Rel.refl
-    have : sgn a ≃ sgn b := Integer.mul_sqrt1_eqv.mp this
+    have (And.intro (_ : Integer.Sqrt1 (sgn b)) (_ : sgn a ≃ sgn b)) :=
+      Integer.mul_sqrt1_eqv.mp this
     have : sgn b ≃ 1 ∨ sgn b ≃ -1 :=
       Integer.sqrt1_cases.mp ‹Integer.Sqrt1 (sgn b)›
     match this with
@@ -461,10 +461,12 @@ theorem alt_positive {x : ℚ} : Positive x ↔ AltPositive x := by
     have : sgn a ≃ sgn b := Rel.trans ‹sgn a ≃ 1› (Rel.symm ‹sgn b ≃ 1›)
     have : Integer.Nonzero b := Integer.nonzero_from_positive_inst
     have : Integer.Sqrt1 (sgn b) := Integer.sgn_nonzero.mp this
+    have : sgn a * sgn b ≃ 1 :=
+      Integer.mul_sqrt1_eqv.mpr (And.intro this ‹sgn a ≃ sgn b›)
     have : sgn x ≃ 1 := calc
       sgn x                   ≃ _ := Rational.sgn_subst ‹x ≃ a / b›
       sgn ((a : ℚ) / (b : ℚ)) ≃ _ := Rational.sgn_div_integers
-      sgn a * sgn b           ≃ _ := Integer.mul_sqrt1_eqv.mpr ‹sgn a ≃ sgn b›
+      sgn a * sgn b           ≃ _ := ‹sgn a * sgn b ≃ 1›
       1                       ≃ _ := Rel.refl
     have : Positive x := Rational.sgn_positive.mpr this
     exact this

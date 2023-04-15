@@ -1,11 +1,12 @@
 import Lake
 open System Lake DSL
 
-package «lean4-analysis»
--- add package configuration options here
+package «lean4-analysis» {
+  moreLeanArgs := #["-D warningAsError=true"]
+}
 
 def axiomatic_url := "https://github.com/cruhland/lean4-axiomatic.git"
-def axiomatic_rev := "e34384ef062f7947eccc9f9dc6ec1ea9c20e077f"
+def axiomatic_rev := "0b30f06585c2e3bb19c820a40c34f862d2c597b7"
 
 require «lean4-axiomatic» from
   /- If you need to pick up local changes to this library, uncomment the line
