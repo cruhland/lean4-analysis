@@ -32,39 +32,20 @@ example : ℚ → ℚ := Rational.Metric.toOps._abs
 example {x : ℚ} : Positive x → abs x ≃ x := by
   intro (_ : Positive x)
   show abs x ≃ x
-  have : (sgn x : ℚ) ≃ 1 := from_integer_subst (sgn_positive.mp ‹Positive x›)
-  have : abs x ≃ x := calc
-    abs x     ≃ _ := abs_sgn
-    x * sgn x ≃ _ := mul_substR ‹(sgn x : ℚ) ≃ 1›
-    x * 1     ≃ _ := mul_identR
-    x         ≃ _ := eqv_refl
+  have : sgn x ≃ 1 := sgn_positive.mp ‹Positive x›
+  have : abs x ≃ x := abs_positive this
   exact this
 
 -- If `x` is negative, then `abs x := -x`.
 example {x : ℚ} : Negative x → abs x ≃ -x := by
   intro (_ : Negative x)
   show abs x ≃ -x
-  have : (sgn x : ℚ) ≃ -1 := calc
-    (sgn x : ℚ)    ≃ _ := from_integer_subst (sgn_negative.mp ‹Negative x›)
-    ((-1 : ℤ) : ℚ) ≃ _ := neg_compat_from_integer
-    (-1 : ℚ)       ≃ _ := eqv_refl
-  have : abs x ≃ -x := calc
-    abs x     ≃ _ := abs_sgn
-    x * sgn x ≃ _ := mul_substR ‹(sgn x : ℚ) ≃ -1›
-    x * -1    ≃ _ := mul_comm
-    (-1) * x  ≃ _ := mul_neg_one
-    (-x)      ≃ _ := eqv_refl
+  have : sgn x ≃ -1 := sgn_negative.mp ‹Negative x›
+  have : abs x ≃ -x := abs_negative this
   exact this
 
 -- If `x` is zero, then `abs x := 0`.
-example {x : ℚ} : x ≃ 0 → abs x ≃ 0 := by
-  intro (_ : x ≃ 0)
-  show abs x ≃ 0
-  calc
-    abs x           ≃ _ := abs_sgn
-    x * sgn x       ≃ _ := mul_substL ‹x ≃ 0›
-    (0 * sgn x : ℚ) ≃ _ := mul_absorbL
-    0               ≃ _ := eqv_refl
+example {x : ℚ} : x ≃ 0 → abs x ≃ 0 := abs_zero.mpr
 
 -- Definition 4.3.2 (Distance).
 -- Let `x` and `y` be rational numbers. The quantity `abs (x - y)` is called
@@ -106,6 +87,13 @@ example : abs x ≃ 0 ↔ x ≃ 0 := Rational.abs_zero
 
 -- (b) (Triangle inequality for absolute value) We have
 example : abs (x + y) ≤ abs x + abs y := Rational.abs_compat_add
+
+-- (c) We have the inequalities `-y ≤ x ≤ y` if and only if `y ≥ abs x`.
+example : -y ≤ x ∧ x ≤ y ↔ y ≥ abs x := Rational.abs_upper_bound.symm
+
+-- In particular, we have
+example : -(abs x) ≤ x ∧ x ≤ abs x :=
+  Rational.abs_upper_bound.mp Rational.le_refl
 
 end prop_4_3_3
 

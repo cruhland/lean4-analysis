@@ -665,34 +665,15 @@ example {x y : ℚ} : x < y ↔ y > x := Iff.intro id id
 example {x y z : ℚ} : x < y → y < z → x < z := Rational.lt_trans
 
 -- (d) (Addition preserves order) If `x < y`, then `x + z < y + z`.
-example {x y z : ℚ} : x < y → x + z < y + z := by
-  intro (_ : x < y)
-  show x + z < y + z
-  have : sgn (x - y) ≃ -1 := Rational.lt_sgn.mp ‹x < y›
-  have : (x + z) - (y + z) ≃ x - y := Rational.sub_cancelR_add
-  have : sgn ((x + z) - (y + z)) ≃ -1 := calc
-    sgn ((x + z) - (y + z)) ≃ _ := Rational.sgn_subst this
-    sgn (x - y)             ≃ _ := ‹sgn (x - y) ≃ -1›
-    (-1)                    ≃ _ := Rel.refl
-  have : x + z < y + z := Rational.lt_sgn.mpr this
-  exact this
+example {x y z : ℚ} : x < y → x + z < y + z := Rational.lt_substL_add
 
 -- (e) (Positive multiplication preserves order) If `x < y` and `z` is
 -- positive, then `x * z < y * z`.
 example {x y z : ℚ} : x < y → Positive z → x * z < y * z := by
   intro (_ : x < y) (_ : Positive z)
   show x * z < y * z
-  have : sgn (x - y) ≃ -1 := Rational.lt_sgn.mp ‹x < y›
   have : sgn z ≃ 1 := Rational.sgn_positive.mp ‹Positive z›
-  have : x * z - y * z ≃ (x - y) * z := Rel.symm Rational.mul_distribR_sub
-  have : sgn (x * z - y * z) ≃ -1 := calc
-    sgn (x * z - y * z) ≃ _ := Rational.sgn_subst this
-    sgn ((x - y) * z)   ≃ _ := Rational.sgn_compat_mul
-    sgn (x - y) * sgn z ≃ _ := AA.substR ‹sgn z ≃ 1›
-    sgn (x - y) * 1     ≃ _ := AA.identR
-    sgn (x - y)         ≃ _ := ‹sgn (x - y) ≃ -1›
-    (-1)                ≃ _ := Rel.refl
-  have : x * z < y * z := Rational.lt_sgn.mpr this
+  have : x * z < y * z := Rational.lt_substL_mul_pos this ‹x < y›
   exact this
 
 -- Exercise 4.2.6.
@@ -700,18 +681,9 @@ example {x y z : ℚ} : x < y → Positive z → x * z < y * z := by
 -- _negative_, then `x * z > y * z`.
 example {x y z : ℚ} : x < y → Negative z → x * z > y * z := by
   intro (_ : x < y) (_ : Negative z)
-  show x * z > y * z
-  have : sgn (x - y) ≃ -1 := Rational.lt_sgn.mp ‹x < y›
+  show y * z < x * z
   have : sgn z ≃ -1 := Rational.sgn_negative.mp ‹Negative z›
-  have : x * z - y * z ≃ (x - y) * z := Rel.symm Rational.mul_distribR_sub
-  have : sgn (x * z - y * z) ≃ 1 := calc
-    sgn (x * z - y * z) ≃ _ := Rational.sgn_subst this
-    sgn ((x - y) * z)   ≃ _ := Rational.sgn_compat_mul
-    sgn (x - y) * sgn z ≃ _ := AA.substR ‹sgn z ≃ -1›
-    sgn (x - y) * (-1)  ≃ _ := AA.substL ‹sgn (x - y) ≃ -1›
-    (-1) * (-1)         ≃ _ := Integer.sqrt1_neg_one.elim
-    1                   ≃ _ := Rel.refl
-  have : x * z > y * z := Rational.gt_sgn.mpr this
+  have : y * z < x * z := Rational.lt_substL_mul_neg this ‹x < y›
   exact this
 
 end AnalysisI.Ch4.Sec2
