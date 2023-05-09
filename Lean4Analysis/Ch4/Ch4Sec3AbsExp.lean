@@ -92,8 +92,13 @@ example : abs (x + y) ≤ abs x + abs y := Rational.abs_compat_add
 example : -y ≤ x ∧ x ≤ y ↔ y ≥ abs x := Rational.abs_upper_bound.symm
 
 -- In particular, we have
-example : -(abs x) ≤ x ∧ x ≤ abs x :=
-  Rational.abs_upper_bound.mp Rational.le_refl
+example : -(abs x) ≤ x ∧ x ≤ abs x := abs_upper_bound.mp le_refl
+
+-- (d) (Multiplicativity of absolute value) We have
+example : abs (x * y) ≃ abs x * abs y := Rational.abs_compat_mul
+
+-- In particular,
+example : abs (-x) ≃ abs x := Rational.abs_absorb_neg
 
 end prop_4_3_3
 
