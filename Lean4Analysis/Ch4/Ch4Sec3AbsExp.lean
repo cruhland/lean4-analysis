@@ -106,6 +106,9 @@ example : dist x y ≥ 0 := Rational.dist_ge_zero
 -- Also,
 example : dist x y ≃ 0 ↔ x ≃ y := Rational.dist_zero
 
+-- (f) (Symmetry of distance)
+example : dist x y ≃ dist y x := Rational.dist_symm
+
 end prop_4_3_3
 
 end AnalysisI.Ch4.Sec3
