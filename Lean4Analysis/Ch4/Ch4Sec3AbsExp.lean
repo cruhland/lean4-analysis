@@ -100,6 +100,12 @@ example : abs (x * y) ≃ abs x * abs y := Rational.abs_compat_mul
 -- In particular,
 example : abs (-x) ≃ abs x := Rational.abs_absorb_neg
 
+-- (e) (Non-degeneracy of distance) We have
+example : dist x y ≥ 0 := Rational.dist_ge_zero
+
+-- Also,
+example : dist x y ≃ 0 ↔ x ≃ y := Rational.dist_zero
+
 end prop_4_3_3
 
 end AnalysisI.Ch4.Sec3
