@@ -114,4 +114,14 @@ example : dist x z ≤ dist x y + dist y z := Rational.dist_triangle
 
 end prop_4_3_3
 
+-- Definition 4.3.4 (ε-closeness).
+-- Let `ε > 0` be a rational number, and let `x`, `y` be rational numbers. We
+-- say that `y` is _ε-close_ to `x` iff we have `dist y x ≤ ε`.
+-- [Rational axiom for ε-closeness]
+example : ℚ → ℚ → ℚ → Prop := Rational.Metric.toOps._close
+
+-- [The syntax `y ⊢ε⊣ x` for "`y` is ε-close to `x`" is easier to support with
+-- Lean's `notation` macro than my first attempt of `y ε-close x`.]
+example {ε x y : ℚ} : y ⊢ε⊣ x ↔ dist y x ≤ ε := Rational.close_dist
+
 end AnalysisI.Ch4.Sec3
