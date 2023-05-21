@@ -116,12 +116,54 @@ end prop_4_3_3
 
 -- Definition 4.3.4 (ε-closeness).
 -- Let `ε > 0` be a rational number, and let `x`, `y` be rational numbers. We
--- say that `y` is _ε-close_ to `x` iff we have `dist y x ≤ ε`.
+-- say that `y` is _`ε`-close_ to `x` iff we have `dist y x ≤ ε`.
 -- [Rational axiom for ε-closeness]
 example : ℚ → ℚ → ℚ → Prop := Rational.Metric.toOps._close
 
 -- [The syntax `y ⊢ε⊣ x` for "`y` is ε-close to `x`" is easier to support with
 -- Lean's `notation` macro than my first attempt of `y ε-close x`.]
 example {ε x y : ℚ} : y ⊢ε⊣ x ↔ dist y x ≤ ε := Rational.close_dist
+
+section evaluation
+
+-- Examples 4.3.6.
+-- The numbers `0.99` and `1.01` are `0.1`-close,
+example : (0.99 : ℚ') ⊢0.1⊣ 1.01 := by
+  have : sgn ((0.02 : ℚ') - 0.1) ≃ -1 := rfl
+  have : sgn ((0.02 : ℚ') - 0.1) ≄ 1 :=
+    AA.neqv_substL (Rel.symm this) Integer.neg_one_neqv_one
+  have : dist (0.99 : ℚ') 1.01 ≤ 0.1 := calc
+    _ ≃ dist (0.99 : ℚ') 1.01 := eqv_refl
+ -- _ ≃ abs (0.99 - 1.01)     := dist_abs -- [causes max recursion error]
+ -- _ ≃ abs (-0.02)
+    _ ≃ 0.02                  := rfl
+    _ ≤ 0.1                   := le_sgn.mpr this
+  have : (0.99 : ℚ') ⊢0.1⊣ 1.01 := close_dist.mpr this
+  exact this
+
+-- but they are not `0.01`-close, because
+example : ¬((0.99 : ℚ') ⊢0.01⊣ 1.01) := by
+  intro (_ : (0.99 : ℚ') ⊢0.01⊣ 1.01)
+  show False
+  have : (0.02 : ℚ') ≤ 0.01 := calc
+    _ ≃ (0.02 : ℚ')           := eqv_refl
+    _ ≃ dist (0.99 : ℚ') 1.01 := rfl
+    _ ≤ 0.01                  := close_dist.mp ‹(0.99 : ℚ') ⊢0.01⊣ 1.01›
+  have notOne : sgn ((0.02 : ℚ') - 0.01) ≄ 1 := le_sgn.mp this
+  have one : sgn ((0.02 : ℚ') - 0.01) ≃ 1 := rfl
+  exact absurd one notOne
+
+-- The numbers `2` and `2` are `ε`-close for every positive `ε`.
+example {ε : ℚ'} : ε > 0 → (2 : ℚ') ⊢ε⊣ 2 := by
+  intro (_ : ε > 0)
+  show (2 : ℚ') ⊢ε⊣ 2
+  have : dist (2 : ℚ') 2 ≤ ε := calc
+    _ ≃ dist (2 : ℚ') 2 := eqv_refl
+    _ ≃ 0               := dist_zero.mpr eqv_refl
+    _ ≤ ε               := le_cases.mpr (Or.inl ‹0 < ε›)
+  have : (2 : ℚ') ⊢ε⊣ 2 := close_dist.mpr this
+  exact this
+
+end evaluation
 
 end AnalysisI.Ch4.Sec3
