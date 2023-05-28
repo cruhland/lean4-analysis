@@ -114,14 +114,14 @@ example : dist x z ≤ dist x y + dist y z := Rational.dist_triangle
 
 end prop_4_3_3
 
--- Definition 4.3.4 (ε-closeness).
+-- Definition 4.3.4 (`ε`-closeness).
 -- Let `ε > 0` be a rational number, and let `x`, `y` be rational numbers. We
 -- say that `y` is _`ε`-close_ to `x` iff we have `dist y x ≤ ε`.
--- [Rational axiom for ε-closeness]
+-- [Rational axiom for `ε`-closeness]
 example : ℚ → ℚ → ℚ → Prop := Rational.Metric.toOps._close
 
--- [The syntax `y ⊢ε⊣ x` for "`y` is ε-close to `x`" is easier to support with
--- Lean's `notation` macro than my first attempt of `y ε-close x`.]
+-- [The syntax `y ⊢ε⊣ x` for "`y` is `ε`-close to `x`" is easier to support
+-- with Lean's `notation` macro than my first attempt of `y ε-close x`.]
 example {ε x y : ℚ} : y ⊢ε⊣ x ↔ dist y x ≤ ε := Rational.close_dist
 
 section evaluation
@@ -165,5 +165,14 @@ example {ε : ℚ'} : ε > 0 → (2 : ℚ') ⊢ε⊣ 2 := by
   exact this
 
 end evaluation
+
+-- We do not bother defining a notion of `ε`-close when `ε` is zero or
+-- negative, because if `ε` is zero then `x` and `y` are only `ε`-close when
+-- they are equal, and when `ε` is negative then `x` and `y` are never
+-- `ε`-close.
+-- [It seems better to define it in those cases for completeness, though.]
+example {x y : ℚ} : x ⊢0⊣ y ↔ x ≃ y := close_zero
+
+example {ε x y : ℚ} : sgn ε ≃ -1 → ¬(x ⊢ε⊣ y) := close_negative
 
 end AnalysisI.Ch4.Sec3
