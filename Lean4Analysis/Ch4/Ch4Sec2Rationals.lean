@@ -451,7 +451,8 @@ theorem alt_positive {x : ℚ} : Positive x ↔ AltPositive x := by
   case mpr =>
     intro (_ : AltPositive x)
     show Positive x
-    have (AltPositive.intro a b a_pos b_pos x_eqv) := ‹AltPositive x›
+    have (AltPositive.intro (a : ℤ) (b : ℤ) a_pos b_pos x_eqv) :=
+      ‹AltPositive x›
     have : AP (Positive a) := a_pos
     have : sgn a ≃ 1 := Integer.sgn_positive.mp this.ev
     have : AP (Positive b) := b_pos
