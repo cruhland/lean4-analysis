@@ -175,4 +175,17 @@ example {x y : ℚ} : x ⊢0⊣ y ↔ x ≃ y := close_zero
 
 example {ε x y : ℚ} : sgn ε ≃ -1 → ¬(x ⊢ε⊣ y) := close_negative
 
+section prop_4_3_7
+
+-- Exercise 4.3.2.
+-- Proposition 4.3.7.
+-- Let `x`, `y`, `z`, `w` be rational numbers.
+variable {x y z w : ℚ}
+
+-- (a) If `x ≃ y`, then `x` is `ε`-close to `y` for every `ε > 0`. Conversely,
+-- if `x` is `ε`-close to `y` for every `ε > 0`, then we have `x ≃ y`.
+example : x ≃ y ↔ {ε : ℚ} → ε > 0 → x ⊢ε⊣ y := close_eqv.symm
+
+end prop_4_3_7
+
 end AnalysisI.Ch4.Sec3
