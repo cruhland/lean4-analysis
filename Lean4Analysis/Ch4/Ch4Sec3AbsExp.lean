@@ -186,6 +186,9 @@ variable {x y z w : ℚ}
 -- if `x` is `ε`-close to `y` for every `ε > 0`, then we have `x ≃ y`.
 example : x ≃ y ↔ {ε : ℚ} → ε > 0 → x ⊢ε⊣ y := close_eqv.symm
 
+-- (b) Let `ε > 0`. If `x` is `ε`-close to `y`, then `y` is `ε`-close to `x`.
+example {ε : ℚ} : ε > 0 → x ⊢ε⊣ y → y ⊢ε⊣ x := λ (_ : ε > 0) => close_symm
+
 end prop_4_3_7
 
 end AnalysisI.Ch4.Sec3
