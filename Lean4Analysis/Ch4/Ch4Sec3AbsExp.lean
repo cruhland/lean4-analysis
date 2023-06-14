@@ -189,6 +189,11 @@ example : x ≃ y ↔ {ε : ℚ} → ε > 0 → x ⊢ε⊣ y := close_eqv.symm
 -- (b) Let `ε > 0`. If `x` is `ε`-close to `y`, then `y` is `ε`-close to `x`.
 example {ε : ℚ} : ε > 0 → x ⊢ε⊣ y → y ⊢ε⊣ x := λ (_ : ε > 0) => close_symm
 
+-- (c) Let `ε,δ > 0`. If `x` is `ε`-close to `y`, and `y` is `δ`-close to `z`,
+-- then `x` and `z` are `(ε + δ)`-close.
+example {ε δ : ℚ} : ε > 0 → δ > 0 → x ⊢ε⊣ y → y ⊢δ⊣ z → x ⊢ε+δ⊣ z :=
+  λ (_ : ε > 0) (_ : δ > 0) => close_trans
+
 end prop_4_3_7
 
 end AnalysisI.Ch4.Sec3
