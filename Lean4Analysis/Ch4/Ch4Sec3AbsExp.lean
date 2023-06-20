@@ -194,6 +194,15 @@ example {ε : ℚ} : ε > 0 → x ⊢ε⊣ y → y ⊢ε⊣ x := λ (_ : ε > 0)
 example {ε δ : ℚ} : ε > 0 → δ > 0 → x ⊢ε⊣ y → y ⊢δ⊣ z → x ⊢ε+δ⊣ z :=
   λ (_ : ε > 0) (_ : δ > 0) => close_trans
 
+-- (d) Let `ε,δ > 0`. If `x` and `y` are `ε`-close, and `z` and `w` are
+-- `δ`-close, then `x + z` and `y + w` are `(ε + δ)`-close, and `x - z` and
+-- `y - w` are also `(ε + δ)`-close.
+example {ε δ : ℚ} : ε > 0 → δ > 0 → x ⊢ε⊣ y → z ⊢δ⊣ w → x + z ⊢ε+δ⊣ y + w :=
+  λ (_ : ε > 0) (_ : δ > 0) => close_add_pointwise
+
+example {ε δ : ℚ} : ε > 0 → δ > 0 → x ⊢ε⊣ y → z ⊢δ⊣ w → x - z ⊢ε+δ⊣ y - w :=
+  λ (_ : ε > 0) (_ : δ > 0) => close_sub_pointwise
+
 end prop_4_3_7
 
 end AnalysisI.Ch4.Sec3

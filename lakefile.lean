@@ -6,7 +6,7 @@ package «lean4-analysis» {
 }
 
 def axiomatic_url := "https://github.com/cruhland/lean4-axiomatic.git"
-def axiomatic_rev := "17c2dbc35f1855d2428a356ca3c5d36f6a792fba"
+def axiomatic_rev := "84a7fd9e74c5ba549c6c39dae251a0bb162dabd2"
 
 require «lean4-axiomatic» from
   /- If you need to pick up local changes to this library, uncomment the line
