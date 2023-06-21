@@ -203,6 +203,11 @@ example {ε δ : ℚ} : ε > 0 → δ > 0 → x ⊢ε⊣ y → z ⊢δ⊣ w → 
 example {ε δ : ℚ} : ε > 0 → δ > 0 → x ⊢ε⊣ y → z ⊢δ⊣ w → x - z ⊢ε+δ⊣ y - w :=
   λ (_ : ε > 0) (_ : δ > 0) => close_sub_pointwise
 
+-- (e) Let `ε > 0`. If `x` and `y` are `ε`-close, they are also `ε'`-close for
+-- every `ε' > ε`.
+example {ε ε' : ℚ} : ε > 0 → x ⊢ε⊣ y → ε' > ε → x ⊢ε'⊣ y :=
+  λ (_ : ε > 0) => close_widen
+
 end prop_4_3_7
 
 end AnalysisI.Ch4.Sec3
