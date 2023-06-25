@@ -1,3 +1,4 @@
+
 import Lake
 open System Lake DSL
 
@@ -6,7 +7,7 @@ package «lean4-analysis» {
 }
 
 def axiomatic_url := "https://github.com/cruhland/lean4-axiomatic.git"
-def axiomatic_rev := "280030e9464ee71882318bc95becd91c1f078371"
+def axiomatic_rev := "84e0a4d58afd372a64f060c6066f3e85737a33b0"
 
 require «lean4-axiomatic» from
   /- If you need to pick up local changes to this library, uncomment the line
