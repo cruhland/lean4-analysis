@@ -107,7 +107,7 @@ example : dist x y ≥ 0 := Rational.dist_ge_zero
 example : dist x y ≃ 0 ↔ x ≃ y := Rational.dist_zero
 
 -- (f) (Symmetry of distance)
-example : dist x y ≃ dist y x := Rational.dist_symm
+example : dist x y ≃ dist y x := Rational.dist_comm
 
 -- (g) (Triangle inequality for distance)
 example : dist x z ≤ dist x y + dist y z := Rational.dist_triangle
@@ -173,7 +173,11 @@ end evaluation
 -- [It seems better to define it in those cases for completeness, though.]
 example {x y : ℚ} : x ⊢0⊣ y ↔ x ≃ y := close_zero
 
-example {ε x y : ℚ} : sgn ε ≃ -1 → ¬(x ⊢ε⊣ y) := close_negative
+example {ε x y : ℚ} : sgn ε ≃ -1 → ¬(x ⊢ε⊣ y) := by
+  intro (_ : sgn ε ≃ -1) (_ : x ⊢ε⊣ y)
+  show False
+  have : x ⊢ε⊣ y ∧ sgn ε ≃ -1 := And.intro ‹x ⊢ε⊣ y› ‹sgn ε ≃ -1›
+  exact close_negative this
 
 section prop_4_3_7
 
@@ -207,6 +211,23 @@ example {ε δ : ℚ} : ε > 0 → δ > 0 → x ⊢ε⊣ y → z ⊢δ⊣ w → 
 -- every `ε' > ε`.
 example {ε ε' : ℚ} : ε > 0 → x ⊢ε⊣ y → ε' > ε → x ⊢ε'⊣ y :=
   λ (_ : ε > 0) => close_widen
+
+-- (f) Let `ε > 0`. If `y` and `z` are both `ε`-close to `x`, and `w` is
+-- between `y` and `z` (i.e., `y ≤ w ≤ z` or `z ≤ w ≤ y`), then `w` is also
+-- `ε`-close to `x`.
+example
+    {ε : ℚ} : ε > 0 → y ⊢ε⊣ x → z ⊢ε⊣ x →
+    y ≤ w ∧ w ≤ z ∨ z ≤ w ∧ w ≤ y → w ⊢ε⊣ x
+    := by
+  intro (_ : ε > 0) (_ : y ⊢ε⊣ x) (_ : z ⊢ε⊣ x)
+  intro (_ : y ≤ w ∧ w ≤ z ∨ z ≤ w ∧ w ≤ y)
+  show w ⊢ε⊣ x
+  have : x ⊢ε⊣ y := close_symm ‹y ⊢ε⊣ x›
+  have : x ⊢ε⊣ z := close_symm ‹z ⊢ε⊣ x›
+  have : y⊣ w ⊢z := between_order.mpr ‹y ≤ w ∧ w ≤ z ∨ z ≤ w ∧ w ≤ y›
+  have : x ⊢ε⊣ w := between_preserves_close ‹x ⊢ε⊣ y› ‹x ⊢ε⊣ z› ‹y⊣ w ⊢z›
+  have : w ⊢ε⊣ x := close_symm this
+  exact this
 
 end prop_4_3_7
 
