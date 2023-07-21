@@ -229,6 +229,13 @@ example
   have : w ⊢ε⊣ x := close_symm this
   exact this
 
+-- (g) Let `ε > 0`. If `x` and `y` are `ε`-close, and `z` is non-zero, then
+-- `x * z` and `y * z` are `ε * abs z`-close.
+example {ε : ℚ} : ε > 0 → x ⊢ε⊣ y → z ≄ 0 → x * z ⊢ε * abs z⊣ y * z := by
+  intro (_ : ε > 0) (_ : x ⊢ε⊣ y) (_ : z ≄ 0)
+  show x * z ⊢ε * abs z⊣ y * z
+  exact close_substL_mul ‹x ⊢ε⊣ y›
+
 end prop_4_3_7
 
 end AnalysisI.Ch4.Sec3
