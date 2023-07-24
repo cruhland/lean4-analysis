@@ -236,6 +236,15 @@ example {ε : ℚ} : ε > 0 → x ⊢ε⊣ y → z ≄ 0 → x * z ⊢ε * abs z
   show x * z ⊢ε * abs z⊣ y * z
   exact close_substL_mul ‹x ⊢ε⊣ y›
 
+-- (h) Let `ε,δ > 0`. If `x` and `y` are `ε`-close, and `z` and `w` are
+-- `δ`-close, then `x * z` and `y * w` are
+-- `(ε * abs z + δ * abs x + ε * δ)`-close.
+example
+    {ε δ : ℚ} : ε > 0 → δ > 0 → x ⊢ε⊣ y → z ⊢δ⊣ w →
+    x * z ⊢ε * abs z + δ * abs x + ε * δ⊣ y * w
+    :=
+  λ (_ : ε > 0) (_ : δ > 0) => close_mul_pointwise
+
 end prop_4_3_7
 
 end AnalysisI.Ch4.Sec3
