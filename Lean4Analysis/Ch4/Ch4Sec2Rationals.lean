@@ -404,7 +404,7 @@ theorem alt_positive {x : ℚ} : Positive x ↔ AltPositive x := by
     intro (_ : Positive x)
     show AltPositive x
     have (Rational.AsRatio.intro a b (_ : Integer.Nonzero b) x_eqv) :=
-      Rational.as_ratio x
+      Rational.rational_as_ratio x
     have : x ≃ a / b := x_eqv
 
     have : sgn a * sgn b ≃ 1 := calc
