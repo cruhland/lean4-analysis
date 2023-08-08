@@ -13,11 +13,13 @@ namespace AnalysisI.Ch2
 
 namespace Impl
 
-export Natural.Impl.Generic (sign)
+export Natural.Impl.Generic (exponentiation_ops exponentiation_props sign)
 export Natural.Impl.Nat (
-  addition axioms constructors core equality exponentiation literals
+  addition constructor_ops constructor_props core equality induction literals
   multiplication order
 )
+
+instance induction₁_inst : Natural.Induction.{1} Nat := induction
 
 end Impl
 
@@ -34,7 +36,7 @@ example : ℕ := 0
 
 -- Axiom 2.2.
 -- If `n` is a natural number, then `step n` is also a natural number.
-example {n : ℕ} : ℕ := step n (self := Impl.constructors)
+example {n : ℕ} : ℕ := step n (self := Impl.constructor_ops)
 
 -- Thus for instance, from Axiom 2.1 and two applications of Axiom 2.2, we see
 -- that `step (step 0)` is a natural number.
@@ -47,7 +49,7 @@ example : Relation.Equivalence.EqvOp? ℕ :=
 -- [`step` obeys substitution]
 example {n₁ n₂ : ℕ} : n₁ ≃ n₂ → step n₁ ≃ step n₂ :=
   AA.subst₁
-    (self := Natural.step_substitutive (self := Impl.core))
+    (self := Natural.step_substitutive (self := Impl.constructor_props))
 
 -- Definition 2.1.3.
 -- We define `1` to be the number `step 0`,
@@ -78,7 +80,7 @@ example : ℕ := 3
 -- `0` is not the successor of any natural number; i.e., we have `step n ≄ 0`
 -- for every natural number `n`.
 example {n : ℕ} : step n ≄ 0 :=
-  Natural.step_neqv_zero (self := Impl.axioms)
+  Natural.step_neqv_zero (self := Impl.constructor_props)
 
 -- Proposition 2.1.6.
 -- `4` is not equal to `0`.
@@ -89,7 +91,7 @@ example : 4 ≄ 0 := Natural.step_neqv_zero (ℕ := ℕ)
 -- are natural numbers and `n ≄ m`, then `step n ≄ step m`. Equivalently, if
 -- `step n ≃ step m`, then we must have `n ≃ m`.
 example {n m : ℕ} : step n ≃ step m → n ≃ m :=
-  AA.inject (self := Natural.step_injective (self := Impl.axioms))
+  AA.inject (self := Natural.step_injective (self := Impl.constructor_props))
 
 -- Proposition 2.1.8.
 -- `6` is not equal to `2`.
@@ -108,7 +110,7 @@ example : 6 ≄ 2 := by
 -- `P 0` is true, and suppose that whenever `P n` is true, `P (step n)` is also
 -- true. Then `P n` is true for every natural number `n`.
 example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n :=
-  Natural.ind (self := Impl.axioms)
+  Natural.ind (self := Impl.induction)
 
 -- Proposition 2.1.16 (Recursive definitions).
 -- Suppose for each natural number `n`, we have some function `f n : ℕ → ℕ`
@@ -563,11 +565,12 @@ theorem euclidean_algorithm {n q : ℕ} : Positive q → Euclid n q := by
 
 -- Definition 2.3.11 (Exponentiation for natural numbers).
 example : ℕ → ℕ → ℕ :=
-  Pow.pow (self := Natural.powOp (self := Impl.exponentiation))
+  Natural.Exponentiation.Ops._pow (self := Impl.exponentiation_ops)
 
 -- Let `m` be a natural number. To raise `m` to the power `0`, we define
 -- `m ^ 0 := 1`;
-example {m : ℕ} : m ^ 0 ≃ 1 := Natural.pow_zero (self := Impl.exponentiation)
+example {m : ℕ} : m ^ 0 ≃ 1 :=
+  Natural.pow_zero (self := Impl.exponentiation_props)
 
 -- in particular, we define `0 ^ 0 := 1`.
 example : 0 ^ (0 : ℕ) ≃ 1 := Natural.pow_zero
@@ -575,7 +578,7 @@ example : 0 ^ (0 : ℕ) ≃ 1 := Natural.pow_zero
 -- Now suppose recursively that `m ^ n` has been defined for some natural
 -- number `n`, then we define `m ^ step n := m ^ n * m`.
 example {m n : ℕ} : m ^ step n ≃ m ^ n * m :=
-  Natural.pow_step (self := Impl.exponentiation)
+  Natural.pow_step (self := Impl.exponentiation_props)
 
 -- Examples 2.3.12.
 -- Thus for instance `x ^ 1 ≃ x ^ 0 * x ≃ 1 * x ≃ x`;

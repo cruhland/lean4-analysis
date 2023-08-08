@@ -18,6 +18,10 @@ abbrev ℕ' : Type := Nat
 abbrev ℤ' : Type := Integer.Impl.Difference ℕ'
 abbrev ℚ' : Type := Rational.Impl.Fraction ℤ'
 
+local instance natural_core_inst : Natural.Core Nat := Natural.Impl.Nat.core
+instance induction₁_inst : Natural.Induction.{1} Nat :=
+  Natural.Impl.Nat.induction
+
 end evaluation
 
 /-! # 4.3 Absolute value and exponentiation -/
@@ -246,5 +250,20 @@ example
   λ (_ : ε > 0) (_ : δ > 0) => close_mul_pointwise
 
 end prop_4_3_7
+
+-- Definition 4.3.9 (Exponentiation to a natural number).
+-- Let `x` be a rational number. To raise `x` to the power `0`, we define
+-- `x^0 := 1`;
+example {x : ℚ} : x^(0:ℕ) ≃ 1 := Natural.pow_zero
+
+-- in particular we define `0^0 := 1`.
+example : (0:ℚ)^(0:ℕ) ≃ 1 := Natural.pow_zero
+
+-- Now suppose inductively that `x^n` has been defined for some natural number
+-- `n`, then we define `x^(n+1) := x^n * x`.
+example {x : ℚ} {n : ℕ} : x^(n+1) ≃ x^n * x := calc
+  _ ≃ x^(n+1)            := eqv_refl
+  _ ≃ x^(Natural.step n) := Natural.pow_substR Natural.add_one_step
+  _ ≃ x^n * x            := Natural.pow_step
 
 end AnalysisI.Ch4.Sec3
