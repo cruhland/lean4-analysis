@@ -266,4 +266,22 @@ example {x : ℚ} {n : ℕ} : x^(n+1) ≃ x^n * x := calc
   _ ≃ x^(Natural.step n) := Natural.pow_substR Natural.add_one_step
   _ ≃ x^n * x            := Natural.pow_step
 
+section prop_4_3_10
+
+-- Exercise 4.3.3.
+-- Proposition 4.3.10 (Properties of exponentiation, I).
+-- Let `x`, `y` be rational numbers, and let `n`, `m` be natural numbers.
+variable {x y : ℚ} {n m : ℕ}
+
+-- (a) We have `x^n * x^m ≃ x^(n+m)`,
+example : x^n * x^m ≃ x^(n+m) := eqv_symm Natural.pow_compatL_add
+
+-- `(x^n)^m ≃ x^(n*m)`,
+example : (x^n)^m ≃ x^(n*m) := Natural.pow_flatten
+
+-- and `(x*y)^n ≃ x^n * y^n`.
+example : (x*y)^n ≃ x^n * y^n := Natural.pow_distribR_mul (mul := (· * ·))
+
+end prop_4_3_10
+
 end AnalysisI.Ch4.Sec3
