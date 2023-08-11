@@ -282,6 +282,26 @@ example : (x^n)^m ≃ x^(n*m) := Natural.pow_flatten
 -- and `(x*y)^n ≃ x^n * y^n`.
 example : (x*y)^n ≃ x^n * y^n := Natural.pow_distribR_mul (mul := (· * ·))
 
+-- (b) Suppose `n > 0`. Then we have `x^n ≃ 0` if and only if `x ≃ 0`.
+example : n > 0 → (x^n ≃ 0 ↔ x ≃ 0) := by
+  intro (_ : n > 0)
+  show x^n ≃ 0 ↔ x ≃ 0
+  apply Iff.intro
+  case mp =>
+    intro (_ : x^n ≃ 0)
+    show x ≃ 0
+    have (And.intro (_ : x ≃ 0) _) :=
+      Natural.pow_inputs_for_output_zero ‹x^n ≃ 0›
+    exact ‹x ≃ 0›
+  case mpr =>
+    intro (_ : x ≃ 0)
+    show x^n ≃ 0
+    have : Positive n := Natural.lt_zero_pos.mpr ‹n > 0›
+    have : n ≄ 0 := Signed.positive_defn.mp this
+    have : x ≃ 0 ∧ n ≄ 0 := And.intro ‹x ≃ 0› ‹n ≄ 0›
+    have : x^n ≃ 0 := Natural.pow_eqv_zero.mpr this
+    exact this
+
 end prop_4_3_10
 
 end AnalysisI.Ch4.Sec3
