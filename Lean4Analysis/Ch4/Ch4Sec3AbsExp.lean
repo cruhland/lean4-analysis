@@ -84,7 +84,7 @@ variable {x y z : ℚ}
 -- We have `abs x ≥ 0`. Also, `abs x ≃ 0` if and only if `x` is `0`.
 
 -- [Wikipedia calls this "non-negativity".]
-example : abs x ≥ 0 := Rational.abs_ge_zero
+example : abs x ≥ 0 := Rational.abs_nonneg
 
 -- [Wikipedia calls this "positive-definiteness".]
 example : abs x ≃ 0 ↔ x ≃ 0 := Rational.abs_zero
@@ -105,7 +105,7 @@ example : abs (x * y) ≃ abs x * abs y := Rational.abs_compat_mul
 example : abs (-x) ≃ abs x := Rational.abs_absorb_neg
 
 -- (e) (Non-degeneracy of distance) We have
-example : dist x y ≥ 0 := Rational.dist_ge_zero
+example : dist x y ≥ 0 := Rational.dist_nonneg
 
 -- Also,
 example : dist x y ≃ 0 ↔ x ≃ y := Rational.dist_zero
@@ -177,11 +177,12 @@ end evaluation
 -- [It seems better to define it in those cases for completeness, though.]
 example {x y : ℚ} : x ⊢0⊣ y ↔ x ≃ y := close_zero
 
-example {ε x y : ℚ} : sgn ε ≃ -1 → ¬(x ⊢ε⊣ y) := by
-  intro (_ : sgn ε ≃ -1) (_ : x ⊢ε⊣ y)
+example {ε x y : ℚ} : ε < 0 → ¬(x ⊢ε⊣ y) := by
+  intro (_ : ε < 0) (_ : x ⊢ε⊣ y)
   show False
-  have : x ⊢ε⊣ y ∧ sgn ε ≃ -1 := And.intro ‹x ⊢ε⊣ y› ‹sgn ε ≃ -1›
-  exact close_negative this
+  have : ε ≥ 0 := close_nonneg ‹x ⊢ε⊣ y›
+  have : False := le_gt_false ‹0 ≤ ε› ‹0 > ε›
+  exact this
 
 section prop_4_3_7
 
@@ -301,6 +302,17 @@ example : n > 0 → (x^n ≃ 0 ↔ x ≃ 0) := by
     have : x ≃ 0 ∧ n ≄ 0 := And.intro ‹x ≃ 0› ‹n ≄ 0›
     have : x^n ≃ 0 := Natural.pow_eqv_zero.mpr this
     exact this
+
+-- (c) If `x ≥ y ≥ 0`, then `x^n ≥ y^n ≥ 0`.
+example : x ≥ y ∧ y ≥ 0 → x^n ≥ y^n ∧ y^n ≥ 0 := pow_substL_ge_nonneg
+
+-- If `x > y ≥ 0` and `n > 0`, then `x^n > y^n ≥ 0`.
+example : x > y ∧ y ≥ 0 ∧ n > 0 → x^n > y^n ∧ y^n ≥ 0 := by
+  intro (And.intro (_ : x > y) (And.intro (_ : y ≥ 0) (_ : n > 0)))
+  show x^n > y^n ∧ y^n ≥ 0
+  have : x > y ∧ y ≥ 0 := And.intro ‹x > y› ‹y ≥ 0›
+  have : x^n > y^n ∧ y^n ≥ 0 := pow_pos_substL_gt_nonneg ‹n > 0› this
+  exact this
 
 end prop_4_3_10
 

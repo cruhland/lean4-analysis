@@ -674,6 +674,7 @@ example {x y z : ℚ} : x < y → Positive z → x * z < y * z := by
   intro (_ : x < y) (_ : Positive z)
   show x * z < y * z
   have : sgn z ≃ 1 := Rational.sgn_positive.mp ‹Positive z›
+  have : z > 0 := Rational.gt_zero_sgn.mpr this
   have : x * z < y * z := Rational.lt_substL_mul_pos this ‹x < y›
   exact this
 
@@ -684,6 +685,7 @@ example {x y z : ℚ} : x < y → Negative z → x * z > y * z := by
   intro (_ : x < y) (_ : Negative z)
   show y * z < x * z
   have : sgn z ≃ -1 := Rational.sgn_negative.mp ‹Negative z›
+  have : z < 0 := Rational.lt_zero_sgn.mpr this
   have : y * z < x * z := Rational.lt_substL_mul_neg this ‹x < y›
   exact this
 
