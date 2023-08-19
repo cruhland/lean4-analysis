@@ -314,6 +314,9 @@ example : x > y ∧ y ≥ 0 ∧ n > 0 → x^n > y^n ∧ y^n ≥ 0 := by
   have : x^n > y^n ∧ y^n ≥ 0 := pow_pos_substL_gt_nonneg ‹n > 0› this
   exact this
 
+-- (d) We have `abs (x^n) ≃ (abs x)^n`.
+example : abs (x^n) ≃ (abs x)^n := pow_scompatL_abs
+
 end prop_4_3_10
 
 end AnalysisI.Ch4.Sec3
