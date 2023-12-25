@@ -350,7 +350,7 @@ end proposition_4_1_6
 example {x y : ℤ} : x - y ≃ x + (-y) := Integer.sub_defn
 
 -- [Definition of subtraction.]
-example : ℤ → ℤ → ℤ := Impl.integer.toSubtraction.subOp.sub
+example : ℤ → ℤ → ℤ := Impl.integer.toSubtraction.toOps.sub
 
 -- We do not need to verify the substitution axiom for this operation, since we
 -- have defined subtraction in terms of two other operations on integers,
