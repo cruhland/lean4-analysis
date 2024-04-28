@@ -6,6 +6,7 @@ import Lean4Axiomatic.Rational.Impl.Fraction
 namespace AnalysisI.Ch4.Sec3
 
 open Lean4Axiomatic
+open Lean4Axiomatic.Logic (AP)
 open Lean4Axiomatic.Metric (abs dist)
 open Lean4Axiomatic.Rational
 open Lean4Axiomatic.Signed (Negative Positive sgn)
@@ -18,9 +19,11 @@ abbrev ℕ' : Type := Nat
 abbrev ℤ' : Type := Integer.Impl.Difference ℕ'
 abbrev ℚ' : Type := Rational.Impl.Fraction ℤ'
 
-local instance natural_core_inst : Natural.Core Nat := Natural.Impl.Nat.core
-instance induction₁_inst : Natural.Induction.{1} Nat :=
+local instance natural_core_inst : Natural.Core ℕ' := Natural.Impl.Nat.core
+instance natural_induction₁_inst : Natural.Induction.{1} ℕ' :=
   Natural.Impl.Nat.induction
+instance integer_induction₁_inst : Integer.Induction.{1} ℤ' :=
+  Integer.Impl.Difference.induction
 
 end evaluation
 
@@ -318,5 +321,10 @@ example : x > y ∧ y ≥ 0 ∧ n > 0 → x^n > y^n ∧ y^n ≥ 0 := by
 example : abs (x^n) ≃ (abs x)^n := pow_scompatL_abs
 
 end prop_4_3_10
+
+-- Definition 4.3.11 (Exponentiation to a negative number).
+-- Let `x` be a non-zero rational number. Then for any negative integer `-n`,
+-- we define `x^(-n) := 1/x^n`.
+example {x : ℚ} [AP (x ≄ 0)] {n : ℕ} : x^(-(n:ℤ)) ≃ 1/x^n := pow_neg
 
 end AnalysisI.Ch4.Sec3
