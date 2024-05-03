@@ -13,17 +13,20 @@ open Lean4Axiomatic.Signed (Negative Positive sgn)
 
 variable {ℕ ℤ ℚ : Type} [Natural ℕ] [Integer (ℕ := ℕ) ℤ] [Rational (ℤ := ℤ) ℚ]
 
-section evaluation
+namespace evaluation
 
 abbrev ℕ' : Type := Nat
 abbrev ℤ' : Type := Integer.Impl.Difference ℕ'
 abbrev ℚ' : Type := Rational.Impl.Fraction ℤ'
 
-local instance natural_core_inst : Natural.Core ℕ' := Natural.Impl.Nat.core
-instance natural_induction₁_inst : Natural.Induction.{1} ℕ' :=
+def natural : Natural ℕ' := inferInstance
+scoped instance natural_induction_inst : Natural.Induction ℕ' :=
+  natural.toInduction
+scoped instance natural_induction₁_inst : Natural.Induction.{1} ℕ' :=
   Natural.Impl.Nat.induction
-instance integer_induction₁_inst : Integer.Induction.{1} ℤ' :=
+scoped instance integer_induction₁_inst : Integer.Induction.{1} ℤ' :=
   Integer.Impl.Difference.induction
+scoped instance rational_inst : Rational (ℤ := ℤ') ℚ' := inferInstance
 
 end evaluation
 
@@ -63,7 +66,7 @@ example : ℚ → ℚ → ℚ := Rational.Metric.toOps._dist
 
 example {x y : ℚ} : dist x y ≃ abs (x - y) := dist_abs
 
-section evaluation
+namespace evaluation
 
 -- For instance, `dist 3 5 ≃ 2`.
 example : dist (3 : ℚ') 5 ≃ 2 := rfl
@@ -131,7 +134,7 @@ example : ℚ → ℚ → ℚ → Prop := Rational.Metric.toOps._close
 -- with Lean's `notation` macro than my first attempt of `y ε-close x`.]
 example {ε x y : ℚ} : y ⊢ε⊣ x ↔ dist y x ≤ ε := Rational.close_dist
 
-section evaluation
+namespace evaluation
 
 -- Examples 4.3.6.
 -- The numbers `0.99` and `1.01` are `0.1`-close,
@@ -326,5 +329,17 @@ end prop_4_3_10
 -- Let `x` be a non-zero rational number. Then for any negative integer `-n`,
 -- we define `x^(-n) := 1/x^n`.
 example {x : ℚ} [AP (x ≄ 0)] {n : ℕ} : x^(-(n:ℤ)) ≃ 1/x^n := pow_neg
+
+namespace evaluation
+
+-- Thus for instance
+example {x : ℚ'} [AP (x ≄ 0)] : x^(-3:ℤ') ≃ 1/(x * x * x) := calc
+  _ = x^(-3:ℤ')            := rfl
+  _ ≃ 1/x^(3:ℕ')           := pow_neg
+  _ ≃ 1/(x^(2:ℕ') * x)     := div_substR Natural.pow_step
+  _ ≃ 1/(x^(1:ℕ') * x * x) := div_substR (AA.substL Natural.pow_step)
+  _ ≃ 1/(x * x * x)        := div_substR (AA.substL (AA.substL Natural.pow_one))
+
+end evaluation
 
 end AnalysisI.Ch4.Sec3
