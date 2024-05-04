@@ -7,7 +7,6 @@ package «lean4-analysis» {
 }
 
 def axiomatic_url := "https://github.com/cruhland/lean4-axiomatic.git"
-def axiomatic_rev := "733639fccd06ade707cce03d5a133f97d88a3b09"
 
 require «lean4-axiomatic» from
   /- If you need to pick up local changes to this library, uncomment the line
@@ -15,7 +14,7 @@ require «lean4-axiomatic» from
    - match your local setup. Then run `lake update` to reload the build config.
    -/
   -- ".."/"lean4-axiomatic"
-  git axiomatic_url @ axiomatic_rev
+  git axiomatic_url @ "main"
 
 lean_lib Lean4Analysis {
   -- add library configuration options here
