@@ -342,4 +342,16 @@ example {x : ℚ'} [AP (x ≄ 0)] : x^(-3:ℤ') ≃ 1/(x * x * x) := calc
 
 end evaluation
 
+section prop_4_3_12
+
+-- Exercise 4.3.4.
+-- Proposition 4.3.12 (Properties of exponentiation, II).
+-- Let `x`, `y` be nonzero rational numbers, and let `n`, `m` be integers.
+variable {x y : ℚ} [AP (x ≄ 0)] [AP (y ≄ 0)] {n m : ℤ}
+
+-- (a) We have `x^n * x^m ≃ x^(n+m)`,
+example : x^n * x^m ≃ x^(n + m) := eqv_symm pow_compatL_add
+
+end prop_4_3_12
+
 end AnalysisI.Ch4.Sec3
