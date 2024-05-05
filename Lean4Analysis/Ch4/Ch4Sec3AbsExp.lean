@@ -352,6 +352,9 @@ variable {x y : ℚ} [AP (x ≄ 0)] [AP (y ≄ 0)] {n m : ℤ}
 -- (a) We have `x^n * x^m ≃ x^(n+m)`,
 example : x^n * x^m ≃ x^(n + m) := eqv_symm pow_compatL_add
 
+-- `(x^n)^m ≃ x^(n * m)`,
+example : (x^n)^m ≃ x^(n * m) := pow_flatten
+
 end prop_4_3_12
 
 end AnalysisI.Ch4.Sec3
