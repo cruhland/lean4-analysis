@@ -355,6 +355,9 @@ example : x^n * x^m ≃ x^(n + m) := eqv_symm pow_compatL_add
 -- `(x^n)^m ≃ x^(n * m)`,
 example : (x^n)^m ≃ x^(n * m) := pow_flatten
 
+-- and `(x * y)^n ≃ x^n * y^n`.
+example : (x * y)^n ≃ x^n * y^n := pow_distribR_mul
+
 end prop_4_3_12
 
 end AnalysisI.Ch4.Sec3
