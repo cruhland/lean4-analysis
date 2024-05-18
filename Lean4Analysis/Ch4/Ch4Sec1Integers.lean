@@ -509,11 +509,11 @@ example
     show 0 ≤ 0
     apply Integer.le_iff_add_nat.mpr
     show ∃ (k : ℕ), 0 ≃ 0 + coe k
-    have : (0 : ℤ) ≃ 0 + coe 0 := calc
-      (0 : ℤ)         ≃ _ := Rel.symm AA.identR
-      0 + 0           ≃ _ := Rel.refl
-      0 + coe (0 : ℕ) ≃ _ := Rel.refl
-    exact Exists.intro 0 ‹(0 : ℤ) ≃ 0 + coe 0›
+    have : (0:ℤ) ≃ 0 + coe 0 := calc
+      (0:ℤ)         ≃ _ := Rel.symm AA.identR
+      0 + 0         ≃ _ := Rel.refl
+      0 + coe (0:ℕ) ≃ _ := Rel.refl
+    exact Exists.intro 0 ‹(0:ℤ) ≃ 0 + coe 0›
 
   have : {n : ℤ} → P n → P (step n) := by
     intro (n : ℤ) (_ : 0 ≤ n)
@@ -531,13 +531,13 @@ example
     exact Exists.intro (k + 1) ‹n + 1 ≃ 0 + coe (k + 1)›
 
   have : P (-1) := ind P ‹P 0› ‹∀ n, P n → P (step n)› (-1)
-  have : (0 : ℤ) ≤ -1 := this
-  have : (0 : ℤ) < -1 + 1 := Integer.le_widen_lt ‹(0 : ℤ) ≤ -1›
-  have : (0 : ℤ) < 0 := AA.substRFn Integer.neg_invL ‹(0 : ℤ) < -1 + 1›
-  have : (0 : ℤ) ≃ 0 := Rel.refl
-  have two : AA.TwoOfThree (0 < 0) (0 ≃ 0) ((0 : ℤ) > 0) :=
-    AA.TwoOfThree.oneAndTwo ‹(0 : ℤ) < 0› ‹(0 : ℤ) ≃ 0›
-  have notTwo : ¬ AA.TwoOfThree (0 < 0) (0 ≃ 0) ((0 : ℤ) > 0) :=
+  have : (0:ℤ) ≤ -1 := this
+  have : (0:ℤ) < -1 + 1 := Integer.le_widen_lt ‹(0:ℤ) ≤ -1›
+  have : (0:ℤ) < 0 := AA.substRFn Integer.neg_invL ‹(0:ℤ) < -1 + 1›
+  have : (0:ℤ) ≃ 0 := Rel.refl
+  have two : AA.TwoOfThree ((0:ℤ) < 0) (0 ≃ 0) ((0:ℤ) > 0) :=
+    AA.TwoOfThree.oneAndTwo ‹(0:ℤ) < 0› ‹(0:ℤ) ≃ 0›
+  have notTwo : ¬ AA.TwoOfThree ((0:ℤ) < 0) (0 ≃ 0) ((0:ℤ) > 0) :=
     (Integer.order_trichotomy 0 0).atMostOne
   exact absurd two notTwo
 

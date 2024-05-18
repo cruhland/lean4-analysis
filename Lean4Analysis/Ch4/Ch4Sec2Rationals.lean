@@ -91,28 +91,28 @@ example : (-6)//8 ≃ (-3)//4 := by
 example : 3//4 ≄ 4//3 := by
   intro (_ : 3//4 ≃ 4//3)
   show False
-  have : 3 * 3 ≃ 4 * 4 := ‹3//4 ≃ 4//3›
-  have : 9 ≃ 16 := this
+  have : 3 * 3 ≃ 4 * 4    := ‹3//4 ≃ 4//3›
+  have : 9 ≃ 16           := this
   have : step 8 ≃ step 15 := this
-  have : 8 ≃ 15 := AA.inject this
+  have : (8:ℕ) ≃ 15       := AA.inject this
   have : step 7 ≃ step 14 := this
-  have : 7 ≃ 14 := AA.inject this
+  have : (7:ℕ) ≃ 14       := AA.inject this
   have : step 6 ≃ step 13 := this
-  have : 6 ≃ 13 := AA.inject this
+  have : (6:ℕ) ≃ 13       := AA.inject this
   have : step 5 ≃ step 12 := this
-  have : 5 ≃ 12 := AA.inject this
+  have : (5:ℕ) ≃ 12       := AA.inject this
   have : step 4 ≃ step 11 := this
-  have : 4 ≃ 11 := AA.inject this
+  have : (4:ℕ) ≃ 11       := AA.inject this
   have : step 3 ≃ step 10 := this
-  have : 3 ≃ 10 := AA.inject this
-  have : step 2 ≃ step 9 := this
-  have : 2 ≃ 9 := AA.inject this
-  have : step 1 ≃ step 8 := this
-  have : 1 ≃ 8 := AA.inject this
-  have : step 0 ≃ step 7 := this
-  have : 0 ≃ 7 := AA.inject this
-  have : 0 ≃ step 6 := this
-  have : 0 ≄ step 6 := Rel.symm Natural.step_neqv_zero
+  have : (3:ℕ) ≃ 10       := AA.inject this
+  have : step 2 ≃ step 9  := this
+  have : (2:ℕ) ≃ 9        := AA.inject this
+  have : step 1 ≃ step 8  := this
+  have : (1:ℕ) ≃ 8        := AA.inject this
+  have : step 0 ≃ step 7  := this
+  have : (0:ℕ) ≃ 7        := AA.inject this
+  have : 0 ≃ step 6       := this
+  have : 0 ≄ step 6       := Rel.symm Natural.step_neqv_zero
   exact absurd ‹0 ≃ step 6› ‹0 ≄ step 6›
 
 -- This is a valid definition of equality.
