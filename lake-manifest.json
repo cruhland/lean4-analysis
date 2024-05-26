@@ -1,10 +1,10 @@
-{"version": 7,
+{"version": "1.0.0",
  "packagesDir": ".lake/packages",
  "packages":
  [{"url": "https://github.com/cruhland/lean4-axiomatic.git",
    "type": "git",
    "subDir": null,
-   "rev": "7088768a6cd3442a0be9506d45558d873d079302",
+   "rev": "dc0ff3f98be413951d62cbf64b8f8c9905f6747b",
    "name": "«lean4-axiomatic»",
    "manifestFile": "lake-manifest.json",
    "inputRev": "main",
