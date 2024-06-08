@@ -4,7 +4,7 @@
  [{"url": "https://github.com/cruhland/lean4-axiomatic.git",
    "type": "git",
    "subDir": null,
-   "rev": "dc0ff3f98be413951d62cbf64b8f8c9905f6747b",
+   "rev": "3b1fa5357e45f126fba9ed92ceb2e94b48bbcb42",
    "name": "«lean4-axiomatic»",
    "manifestFile": "lake-manifest.json",
    "inputRev": "main",
