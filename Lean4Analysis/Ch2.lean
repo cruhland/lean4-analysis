@@ -243,7 +243,7 @@ example {a b : ℕ} : Positive a → Positive (a + b) := Natural.positive_add
 -- Corollary 2.2.9.
 -- If `a` and `b` are natural numbers such that `a + b ≃ 0`,
 -- then `a ≃ 0` and `b ≃ 0`.
-example {a b : ℕ} : a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0 := Natural.zero_sum_split
+example {a b : ℕ} : a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0 := Natural.zero_sum_split.mp
 
 -- Exercise 2.2.2.
 -- Lemma 2.2.10.
@@ -400,7 +400,7 @@ example {P : ℕ → Prop} [AA.Substitutive₁ P (· ≃ ·) (· → ·)] {n : �
   case zero =>
     intro (_ : P 0) m (_ : m ≤ 0)
     show P m
-    match Natural.le_split ‹m ≤ 0› with
+    match Natural.le_split.mp ‹m ≤ 0› with
     | Or.inl (_ : m < 0) =>
       exact absurd ‹m < 0› Natural.lt_zero
     | Or.inr (_ : m ≃ 0) =>
@@ -408,7 +408,7 @@ example {P : ℕ → Prop} [AA.Substitutive₁ P (· ≃ ·) (· → ·)] {n : �
   case step =>
     intro n (ih : P n → ∀ m, m ≤ n → P m) (_ : P (step n)) m (_ : m ≤ step n)
     show P m
-    match Natural.le_split ‹m ≤ step n› with
+    match Natural.le_split.mp ‹m ≤ step n› with
     | Or.inl (_ : m < step n) =>
       have : step m ≤ step n := Natural.lt_step_le.mp ‹m < step n›
       have : m ≤ n := AA.inject ‹step m ≤ step n›
@@ -535,7 +535,7 @@ theorem euclidean_algorithm {n q : ℕ} : Positive q → Euclid n q := by
     show Euclid (step n) q
     have ⟨m', r', (_ : r' < q), (_ : n ≃ m' * q + r')⟩ := ih
     have : step r' ≤ q := Natural.lt_step_le.mp ‹r' < q›
-    have : step r' < q ∨ step r' ≃ q := Natural.le_split ‹step r' ≤ q›
+    have : step r' < q ∨ step r' ≃ q := Natural.le_split.mp ‹step r' ≤ q›
     apply Or.elim ‹step r' < q ∨ step r' ≃ q›
     · intro (_ : step r' < q)
       show Euclid (step n) q

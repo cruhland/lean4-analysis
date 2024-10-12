@@ -287,7 +287,7 @@ example : x^n * x^m ≃ x^(n+m) := eqv_symm Natural.pow_compatL_add
 example : (x^n)^m ≃ x^(n*m) := Natural.pow_flatten
 
 -- and `(x*y)^n ≃ x^n * y^n`.
-example : (x*y)^n ≃ x^n * y^n := Natural.pow_distribR_mul (mul := (· * ·))
+example : (x*y)^n ≃ x^n * y^n := Natural.pow_distribR_mul
 
 -- (b) Suppose `n > 0`. Then we have `x^n ≃ 0` if and only if `x ≃ 0`.
 example : n > 0 → (x^n ≃ 0 ↔ x ≃ 0) := by
@@ -306,19 +306,26 @@ example : n > 0 → (x^n ≃ 0 ↔ x ≃ 0) := by
     have : Positive n := Natural.lt_zero_pos.mpr ‹n > 0›
     have : n ≄ 0 := Signed.positive_defn.mp this
     have : x ≃ 0 ∧ n ≄ 0 := And.intro ‹x ≃ 0› ‹n ≄ 0›
-    have : x^n ≃ 0 := Natural.pow_eqv_zero.mpr this
+    have : x^n ≃ 0 := (Natural.pow_eqv_zero (α := ℚ)).mpr this
     exact this
 
 -- (c) If `x ≥ y ≥ 0`, then `x^n ≥ y^n ≥ 0`.
-example : x ≥ y ∧ y ≥ 0 → x^n ≥ y^n ∧ y^n ≥ 0 := pow_substL_ge_nonneg
+example : x ≥ y → y ≥ 0 → x^n ≥ y^n ∧ y^n ≥ 0 := by
+  intro (_ : x ≥ y) (_ : y ≥ 0)
+  show x^n ≥ y^n ∧ y^n ≥ 0
+  have : x^n ≥ y^n := pow_preserves_ge_nonneg ‹x ≥ y› ‹y ≥ 0›
+  have : y^n ≥ 0 := pow_preserves_nonneg ‹y ≥ 0›
+  exact And.intro ‹x^n ≥ y^n› ‹y^n ≥ 0›
 
 -- If `x > y ≥ 0` and `n > 0`, then `x^n > y^n ≥ 0`.
 example : x > y ∧ y ≥ 0 ∧ n > 0 → x^n > y^n ∧ y^n ≥ 0 := by
   intro (And.intro (_ : x > y) (And.intro (_ : y ≥ 0) (_ : n > 0)))
   show x^n > y^n ∧ y^n ≥ 0
-  have : x > y ∧ y ≥ 0 := And.intro ‹x > y› ‹y ≥ 0›
-  have : x^n > y^n ∧ y^n ≥ 0 := pow_pos_substL_gt_nonneg ‹n > 0› this
-  exact this
+  have : Positive n := Natural.lt_zero_pos.mpr ‹n > 0›
+  have : n ≥ 1 := Natural.positive_ge.mp ‹Positive n›
+  have : x^n > y^n := pow_pos_preserves_gt_nonneg ‹x > y› ‹y ≥ 0› ‹n ≥ 1›
+  have : y^n ≥ 0 := pow_preserves_nonneg ‹y ≥ 0›
+  exact And.intro ‹x^n > y^n› ‹y^n ≥ 0›
 
 -- (d) We have `abs (x^n) ≃ (abs x)^n`.
 example : abs (x^n) ≃ (abs x)^n := pow_scompatL_abs
@@ -357,6 +364,23 @@ example : (x^n)^m ≃ x^(n * m) := pow_flatten
 
 -- and `(x * y)^n ≃ x^n * y^n`.
 example : (x * y)^n ≃ x^n * y^n := pow_distribR_mul
+
+-- (b) If `x ≥ y > 0`, then `x^n ≥ y^n > 0` if `n` is positive,
+example : n > 0 → x ≥ y → y > 0 → x^n ≥ y^n ∧ y^n > 0 := by
+  intro (_ : n > 0) (_ : x ≥ y) (_ : y > 0)
+  show x^n ≥ y^n ∧ y^n > 0
+  have : x^n ≥ y^n := pow_pos_preserves_ge_pos ‹y > 0› ‹n > 0› ‹x ≥ y›
+  have : y^n > 0 := pow_preserves_pos_base ‹y > 0›
+  exact And.intro ‹x^n ≥ y^n› ‹y^n > 0›
+
+-- and `0 < x^n ≤ y^n` if `n` is negative.
+example : n < 0 → x ≥ y → y > 0 → 0 < x^n ∧ x^n ≤ y^n := by
+  intro (_ : n < 0) (_ : x ≥ y) (_ : y > 0)
+  show 0 < x^n ∧ x^n ≤ y^n
+  have : x > 0 := trans ‹x ≥ y› ‹y > 0›
+  have : 0 < x^n := pow_preserves_pos_base ‹x > 0›
+  have : x^n ≤ y^n := pow_neg_reverses_ge_pos ‹y > 0› ‹n < 0› ‹x ≥ y›
+  exact And.intro ‹0 < x^n› ‹x^n ≤ y^n›
 
 end prop_4_3_12
 

@@ -14,6 +14,9 @@ open Lean4Axiomatic.Rational.Impl
 open Lean4Axiomatic.Signed (Negative Positive sgn)
 
 abbrev ℕ : Type := Nat
+local instance natural_induction₁_inst : Natural.Induction.{1} ℕ :=
+  Natural.Impl.Nat.induction
+
 abbrev ℤ : Type := Integer.Impl.Difference ℕ
 
 /- 4.2 The rationals -/

@@ -9,6 +9,8 @@ open Signed (Negative Positive)
 namespace AnalysisI.Ch4.Sec1
 
 abbrev ℕ : Type := Nat
+local instance natural_induction₁_inst : Natural.Induction.{1} ℕ :=
+  Natural.Impl.Nat.induction
 
 namespace Impl
 
@@ -482,7 +484,7 @@ example : a > b → -a < -b := Integer.lt_neg_flip.mp
 example : a > b → b > c → a > c := by
   intro (_ : b < a) (_ : c < b)
   show c < a
-  exact Integer.lt_trans ‹c < b› ‹b < a›
+  exact Integer.trans_lt_lt_lt ‹c < b› ‹b < a›
 
 -- (f) (Order trichotomy) Exactly one of the statements `a > b`, `a < b`, or
 -- `a ≃ b` is true.
