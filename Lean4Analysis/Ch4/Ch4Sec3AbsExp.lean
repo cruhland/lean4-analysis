@@ -328,7 +328,7 @@ example : x > y ∧ y ≥ 0 ∧ n > 0 → x^n > y^n ∧ y^n ≥ 0 := by
   exact And.intro ‹x^n > y^n› ‹y^n ≥ 0›
 
 -- (d) We have `abs (x^n) ≃ (abs x)^n`.
-example : abs (x^n) ≃ (abs x)^n := pow_scompatL_abs
+example : abs (x^n) ≃ (abs x)^n := pow_nat_scompatL_abs
 
 end prop_4_3_10
 
@@ -387,6 +387,9 @@ example : x > 0 → y > 0 → n ≄ 0 → x^n ≃ y^n → x ≃ y := by
   intro (_ : x > 0) (_ : y > 0) (_ : n ≄ 0) (_ : x^n ≃ y^n)
   have : x ≃ y := (pow_bijectL ‹x > 0› ‹y > 0› ‹n ≄ 0›).mp ‹x^n ≃ y^n›
   exact this
+
+-- (d) We have `abs (x^n) ≃ (abs x)^n`.
+example : abs (x^n) ≃ (abs x)^n := pow_int_scompatL_abs
 
 end prop_4_3_12
 
