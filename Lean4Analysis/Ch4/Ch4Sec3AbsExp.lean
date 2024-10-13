@@ -382,6 +382,12 @@ example : n < 0 → x ≥ y → y > 0 → 0 < x^n ∧ x^n ≤ y^n := by
   have : x^n ≤ y^n := pow_neg_reverses_ge_pos ‹y > 0› ‹n < 0› ‹x ≥ y›
   exact And.intro ‹0 < x^n› ‹x^n ≤ y^n›
 
+-- (c) If `x, y > 0`, `n ≄ 0`, and `x^n ≃ y^n`, then `x ≃ y`.
+example : x > 0 → y > 0 → n ≄ 0 → x^n ≃ y^n → x ≃ y := by
+  intro (_ : x > 0) (_ : y > 0) (_ : n ≄ 0) (_ : x^n ≃ y^n)
+  have : x ≃ y := (pow_bijectL ‹x > 0› ‹y > 0› ‹n ≄ 0›).mp ‹x^n ≃ y^n›
+  exact this
+
 end prop_4_3_12
 
 end AnalysisI.Ch4.Sec3
