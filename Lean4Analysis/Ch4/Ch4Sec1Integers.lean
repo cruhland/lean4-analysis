@@ -145,7 +145,7 @@ example {n m : ℕ} : (n——0) ≃ (m——0) ↔ n ≃ m := by
     intro (_ : n ≃ m)
     show n——0 ≃ m——0
     show n + 0 ≃ m + 0
-    exact AA.substL ‹n ≃ m›
+    exact Natural.add_substL ‹n ≃ m›
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- `n ≡ n——0`; this does not affect our definitions of addition or
@@ -374,8 +374,8 @@ example {a b : ℕ} : coe a - coe b ≃ a——b := calc
   coe a + -(coe b : ℤ)          ≃ _ := Rel.refl
   (a——0) + (0——b)               ≃ _ := Rel.refl
   (a + 0)——(0 + b)              ≃ _ := Rel.refl
-  Impl.from_prod (a + 0, 0 + b) ≃ _ := AA.subst₁ (AA.substL AA.identR)
-  Impl.from_prod (a, 0 + b)     ≃ _ := AA.subst₁ (AA.substR AA.identL)
+  Impl.from_prod (a + 0, 0 + b) ≃ _ := AA.subst₁ (AA.substL Natural.add_zero)
+  Impl.from_prod (a, 0 + b)     ≃ _ := AA.subst₁ (AA.substR Natural.zero_add)
   Impl.from_prod (a, b)         ≃ _ := Rel.refl
   a——b                          ≃ _ := Rel.refl
 -- and so `a——b` is just the same thing as `a - b`. Because of this we can now
