@@ -393,4 +393,13 @@ example : abs (x^n) ≃ (abs x)^n := pow_int_scompatL_abs
 
 end prop_4_3_12
 
+-- Exercise 4.3.5.
+-- Prove that `2^N ≥ N` for all positive integers `N`.
+example {N : ℤ} : N > 0 → (2:ℚ)^N ≥ N := by
+  intro _
+  show (2:ℚ)^N ≥ N
+  have : (2:ℚ) ≥ 2 := le_refl
+  have : (2:ℚ)^N ≥ N := pow_lower_bound ‹(2:ℚ) ≥ 2›
+  exact this
+
 end AnalysisI.Ch4.Sec3

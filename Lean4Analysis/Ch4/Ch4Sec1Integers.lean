@@ -534,7 +534,7 @@ example
 
   have : P (-1) := ind P ‹P 0› ‹∀ n, P n → P (step n)› (-1)
   have : (0:ℤ) ≤ -1 := this
-  have : (0:ℤ) < -1 + 1 := Integer.le_widen_lt ‹(0:ℤ) ≤ -1›
+  have : (0:ℤ) < -1 + 1 := Integer.le_iff_lt_incR.mp ‹(0:ℤ) ≤ -1›
   have : (0:ℤ) < 0 := AA.substRFn Integer.neg_invL ‹(0:ℤ) < -1 + 1›
   have : (0:ℤ) ≃ 0 := Rel.refl
   have two : AA.TwoOfThree ((0:ℤ) < 0) (0 ≃ 0) ((0:ℤ) > 0) :=
