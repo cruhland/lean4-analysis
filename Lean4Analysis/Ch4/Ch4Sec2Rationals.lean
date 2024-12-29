@@ -401,14 +401,17 @@ def AltPositive.mk
     :=
   AltPositive.intro a b ‹AP (Positive a)› ‹AP (Positive b)› ‹x ≃ a / b›
 
-theorem alt_positive {x : ℚ} : Positive x ↔ AltPositive x := by
+theorem alt_positive
+    {x : ℚ} [Rational.Induction.{1} ℚ] : Positive x ↔ AltPositive x
+    := by
   apply Iff.intro
   case mp =>
     intro (_ : Positive x)
     show AltPositive x
-    have (Rational.AsRatio.intro a b (_ : Integer.Nonzero b) x_eqv) :=
-      Rational.as_ratio x
+    have (Rational.AsRatio.mk a b (_ : AP (b ≄ 0)) x_eqv) := Rational.as_ratio x
     have : x ≃ a / b := x_eqv
+    have : Integer.Nonzero b :=
+      Integer.nonzero_iff_neqv_zero.mpr ‹AP (b ≄ 0)›.ev
 
     have : sgn a * sgn b ≃ 1 := calc
       sgn a * sgn b     ≃ _ := Rel.symm Rational.sgn_div_integers
@@ -517,6 +520,8 @@ def AltNegative.mk
     : AltNegative x
     :=
   AltNegative.intro a b ‹AP (Positive a)› ‹AP (Positive b)› ‹x ≃ (-a) / b›
+
+variable [Rational.Induction.{1} ℚ]
 
 theorem alt_negative {x : ℚ} : Negative x ↔ AltNegative x := by
   apply Iff.intro
