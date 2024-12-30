@@ -11,9 +11,7 @@ open Lean4Axiomatic.Metric (abs dist)
 open Lean4Axiomatic.Rational
 open Lean4Axiomatic.Signed (Negative Positive sgn)
 
-variable
-  {ℕ ℤ : Type} [Natural ℕ] [Integer (ℕ := ℕ) ℤ]
-  {ℚ : Type} [Rational (ℤ := ℤ) ℚ] [Rational.Induction.{1} (ℤ := ℤ) ℚ]
+variable {ℕ ℤ ℚ : Type} [Natural ℕ] [Integer (ℕ := ℕ) ℤ] [Rational (ℤ := ℤ) ℚ]
 
 namespace evaluation
 
@@ -29,13 +27,7 @@ scoped instance natural_induction₁_inst : Natural.Induction.{1} ℕ' :=
 scoped instance integer_induction₁_inst : Integer.Induction.{1} ℤ' :=
   Integer.Impl.Difference.induction
 
-/-
-Needed to explicitly specify the universe level in the type to avoid errors.
-The command `set_option pp.all true` was necessary to figure this out.
--/
-scoped instance rational_inst : Rational.{0} (ℤ := ℤ') ℚ' := inferInstance
-scoped instance rational_induction₁_inst : Rational.Induction.{1} ℚ' :=
-  Rational.Impl.Fraction.induction
+scoped instance rational_inst : Rational (ℤ := ℤ') ℚ' := inferInstance
 
 end evaluation
 

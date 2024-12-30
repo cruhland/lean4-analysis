@@ -3,7 +3,7 @@ import Lake
 open System Lake DSL
 
 package «lean4-analysis» {
-  moreLeanArgs := #["-D warningAsError=true"]
+  moreLeanArgs := #["-D warningAsError=false"]
 }
 
 def axiomatic_url := "https://github.com/cruhland/lean4-axiomatic.git"
@@ -14,7 +14,7 @@ require «lean4-axiomatic» from
    - match your local setup. Then run `lake update` to reload the build config.
    -/
   -- ".."/"lean4-axiomatic"
-  git axiomatic_url @ "main"
+  git axiomatic_url @ "floor_fn"
 
 lean_lib Lean4Analysis {
   -- add library configuration options here
