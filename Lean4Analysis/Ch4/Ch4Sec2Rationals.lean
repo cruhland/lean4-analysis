@@ -388,7 +388,7 @@ variable {ℚ : Type} [Rational (ℤ := ℤ) ℚ]
 -- Definition 4.2.6
 -- A rational number `x` is said to be _positive_ iff we have `x ≃ a / b` for
 -- some positive integers `a` and `b`.
-inductive AltPositive (x : ℚ) : Prop :=
+inductive AltPositive (x : ℚ) : Prop where
 | intro
     (a b : ℤ)
     (a_pos : AP (Positive a))
@@ -508,7 +508,7 @@ theorem negative_iff_neg_positive
     have : Negative x := Rational.sgn_negative.mpr this
     exact this
 
-inductive AltNegative (x : ℚ) : Prop :=
+inductive AltNegative (x : ℚ) : Prop where
 | intro
     (a b : ℤ)
     (a_pos : AP (Positive a))
