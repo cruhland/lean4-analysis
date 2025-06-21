@@ -5,7 +5,7 @@
    "type": "git",
    "subDir": null,
    "scope": "",
-   "rev": "45c5cf6cd2495b84a4ee9531511492dcf452289c",
+   "rev": "ca34560809c23444952bb3098d292b41270ca83a",
    "name": "«lean4-axiomatic»",
    "manifestFile": "lake-manifest.json",
    "inputRev": "main",
