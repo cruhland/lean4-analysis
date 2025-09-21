@@ -15,8 +15,8 @@ local instance natural_induction₁_inst : Natural.Induction.{1} ℕ :=
 namespace Impl
 
 export Integer.Impl.Difference (
-  addition core from_prod from_prod_substitutive integer multiplication
-  negation sign sign_props
+  addition add_substL add_substR core from_prod from_prod_substitutive integer
+  multiplication mul_substL mul_substR negation neg_subst sign sign_props
 )
 
 end Impl
@@ -101,24 +101,16 @@ variable {a b a' b' c d : ℕ}
 variable (_ : (a——b) ≃ (a'——b'))
 
 example : (a——b) + (c——d) ≃ (a'——b') + (c——d) :=
-  AA.substL
-    (self := Impl.addition.add_substitutive.substitutiveL)
-    ‹(a——b) ≃ (a'——b')›
+  Impl.add_substL ‹(a——b) ≃ (a'——b')›
 
 example : (a——b) * (c——d) ≃ (a'——b') * (c——d) :=
-  AA.substL
-    (self := Impl.multiplication.mul_substitutive.substitutiveL)
-    ‹(a——b) ≃ (a'——b')›
+  Impl.mul_substL ‹(a——b) ≃ (a'——b')›
 
 example : (c——d) + (a——b) ≃ (c——d) + (a'——b') :=
-  AA.substR
-    (self := Impl.addition.add_substitutive.substitutiveR)
-    ‹(a——b) ≃ (a'——b')›
+  Impl.add_substR ‹(a——b) ≃ (a'——b')›
 
 example : (c——d) * (a——b) ≃ (c——d) * (a'——b') :=
-  AA.substR
-    (self := Impl.multiplication.mul_substitutive.substitutiveR)
-    ‹(a——b) ≃ (a'——b')›
+  Impl.mul_substR ‹(a——b) ≃ (a'——b')›
 
 end lemma_4_1_3
 
@@ -145,7 +137,7 @@ example {n m : ℕ} : (n——0) ≃ (m——0) ↔ n ≃ m := by
     intro (_ : n ≃ m)
     show n——0 ≃ m——0
     show n + 0 ≃ m + 0
-    exact Natural.add_substL ‹n ≃ m›
+    srw [‹n ≃ m›]
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- `n ≡ n——0`; this does not affect our definitions of addition or
@@ -195,8 +187,7 @@ example : -(3——5) ≃ 5——3 := rfl
 
 -- Exercise 4.1.2.
 -- One can check this definition is well-defined.
-example {a b a' b' : ℕ} : a——b ≃ a'——b' → -(a——b) ≃ -(a'——b') :=
-  AA.subst₁ (self := Impl.negation.neg_substitutive)
+example {a b a' b' : ℕ} : a——b ≃ a'——b' → -(a——b) ≃ -(a'——b') := Impl.neg_subst
 
 -- Exercise 4.1.3.
 -- Show that `(-1) * a ≃ -a` for every integer `a`.
@@ -362,11 +353,9 @@ example : ℤ → ℤ → ℤ := Impl.integer.toSubtraction.toOps.sub
 -- axiom is too trivial to bother with; his explanation is essentially the
 -- proof. We don't have the luxury of hand-waving with Lean, so we have to show
 -- it explicitly.]
-example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → x₁ - y ≃ x₂ - y :=
-  AA.substL (self := Integer.sub_substitutive.substitutiveL)
+example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → x₁ - y ≃ x₂ - y := Integer.sub_substL
 
-example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → y - x₁ ≃ y - x₂ :=
-  AA.substR (self := Integer.sub_substitutive.substitutiveR)
+example {x₁ x₂ y : ℤ} : x₁ ≃ x₂ → y - x₁ ≃ y - x₂ := Integer.sub_substR
 
 -- One can easily check now that if `a` and `b` are natural numbers, then
 example {a b : ℕ} : coe a - coe b ≃ a——b := calc
@@ -374,8 +363,8 @@ example {a b : ℕ} : coe a - coe b ≃ a——b := calc
   coe a + -(coe b : ℤ)          ≃ _ := Rel.refl
   (a——0) + (0——b)               ≃ _ := Rel.refl
   (a + 0)——(0 + b)              ≃ _ := Rel.refl
-  Impl.from_prod (a + 0, 0 + b) ≃ _ := AA.subst₁ (AA.substL Natural.add_zero)
-  Impl.from_prod (a, 0 + b)     ≃ _ := AA.subst₁ (AA.substR Natural.zero_add)
+  Impl.from_prod (a + 0, 0 + b) ≃ _ := Rel.refl
+  Impl.from_prod (a, 0 + b)     ≃ _ := by srw [Natural.zero_add]
   Impl.from_prod (a, b)         ≃ _ := Rel.refl
   a——b                          ≃ _ := Rel.refl
 -- and so `a——b` is just the same thing as `a - b`. Because of this we can now
@@ -466,16 +455,14 @@ variable {a b c : ℤ}
 example : a > b ↔ Positive (a - b) := Integer.gt_iff_pos_diff
 
 -- (b) (Addition preserves order) If `a > b`, then `a + c > b + c`.
-example : a > b → a + c > b + c :=
-  AA.substL (self := Integer.add_substitutive_lt.substitutiveL)
+example : a > b → a + c > b + c := Integer.add_substL_lt
 
 -- (c) (Positive multiplication preserves order) If `a > b` and `c` is
 -- positive, then `a * c > b * c`.
 example : a > b → Positive c → a * c > b * c := by
   intro (_ : b < a) (_ : Positive c)
   show b * c < a * c
-  let inst := (Integer.mul_substitutive_lt (ℤ := ℤ)).substitutiveL
-  exact AA.substLC (self := inst) ‹Positive c› ‹b < a›
+  exact Integer.mul_substL_lt ‹Positive c› ‹b < a›
 
 -- (d) (Negation reverses order) If `a > b`, then `-a < -b`.
 example : a > b → -a < -b := Integer.lt_neg_flip.mp
@@ -525,17 +512,17 @@ example
     apply Integer.le_iff_add_nat.mpr
     show ∃ (k : ℕ), n + 1 ≃ 0 + coe k
     have : n + 1 ≃ 0 + coe (k + 1) := calc
-      n + 1               ≃ _ := AA.substL ‹n ≃ 0 + coe k›
+      n + 1               ≃ _ := by srw [‹n ≃ 0 + coe k›]
       (0 + coe k) + 1     ≃ _ := Integer.add_assoc
       0 + (coe k + 1)     ≃ _ := Rel.refl
-      0 + (coe k + coe 1) ≃ _ := AA.substR (Rel.symm AA.compat₂)
+      0 + (coe k + coe 1) ≃ _ := Rel.refl
       0 + coe (k + 1)     ≃ _ := Rel.refl
     exact Exists.intro (k + 1) ‹n + 1 ≃ 0 + coe (k + 1)›
 
   have : P (-1) := ind P ‹P 0› ‹∀ n, P n → P (step n)› (-1)
   have : (0:ℤ) ≤ -1 := this
   have : (0:ℤ) < -1 + 1 := Integer.le_iff_lt_incR.mp ‹(0:ℤ) ≤ -1›
-  have : (0:ℤ) < 0 := AA.substRFn Integer.neg_invL ‹(0:ℤ) < -1 + 1›
+  have : (0:ℤ) < 0 := by prw [Integer.neg_invL] ‹(0:ℤ) < -1 + 1›
   have : (0:ℤ) ≃ 0 := Rel.refl
   have two : AA.TwoOfThree ((0:ℤ) < 0) (0 ≃ 0) ((0:ℤ) > 0) :=
     AA.TwoOfThree.oneAndTwo ‹(0:ℤ) < 0› ‹(0:ℤ) ≃ 0›

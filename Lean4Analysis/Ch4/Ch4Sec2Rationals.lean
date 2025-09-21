@@ -347,11 +347,11 @@ instance : AP (5//6 ≄ 0) := by
   apply AP.mk
   intro (_ : 5//6 ≃ 0)
   show False
-  have : 5//6 ≃ 0//1 := ‹5//6 ≃ 0›
+  have : 5//6 ≃ 0//1   := ‹5//6 ≃ 0›
   have : 5 * 1 ≃ 0 * 6 := this
-  have : 5 ≃ 0 := this
-  have : (5 : ℕ) ≃ (0 : ℕ) → (5 : ℤ) ≃ (0 : ℤ) := AA.subst₁ (f := coe)
-  have : (5 : ℤ) ≄ (0 : ℤ) := mt this Natural.step_neqv_zero
+  have : 5 ≃ 0         := this
+  have : (5:ℕ) ≃ (0:ℕ) → (5:ℤ) ≃ (0:ℤ) := Integer.Conversion.from_natural_subst
+  have : (5:ℤ) ≄ (0:ℤ)                 := mt this Natural.step_neqv_zero
   exact absurd ‹5 ≃ 0› ‹5 ≄ 0›
 
 -- Thus, for instance
@@ -415,7 +415,7 @@ theorem alt_positive
 
     have : sgn a * sgn b ≃ 1 := calc
       sgn a * sgn b     ≃ _ := Rel.symm Rational.sgn_div_integers
-      sgn ((a : ℚ) / b) ≃ _ := Rational.sgn_subst (Rel.symm ‹x ≃ a / b›)
+      sgn ((a : ℚ) / b) ≃ _ := by srw [←‹x ≃ a / b›]
       sgn x             ≃ _ := Rational.sgn_positive.mp ‹Positive x›
       1                 ≃ _ := Rel.refl
     have (And.intro (_ : Integer.Sqrt1 (sgn b)) (_ : sgn a ≃ sgn b)) :=
@@ -431,12 +431,12 @@ theorem alt_positive
     | Or.inr (_ : sgn b ≃ -1) =>
       have : sgn (-b) ≃ 1 := calc
         sgn (-b)   ≃ _ := Integer.sgn_compat_neg
-        (-(sgn b)) ≃ _ := AA.subst₁ ‹sgn b ≃ -1›
+        (-(sgn b)) ≃ _ := by srw [‹sgn b ≃ -1›]
         (-(-1))    ≃ _ := Integer.neg_involutive
         1          ≃ _ := Rel.refl
       have : sgn (-a) ≃ 1 := calc
         sgn (-a)   ≃ _ := Integer.sgn_compat_neg
-        (-(sgn a)) ≃ _ := AA.subst₁ ‹sgn a ≃ sgn b›
+        (-(sgn a)) ≃ _ := by srw [‹sgn a ≃ sgn b›]
         (-(sgn b)) ≃ _ := Rel.symm Integer.sgn_compat_neg
         sgn (-b)   ≃ _ := ‹sgn (-b) ≃ 1›
         1          ≃ _ := Rel.refl
@@ -445,15 +445,13 @@ theorem alt_positive
       have : AP (Positive (-a)) := AP.mk ‹Positive (-a)›
       have : AP (Positive (-b)) := AP.mk ‹Positive (-b)›
 
-      have neg_eqv {z : ℤ} : -(z : ℚ) ≃ ((-z : ℤ) : ℚ) :=
-        Rational.eqv_symm Rational.neg_compat_from_integer
-      have : x ≃ ((-a : ℤ) : ℚ) / ((-b : ℤ) : ℚ) := calc
-        x                               ≃ _ := ‹x ≃ a / b›
-        (a : ℚ) / b                     ≃ _ := Rel.symm Rational.div_neg_cancel
-        (-(a : ℚ)) / (-(b : ℚ))         ≃ _ := Rational.div_substL neg_eqv
-        ((-a : ℤ) : ℚ) / (-b : ℚ)       ≃ _ := Rational.div_substR neg_eqv
-        ((-a : ℤ) : ℚ) / ((-b : ℤ) : ℚ) ≃ _ := Rational.eqv_refl
-      exact AltPositive.mk this
+      have : x ≃ ((-a:ℤ):ℚ)/((-b:ℤ):ℚ) := calc
+        x                     ≃ _ := ‹x ≃ a / b›
+        (a:ℚ)/b               ≃ _ := Rel.symm Rational.div_neg_cancel
+        (-(a:ℚ))/(-(b:ℚ))     ≃ _ := by srw [←Rational.neg_compat_from_integer]
+        ((-a:ℤ):ℚ)/(-b:ℚ)     ≃ _ := by srw [←Rational.neg_compat_from_integer]
+        ((-a:ℤ):ℚ)/((-b:ℤ):ℚ) ≃ _ := Rational.eqv_refl
+      exact AltPositive.mk ‹x ≃ ((-a:ℤ):ℚ)/((-b:ℤ):ℚ)›
   case mpr =>
     intro (_ : AltPositive x)
     show Positive x
@@ -471,7 +469,7 @@ theorem alt_positive
     have : sgn a * sgn b ≃ 1 :=
       Integer.mul_sqrt1_eqv.mpr (And.intro this ‹sgn a ≃ sgn b›)
     have : sgn x ≃ 1 := calc
-      sgn x                   ≃ _ := Rational.sgn_subst ‹x ≃ a / b›
+      sgn x                   ≃ _ := by srw [‹x ≃ a / b›]
       sgn ((a : ℚ) / (b : ℚ)) ≃ _ := Rational.sgn_div_integers
       sgn a * sgn b           ≃ _ := ‹sgn a * sgn b ≃ 1›
       1                       ≃ _ := Rel.refl
@@ -490,7 +488,7 @@ theorem negative_iff_neg_positive
     have : sgn x ≃ -1 := Rational.sgn_negative.mp ‹Negative x›
     have : sgn (-x) ≃ 1 := calc
       sgn (-x) ≃ _ := Rational.sgn_compat_neg
-      (-sgn x) ≃ _ := AA.subst₁ ‹sgn x ≃ -1›
+      (-sgn x) ≃ _ := by srw [‹sgn x ≃ -1›]
       (-(-1))  ≃ _ := Integer.neg_involutive
       1        ≃ _ := Rel.refl
     have : Positive (-x) := Rational.sgn_positive.mpr ‹sgn (-x) ≃ 1›
@@ -501,9 +499,9 @@ theorem negative_iff_neg_positive
     show Negative x
     have : sgn y ≃ 1 := Rational.sgn_positive.mp ‹Positive y›
     have : sgn x ≃ -1 := calc
-      sgn x      ≃ _ := Rational.sgn_subst ‹x ≃ -y›
+      sgn x      ≃ _ := by srw [‹x ≃ -y›]
       sgn (-y)   ≃ _ := Rational.sgn_compat_neg
-      (-(sgn y)) ≃ _ := AA.subst₁ ‹sgn y ≃ 1›
+      (-(sgn y)) ≃ _ := by srw [‹sgn y ≃ 1›]
       (-1)       ≃ _ := Rel.refl
     have : Negative x := Rational.sgn_negative.mpr this
     exact this
@@ -538,7 +536,7 @@ theorem alt_negative {x : ℚ} : Negative x ↔ AltNegative x := by
     have : y ≃ a / b := y_eqv_a_over_b
     have : x ≃ (-a) / b := calc
       x                ≃ _ := ‹x ≃ -y›
-      (-y)             ≃ _ := Rational.neg_subst ‹y ≃ a / b›
+      (-y)             ≃ _ := by srw [‹y ≃ a / b›]
       (-((a : ℚ) / b)) ≃ _ := Rational.neg_scompatL_div
       (-a : ℚ) / b     ≃ _ := Rational.eqv_refl
     exact AltNegative.mk this

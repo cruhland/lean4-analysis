@@ -148,9 +148,10 @@ namespace evaluation
 -- Examples 4.3.6.
 -- The numbers `0.99` and `1.01` are `0.1`-close,
 example : (0.99 : ℚ') ⊢0.1⊣ 1.01 := by
-  have : sgn ((0.02 : ℚ') - 0.1) ≃ -1 := rfl
-  have : sgn ((0.02 : ℚ') - 0.1) ≄ 1 :=
-    AA.neqv_substL (Rel.symm this) Integer.neg_one_neqv_one
+  have : sgn ((0.02 : ℚ') - 0.1) ≄ 1 := calc
+    _ = sgn ((0.02 : ℚ') - 0.1) := rfl
+    _ = -1                      := rfl
+    _ ≄ 1                       := Integer.neg_one_neqv_one
   have : dist (0.99 : ℚ') 1.01 ≤ 0.1 := calc
     _ ≃ dist (0.99 : ℚ') 1.01 := eqv_refl
  -- _ ≃ abs (0.99 - 1.01)     := dist_abs -- [causes max recursion error]
@@ -229,8 +230,11 @@ example {ε δ : ℚ} : ε > 0 → δ > 0 → x ⊢ε⊣ y → z ⊢δ⊣ w → 
 
 -- (e) Let `ε > 0`. If `x` and `y` are `ε`-close, they are also `ε'`-close for
 -- every `ε' > ε`.
-example {ε ε' : ℚ} : ε > 0 → x ⊢ε⊣ y → ε' > ε → x ⊢ε'⊣ y :=
-  λ (_ : ε > 0) => close_widen
+example {ε ε' : ℚ} : ε > 0 → x ⊢ε⊣ y → ε' > ε → x ⊢ε'⊣ y := by
+  intro (_ : ε > 0) (_ : x ⊢ε⊣ y) (_ : ε' > ε)
+  show x ⊢ε'⊣ y
+  have : ε' ≥ ε := le_cases.mpr (Or.inl ‹ε' > ε›)
+  exact close_widen ‹x ⊢ε⊣ y› ‹ε' ≥ ε›
 
 -- (f) Let `ε > 0`. If `y` and `z` are both `ε`-close to `x`, and `w` is
 -- between `y` and `z` (i.e., `y ≤ w ≤ z` or `z ≤ w ≤ y`), then `w` is also
@@ -279,7 +283,7 @@ example : (0:ℚ)^(0:ℕ) ≃ 1 := Natural.pow_zero
 -- `n`, then we define `x^(n+1) := x^n * x`.
 example {x : ℚ} {n : ℕ} : x^(n+1) ≃ x^n * x := calc
   _ ≃ x^(n+1)            := eqv_refl
-  _ ≃ x^(Natural.step n) := Natural.pow_substR Natural.add_one_step
+  _ ≃ x^(Natural.step n) := by srw [Natural.add_one_step]
   _ ≃ x^n * x            := Natural.pow_step
 
 section prop_4_3_10
@@ -352,9 +356,9 @@ namespace evaluation
 example {x : ℚ'} [AP (x ≄ 0)] : x^(-3:ℤ') ≃ 1/(x * x * x) := calc
   _ = x^(-3:ℤ')            := rfl
   _ ≃ 1/x^(3:ℕ')           := pow_neg
-  _ ≃ 1/(x^(2:ℕ') * x)     := div_substR Natural.pow_step
-  _ ≃ 1/(x^(1:ℕ') * x * x) := div_substR (AA.substL Natural.pow_step)
-  _ ≃ 1/(x * x * x)        := div_substR (AA.substL (AA.substL Natural.pow_one))
+  _ = 1/(x^(2:ℕ') * x)     := rfl
+  _ = 1/(x^(1:ℕ') * x * x) := rfl
+  _ ≃ 1/(x * x * x)        := by srw [Natural.pow_one]
 
 end evaluation
 
