@@ -3,7 +3,11 @@ import Lake
 open System Lake DSL
 
 package «lean4-analysis» {
-  moreLeanArgs := #["-D warningAsError=true"]
+  leanOptions := #[
+    ⟨`warningAsError, true⟩,
+    -- This linter rule can make proof readability harder in some cases.
+    ⟨`linter.tacticAnalysis.introMerge, false⟩,
+  ]
 }
 
 def axiomatic_url := "https://github.com/cruhland/lean4-axiomatic.git"
