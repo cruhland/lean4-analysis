@@ -23,7 +23,7 @@ abbrev ℚ' : Type := Rational.Impl.Fraction ℤ'
 
 def natural : Natural ℕ' := inferInstance
 scoped instance natural_induction_inst : Natural.Induction ℕ' :=
-  natural.toInduction
+  natural.toInduction₀
 scoped instance natural_induction₁_inst : Natural.Induction.{1} ℕ' :=
   Natural.Impl.Nat.induction
 scoped instance integer_induction₁_inst : Integer.Induction.{1} ℤ' :=

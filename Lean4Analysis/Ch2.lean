@@ -104,7 +104,8 @@ example : 6 ≄ 2 := by
 -- Let `P n` be any property pertaining to a natural number `n`. Suppose that
 -- `P 0` is true, and suppose that whenever `P n` is true, `P (step n)` is also
 -- true. Then `P n` is true for every natural number `n`.
-example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n := Natural.ind
+example (P : ℕ → Prop) : P 0 → (∀ n, P n → P (step n)) → ∀ n, P n :=
+  Natural.ind.{0}
 
 -- Proposition 2.1.16 (Recursive definitions).
 -- Suppose for each natural number `n`, we have some function `f n : ℕ → ℕ`
