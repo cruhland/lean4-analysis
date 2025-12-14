@@ -401,9 +401,7 @@ def AltPositive.mk
     :=
   AltPositive.intro a b ‹AP (Positive a)› ‹AP (Positive b)› ‹x ≃ a / b›
 
-theorem alt_positive
-    {x : ℚ} [Rational.Induction.{1} ℚ] : Positive x ↔ AltPositive x
-    := by
+theorem alt_positive {x : ℚ} : Positive x ↔ AltPositive x := by
   apply Iff.intro
   case mp =>
     intro (_ : Positive x)
@@ -518,8 +516,6 @@ def AltNegative.mk
     : AltNegative x
     :=
   AltNegative.intro a b ‹AP (Positive a)› ‹AP (Positive b)› ‹x ≃ (-a) / b›
-
-variable [Rational.Induction.{1} ℚ]
 
 theorem alt_negative {x : ℚ} : Negative x ↔ AltNegative x := by
   apply Iff.intro
