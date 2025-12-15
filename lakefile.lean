@@ -18,7 +18,7 @@ require «lean4-axiomatic» from
    - match your local setup. Then run `lake update` to reload the build config.
    -/
   -- ".."/"lean4-axiomatic"
-  git axiomatic_url @ "main"
+  git axiomatic_url @ "more-floor"
 
 lean_lib Lean4Analysis {
   -- add library configuration options here
