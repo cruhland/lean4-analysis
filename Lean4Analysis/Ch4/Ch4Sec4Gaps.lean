@@ -2,7 +2,7 @@ import Lean4Axiomatic.Rational
 
 namespace AnalysisI.Ch4.Sec4
 
-open Lean4Axiomatic (Integer Natural Rational)
+open Lean4Axiomatic -- to use Rel namespace
 open Lean4Axiomatic.Rational
 open Lean4Axiomatic.Relation.Equivalence (Unique)
 
@@ -10,6 +10,7 @@ open Lean4Axiomatic.Relation.Equivalence (Unique)
 
 variable {ℕ ℤ ℚ : Type} [Natural ℕ] [Integer (ℕ := ℕ) ℤ] [Rational (ℤ := ℤ) ℚ]
 
+-- Exercise 4.4.1.
 /--
 **Proposition 4.4.1** (Interspersing of integers by rationals).
 Let `x` be a rational number. Then there exists an integer `n` such that
@@ -59,5 +60,31 @@ example {x : ℚ} : Unique (λ n : ℤ => n ≤ x ∧ x < n + 1) :=
     atLeastOne := floor_bounds
     atMostOne := atMostOne
   }
+
+/--
+In particular, there exists a natural number `N` such that `N > x` (i.e., there
+is no such thing as a rational number which is larger than all the natural
+numbers).
+-/
+example {x : ℚ} : ∃ N : ℕ, N > x :=
+  have : Decidable (x ≥ 0) := le_decidable
+  match this with
+  | .isTrue (_ : x ≥ 0) =>
+    have : floor x + 1 > 0 := calc
+      _ = floor x + 1 := rfl
+      _ > floor x     := Integer.lt_inc
+      _ ≥ 0           := floor_lb ‹x ≥ 0›
+    have (Subtype.mk (n : ℕ) (And.intro (_ : floor x + 1 ≃ n) _)) :=
+      Integer.pos_to_natural ‹floor x + 1 > 0›
+    have (And.intro _ (_ : x < floor x + 1)) := floor_bounds
+    have : (n:ℚ) > x := calc
+      _ = (n:ℚ)                 := rfl
+      _ ≃ ((floor x + 1 : ℤ):ℚ) := by srw [←‹floor x + 1 ≃ n›]
+      _ ≃ (floor x : ℚ) + 1     := add_compat_from_integer
+      _ > x                     := ‹x < floor x + 1›
+    Exists.intro n ‹n > x›
+  | .isFalse (_ : ¬(x ≥ 0)) =>
+    have : x < 0 := not_ge_iff_lt.mp ‹¬(x ≥ 0)›
+    Exists.intro 0 ‹0 > x›
 
 end AnalysisI.Ch4.Sec4
