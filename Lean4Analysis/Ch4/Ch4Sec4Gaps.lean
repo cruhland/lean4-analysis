@@ -87,4 +87,12 @@ example {x : ℚ} : ∃ N : ℕ, N > x :=
     have : x < 0 := not_ge_iff_lt.mp ‹¬(x ≥ 0)›
     Exists.intro 0 ‹0 > x›
 
+/--
+**Remark 4.4.2.**
+The integer `n` for which `n ≤ x < n + 1` is sometimes referred to as the
+_integer part_ of `x` and is sometimes denoted `n = ⌊x⌋`.
+[note: in this project we denote it with the `floor` function]
+-/
+example {x : ℚ} : floor x ≤ x ∧ x < floor x + 1 := floor_bounds
+
 end AnalysisI.Ch4.Sec4
