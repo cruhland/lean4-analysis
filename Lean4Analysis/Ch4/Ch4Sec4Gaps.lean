@@ -95,4 +95,14 @@ _integer part_ of `x` and is sometimes denoted `n = ⌊x⌋`.
 -/
 example {x : ℚ} : floor x ≤ x ∧ x < floor x + 1 := floor_bounds
 
+/--
+**Proposition 4.4.3** (Interspersing of rationals by rationals).
+If `x` and `y` are two rationals such that `x < y`, then there exists a third
+rational `z` such that `x < z < y`.
+-/
+example {x y : ℚ} : x < y → ∃ z : ℚ, x < z ∧ z < y := by
+  intro (_ : x < y)
+  show ∃ z : ℚ, x < z ∧ z < y
+  exact Exists.intro ((x + y)/2) (average ‹x < y›)
+
 end AnalysisI.Ch4.Sec4
