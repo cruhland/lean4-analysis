@@ -473,10 +473,7 @@ def ex_two_mul {m : ℕ} : 2 * m ≃ 0 + m + m := calc
   1 * m + m  ≃ _ := by srw [ex_one_mul]
   0 + m + m  ≃ _ := Rel.refl
 
-def two_mul_sum {m : ℕ} : 2 * m ≃ m + m := calc
-  2 * m     ≃ _ := ex_two_mul
-  0 + m + m ≃ _ := by srw [Natural.zero_add]
-  m + m     ≃ _ := Rel.refl
+def two_mul_sum {m : ℕ} : 2 * m ≃ m + m := Natural.two_mul
 
 -- Exercise 2.3.1.
 -- Lemma 2.3.2 (Multiplication is commutative).
@@ -623,18 +620,6 @@ example {x : ℕ} : x ^ 3 ≃ x * x * x := calc
 -- Exercise 2.3.4.
 -- Prove the identity `(a + b) ^ 2 ≃ a ^ 2 + 2 * a * b + b ^ 2` for all natural
 -- numbers `a, b`.
-example {a b : ℕ} : (a + b) ^ 2 ≃ a ^ 2 + 2 * a * b + b ^ 2 := calc
-  _ = (a + b) ^ 2                       := rfl
-  _ ≃ (a + b) * (a + b)                 := pow_two
-  _ ≃ a * (a + b) + b * (a + b)         := AA.distribR
-  _ ≃ (a * a + a * b) + b * (a + b)     := by srw [Natural.mul_distribL_add]
-  _ ≃ (a * a + a * b) + (b * a + b * b) := by srw [Natural.mul_distribL_add]
-  _ ≃ (a * a + a * b) + (a * b + b * b) := by srw [AA.comm]
-  _ ≃ ((a * a + a * b) + a * b) + b * b := Rel.symm AA.assoc
-  _ ≃ a * a + (a * b + a * b) + b * b   := by srw [AA.assoc]
-  _ ≃ a * a + 2 * (a * b) + b * b       := by srw [←two_mul_sum]
-  _ ≃ a * a + 2 * a * b + b * b         := by srw [←AA.assoc]
-  _ ≃ a ^ 2 + 2 * a * b + b * b         := by srw [←pow_two]
-  _ ≃ a ^ 2 + 2 * a * b + b ^ 2         := by srw [←pow_two]
+example {a b : ℕ} : (a + b)^2 ≃ a^2 + 2 * a * b + b^2 := Natural.binom_sqr
 
 end AnalysisI.Ch2

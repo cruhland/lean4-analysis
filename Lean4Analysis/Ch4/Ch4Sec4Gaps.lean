@@ -105,4 +105,16 @@ example {x y : ℚ} : x < y → ∃ z : ℚ, x < z ∧ z < y := by
   show ∃ z : ℚ, x < z ∧ z < y
   exact Exists.intro ((x + y)/2) (average ‹x < y›)
 
+/--
+**Proposition 4.4.4.**
+There does not exist any rational number `x` for which `x^2 ≃ 2`.
+-/
+example : ¬∃ (x : ℚ), x^(2:ℕ) ≃ 2 := by
+  intro (Exists.intro (x : ℚ) (_ : x^(2:ℕ) ≃ 2))
+  show False
+
+  have : x^(2:ℕ) ≄ 2 := sqrt2_irrational
+  have : False := absurd ‹x^(2:ℕ) ≃ 2› ‹x^(2:ℕ) ≄ 2›
+  exact this
+
 end AnalysisI.Ch4.Sec4
