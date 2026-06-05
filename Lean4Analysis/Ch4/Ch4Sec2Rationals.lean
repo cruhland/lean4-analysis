@@ -47,6 +47,7 @@ example : ℚ → ℚ → Prop := Rational.eqv
 example : ℚ → ℚ → Prop := Fraction.eqv
 
 -- [helper function to generate `Nonzero` instances for integer literals]
+@[implicit_reducible]
 def literal_nonzero {n : ℕ} : n ≄ 0 → Nonzero (n : ℤ) := by
   intro (_ : n ≄ 0)
   have : coe n ≄ coe 0 := AA.subst₁ (β := ℤ) ‹n ≄ 0›
@@ -54,6 +55,7 @@ def literal_nonzero {n : ℕ} : n ≄ 0 → Nonzero (n : ℤ) := by
   exact this
 
 -- [helper function to generate `Positive` instances for integer literals]
+@[implicit_reducible]
 def literal_positive {n : ℕ} : n ≄ 0 → AP (Positive (n : ℤ)) := by
   intro (_ : n ≄ 0)
   have : Positive n := Signed.positive_defn.mpr ‹n ≄ 0›

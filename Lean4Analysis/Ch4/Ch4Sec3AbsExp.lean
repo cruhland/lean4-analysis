@@ -19,7 +19,9 @@ abbrev ℕ' : Type := Nat
 abbrev ℤ' : Type := Integer.Impl.Difference ℕ'
 abbrev ℚ' : Type := Rational.Impl.Fraction ℤ'
 
+@[implicit_reducible]
 def natural : Natural ℕ' := inferInstance
+
 scoped instance natural_induction_inst : Natural.Induction ℕ' :=
   natural.toInduction₀
 scoped instance natural_induction₁_inst : Natural.Induction.{1} ℕ' :=
