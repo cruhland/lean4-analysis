@@ -3,6 +3,7 @@ import Lean4Axiomatic.Rational
 namespace AnalysisI.Ch4.Sec4
 
 open Lean4Axiomatic -- to use Rel namespace
+open Lean4Axiomatic.Logic (AP)
 open Lean4Axiomatic.Rational
 open Lean4Axiomatic.Relation.Equivalence (Unique)
 
@@ -109,12 +110,56 @@ example {x y : ℚ} : x < y → ∃ z : ℚ, x < z ∧ z < y := by
 **Proposition 4.4.4.**
 There does not exist any rational number `x` for which `x^2 ≃ 2`.
 -/
-example : ¬∃ (x : ℚ), x^(2:ℕ) ≃ 2 := by
+example : ¬∃ x : ℚ, x^(2:ℕ) ≃ 2 := by
   intro (Exists.intro (x : ℚ) (_ : x^(2:ℕ) ≃ 2))
   show False
 
   have : x^(2:ℕ) ≄ 2 := sqrt2_irrational
   have : False := absurd ‹x^(2:ℕ) ≃ 2› ‹x^(2:ℕ) ≄ 2›
+  exact this
+
+/--
+**Proposition 4.4.5.**
+For every rational number `ε > 0`, there exists a non-negative rational number
+`x` such that `x^2 < 2 < (x + ε)^2`.
+
+[Note: we can only prove the double-negation of this statement constructively,
+when using Tao's approach in the book.]
+-/
+example {ε : ℚ}
+    : ε > 0 → ¬¬∃ x : ℚ, x ≥ 0 ∧ x^(2:ℕ) < 2 ∧ 2 < (x + ε)^(2:ℕ)
+    := by
+  intro (_ : ε > 0) (_ : ¬∃ x : ℚ, x ≥ 0 ∧ x^(2:ℕ) < 2 ∧ 2 < (x + ε)^(2:ℕ))
+  show False
+
+  have boundsFn : (x : ℚ) → ¬(x ≥ 0 ∧ x^(2:ℕ) < 2 ∧ 2 < (x + ε)^(2:ℕ)) :=
+    sorry
+  have : (x : ℚ) → x ≥ 0 → x^(2:ℕ) < 2 → (x + ε)^(2:ℕ) < 2 := sorry
+  have : ¬((0:ℚ) ≥ 0 ∧ (0:ℚ)^(2:ℕ) < 2 ∧ 2 < (0 + ε)^(2:ℕ)) := boundsFn 0
+  have : ¬((0:ℚ) ≥ 0 ∧ (0:ℚ)^(2:ℕ) < 2) ∨ ¬(2 < (0 + ε)^(2:ℕ)) := sorry
+  have : (¬((0:ℚ) ≥ 0)) ∨ (¬((0:ℚ)^(2:ℕ) < 2)) ∨ (¬(2 < (0 + ε)^(2:ℕ))) := sorry
+  have : False := match ‹(¬((0:ℚ) ≥ 0)) ∨ (¬((0:ℚ)^(2:ℕ) < 2)) ∨ (¬(2 < (0 + ε)^(2:ℕ)))› with
+  | .inl (_ : ¬((0:ℚ) ≥ 0)) =>
+    have : (0:ℚ) < 0 := sorry
+    have : False := sorry
+    this
+  | .inr (.inl (_ : ¬((0:ℚ)^(2:ℕ) < 2))) =>
+    have : (0:ℚ)^(2:ℕ) < 2 := sorry
+    have : False := absurd ‹(0:ℚ)^(2:ℕ) < 2› ‹¬((0:ℚ)^(2:ℕ) < 2)›
+    this
+  | .inr (.inr (_ : ¬(2 < (0 + ε)^(2:ℕ)))) =>
+    have : 2 ≥ (0 + ε)^(2:ℕ) := sorry
+    have : ε^(2:ℕ) < 2 := sorry
+    sorry
+  have sqr_bound (n : ℤ) : (n * ε)^(2:ℕ) < 2 := sorry
+
+  have : AP (ε ≄ 0) := sorry
+  let k : ℚ := floor (2/ε) + 1
+  have (And.intro _ (_ : 2/ε < k)) := floor_bounds
+  have : (k * ε)^(2:ℕ) ≥ 2 := sorry
+  have : (floor k * ε)^(2:ℕ) < 2 := sqr_bound (floor k)
+  have : (k * ε)^(2:ℕ) < 2 := sorry
+  have : False := le_gt_false ‹2 ≤ (k * ε)^(2:ℕ)› ‹2 > (k * ε)^(2:ℕ)›
   exact this
 
 end AnalysisI.Ch4.Sec4
