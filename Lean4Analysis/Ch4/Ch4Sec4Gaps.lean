@@ -1,11 +1,16 @@
+import Lean4Axiomatic.Integer.Impl.Difference
+import Lean4Axiomatic.Natural.Impl.Nat
 import Lean4Axiomatic.Rational
+import Lean4Axiomatic.Rational.Impl.Fraction
 
 namespace AnalysisI.Ch4.Sec4
 
 open Lean4Axiomatic -- to use Rel namespace
 open Lean4Axiomatic.Logic (AP)
+open Lean4Axiomatic.Natural (step)
 open Lean4Axiomatic.Rational
 open Lean4Axiomatic.Relation.Equivalence (Unique)
+open Lean4Axiomatic.Signed (sgn)
 
 /-! # 4.4 Gaps in the rational numbers -/
 
@@ -106,6 +111,7 @@ example {x y : ℚ} : x < y → ∃ z : ℚ, x < z ∧ z < y := by
   show ∃ z : ℚ, x < z ∧ z < y
   exact Exists.intro ((x + y)/2) (average ‹x < y›)
 
+-- Exercise 4.4.3.
 /--
 **Proposition 4.4.4.**
 There does not exist any rational number `x` for which `x^2 ≃ 2`.
@@ -238,18 +244,18 @@ example {ε : ℚ}
   -/
   have : (k * ε)^(2:ℕ) ≥ 2 :=
     have (And.intro _ (_ : 2/ε < k)) := floor_bounds
-    have : (k * ε)^(2:ℕ) > 2^(2:ℕ) :=
+    have : (k * ε)^(2:ℕ) > (2:ℚ)^(2:ℕ) :=
       have : k * ε > 2 := calc
         _ = k * ε   := rfl
         _ > 2/ε * ε := lt_substL_mul_pos ‹ε > 0› ‹k > 2/ε›
         _ ≃ 2       := div_mul_cancel
       have : (2:ℚ) ≥ 0 := ge_cases.mpr (.inl two_pos)
       have : (2:ℕ) ≥ 1 := Natural.le_split.mpr (.inl Natural.two_gt_one)
-      show (k * ε)^(2:ℕ) > 2^(2:ℕ) from
+      show (k * ε)^(2:ℕ) > (2:ℚ)^(2:ℕ) from
         pow_pos_preserves_gt_nonneg ‹k * ε > 2› ‹(2:ℚ) ≥ 0› ‹(2:ℕ) ≥ 1›
     have : (k * ε)^(2:ℕ) > 2 := calc
       _ = (k * ε)^(2:ℕ) := rfl
-      _ > 2^(2:ℕ)       := ‹(k * ε)^(2:ℕ) > 2^(2:ℕ)›
+      _ > (2:ℚ)^(2:ℕ)   := ‹(k * ε)^(2:ℕ) > (2:ℚ)^(2:ℕ)›
       _ ≃ 2 * 2         := Natural.pow_two
       _ > 1 * 2         := lt_substL_mul_pos two_pos two_gt_one
       _ ≃ 2             := mul_identL
@@ -279,5 +285,148 @@ example {ε : ℚ}
   have : x ≥ 0 ∧ x^(2:ℕ) < 2 ∧ 2 < (x + ε)^(2:ℕ) :=
     And.intro ‹x ≥ 0› (And.intro ‹x^(2:ℕ) < 2› ‹2 < (x + ε)^(2:ℕ)›)
   exact Exists.intro x ‹x ≥ 0 ∧ x^(2:ℕ) < 2 ∧ 2 < (x + ε)^(2:ℕ)›
+
+namespace evaluation
+
+abbrev ℕ' : Type := Nat
+abbrev ℤ' : Type := Integer.Impl.Difference ℕ'
+abbrev ℚ' : Type := Rational.Impl.Fraction ℤ'
+
+/-
+**Example 4.4.6.**
+If `ε = 0.001`, we can take `x = 1.414`, since `x^2 = 1.999396` and
+`(x + ε) = 2.002225`.
+-/
+def ε : ℚ' := 0.001
+def x : ℚ' := 1.414
+
+example : x^(2:ℕ') = 1.999396 := rfl
+
+/-
+Note: equivalence is needed because adding fractions produces denominators that
+aren't in lowest terms.
+-/
+example : (x + ε : ℚ')^(2:ℕ') ≃ 2.002225 := rfl
+
+/-
+Using the constructive implementation, we can actually compute the
+approximation.
+-/
+namespace compute_approx
+
+/- [Note: for an unknown reason, Lean can't infer this automatically] -/
+scoped instance fcInst : FloorCeil ℚ' :=
+  (inferInstance : Rational ℚ').toFloorCeil
+
+set_option maxRecDepth 60000 in
+example : (sqrt2_approx (show ε > 0 by rfl)).val ≃ 1.414 := rfl
+
+end compute_approx
+end evaluation
+
+-- Exercise 4.4.2.
+namespace ex442
+
+/--
+A definition: a sequence `a₀, a₁, a₂, ...` of numbers (natural numbers,
+integers, rationals, or reals) is said to be in _infinite descent_ if we have
+`aₙ > aₙ₊₁` for all natural numbers `n` (i.e., `a₀ > a₁ > a₂ > ...`).
+-/
+example : Sequence ℕ ℕ → Prop := Sequence.InfiniteDescent
+
+/--
+(a) Prove the _principle of infinite descent_: that it is not possible to have
+a sequence of _natural numbers_ which is in infinite descent.
+-/
+example {s : Sequence ℕ ℕ} : ¬(Sequence.InfiniteDescent s) :=
+  Sequence.inf_desc_impossible
+
+/-
+(b) Does the principle of infinite descent work if the sequence
+`a₁, a₂, a₃, ...` is allowed to take integer values instead of natural number
+values?
+-/
+def negate : ℕ → ℤ := (-·)
+
+theorem negate_subst {n₁ n₂ : ℕ} : n₁ ≃ n₂ → (negate n₁ : ℤ) ≃ negate n₂ := by
+  intro (_ : n₁ ≃ n₂)
+  show negate n₁ ≃ negate n₂
+  calc
+    _ = (negate n₁ : ℤ) := rfl
+    _ = -n₁             := rfl
+    _ ≃ -n₂             := by srw [‹n₁ ≃ n₂›]
+    _ = negate n₂       := rfl
+
+def negative_integers : Sequence ℕ ℤ := Sequence.mk negate negate_subst
+
+example : Sequence.InfiniteDescent (α := ℤ) negative_integers := by
+  intro (n : ℕ)
+  show negative_integers[n] > negative_integers[step n]
+
+  calc
+    _ = negative_integers[n]                      := rfl
+    _ = (Sequence.mk negate negate_subst)[n]      := rfl
+    _ = negate n                                  := rfl
+    _ = -(n:ℤ)                                    := rfl
+    _ > -(step n)                                 := by srw [Natural.lt_step]
+    _ = negate (step n)                           := rfl
+    _ = (Sequence.mk negate negate_subst)[step n] := rfl
+    _ = negative_integers[step n]                 := rfl
+
+/-
+What about if it is allowed to take positive rational values instead of natural
+numbers?
+-/
+scoped instance step_nonzero {n : ℕ} : AP ((step n : ℚ) ≄ 0) :=
+  have : step n ≄ 0 := Natural.step_neqv_zero
+  have fn_inject {m₁ m₂ : ℕ} : (m₁:ℤ) ≃ (m₂:ℤ) → m₁ ≃ m₂ := AA.inject
+  have : (step n : ℤ) ≄ 0 := mt fn_inject ‹step n ≄ 0›
+  have : (step n : ℚ) ≄ 0 := mt from_integer_inject ‹(step n : ℤ) ≄ 0›
+  AP.mk ‹(step n : ℚ) ≄ 0›
+
+def reciprocate (n : ℕ) : ℚ := (step n)⁻¹
+
+theorem reciprocate_subst
+    {n₁ n₂ : ℕ} : n₁ ≃ n₂ → (reciprocate n₁ : ℚ) ≃ reciprocate n₂
+    := by
+  intro (_ : n₁ ≃ n₂)
+  show (reciprocate n₁ : ℚ) ≃ reciprocate n₂
+
+  calc
+    _ = (reciprocate n₁ : ℚ) := rfl
+    _ = (step n₁ : ℚ)⁻¹      := rfl
+    _ ≃ (step n₂ : ℚ)⁻¹      := by srw [‹n₁ ≃ n₂›]
+    _ = (reciprocate n₂ : ℚ) := rfl
+
+def positive_rationals : Sequence ℕ ℚ :=
+  Sequence.mk reciprocate reciprocate_subst
+
+example : Sequence.InfiniteDescent (α := ℚ) positive_rationals := by
+  intro (n : ℕ)
+  show positive_rationals[n] > positive_rationals[step n]
+
+  have prod_pos : (step n : ℚ) * (step (step n) : ℚ) > 0 :=
+    let sn := step n
+    have : sgn ((sn:ℚ) * (step sn : ℚ)) ≃ 1 := calc
+      _ = sgn ((sn:ℚ) * (step sn : ℚ))   := rfl
+      _ ≃ sgn (sn:ℚ) * sgn (step sn : ℚ) := sgn_compat_mul
+      _ ≃ sgn (sn:ℤ) * sgn (step sn : ℚ) := by srw [sgn_from_integer]
+      _ ≃ sgn (sn:ℤ) * sgn (step sn : ℤ) := by srw [sgn_from_integer]
+      _ ≃ 1 * sgn (step sn : ℤ)          := by srw [Integer.sgn_step]
+      _ ≃ sgn (step sn : ℤ)              := AA.identL
+      _ ≃ 1                              := Integer.sgn_step
+    show (step n : ℚ) * (step (step n) : ℚ) > 0 from
+      gt_zero_sgn.mpr ‹sgn ((sn:ℚ) * (step sn : ℚ)) ≃ 1›
+  have lt_step : (step n : ℚ) < (step (step n) : ℚ) := by srw [Natural.lt_step]
+
+  calc
+    _ = positive_rationals[n]      := rfl
+    _ = reciprocate n              := rfl
+    _ = (step n : ℚ)⁻¹             := rfl
+    _ > (step (step n) : ℚ)⁻¹      := (lt_recip prod_pos).mp lt_step
+    _ = reciprocate (step n)       := rfl
+    _ = positive_rationals[step n] := rfl
+
+end ex442
 
 end AnalysisI.Ch4.Sec4
