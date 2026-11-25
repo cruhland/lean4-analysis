@@ -457,23 +457,23 @@ example : AA.Substitutive₂ (α := ℕ) (· * ·) AA.tc (· ≃ ·) (· ≃ ·)
   Natural.mul_substitutive_eqv
 
 -- Thus for instance `0 * m ≃ 0`,
-def ex_zero_mul {m : ℕ} : 0 * m ≃ 0 := Natural.zero_mul
+theorem ex_zero_mul {m : ℕ} : 0 * m ≃ 0 := Natural.zero_mul
 
 -- `1 * m ≃ 0 + m`,
-def ex_one_mul {m : ℕ} : 1 * m ≃ 0 + m := calc
+theorem ex_one_mul {m : ℕ} : 1 * m ≃ 0 + m := calc
   1 * m      ≃ _ := by srw [Natural.literal_step]
   step 0 * m ≃ _ := Natural.step_mul
   0 * m + m  ≃ _ := by srw [ex_zero_mul]
   0 + m      ≃ _ := Rel.refl
 
 -- `2 * m ≃ 0 + m + m`, etc.
-def ex_two_mul {m : ℕ} : 2 * m ≃ 0 + m + m := calc
+theorem ex_two_mul {m : ℕ} : 2 * m ≃ 0 + m + m := calc
   2 * m      ≃ _ := by srw [Natural.literal_step]
   step 1 * m ≃ _ := Natural.step_mul
   1 * m + m  ≃ _ := by srw [ex_one_mul]
   0 + m + m  ≃ _ := Rel.refl
 
-def two_mul_sum {m : ℕ} : 2 * m ≃ m + m := Natural.two_mul
+theorem two_mul_sum {m : ℕ} : 2 * m ≃ m + m := Natural.two_mul
 
 -- Exercise 2.3.1.
 -- Lemma 2.3.2 (Multiplication is commutative).
@@ -595,7 +595,7 @@ example {m n : ℕ} : m ^ step n ≃ m ^ n * m := Natural.pow_step
 
 -- Examples 2.3.12.
 -- Thus for instance `x ^ 1 ≃ x ^ 0 * x ≃ 1 * x ≃ x`;
-def pow_one {x : ℕ} : x ^ 1 ≃ x := calc
+theorem pow_one {x : ℕ} : x ^ 1 ≃ x := calc
   _ = x ^ 1           := rfl
   _ ≃ x ^ step 0      := by srw [Natural.literal_step]
   _ ≃ x ^ (0 : ℕ) * x := Natural.pow_step
@@ -604,7 +604,7 @@ def pow_one {x : ℕ} : x ^ 1 ≃ x := calc
   _ ≃ x               := Natural.zero_add
 
 -- `x ^ 2 ≃ x ^ 1 * x ≃ x * x`;
-def pow_two {x : ℕ} : x ^ 2 ≃ x * x := calc
+theorem pow_two {x : ℕ} : x ^ 2 ≃ x * x := calc
   _ = x ^ 2      := rfl
   _ ≃ x ^ step 1 := by srw [Natural.literal_step]
   _ ≃ x ^ 1 * x  := Natural.pow_step
